@@ -1,11 +1,17 @@
 import numpy as np
 from numba import jit
 
+# @jit(nopython = True)
+# def normalize(x):
+    
+#     return x / (np.sum(np.abs(x)) + 1e-12)
+
 @jit(nopython = True)
 def normalize(x):
     norm2 = np.sum(x ** 2, axis = 0)
     norm2 = np.sqrt(norm2) + 1e-12
     return x / norm2
+
 
 @jit(nopython = True)
 def numba_randomchoice_w_prob( prob):
