@@ -17,7 +17,7 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 np.seterr(all='raise')
 
-ix = 3
+ix = 1
 Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
 X, y = Z[:, :-1], Z[:, -1]
 
@@ -29,8 +29,8 @@ train_size = int(0.8 * X.shape[0])
 X_train, X_val = X[: train_size], X[train_size:]
 y_train, y_val = y[: train_size], y[train_size:]
 tree_config = {
-    'max_length': 100,
-    'max_depth': 12,
+    'max_length': 30,
+    'max_depth': 6,
 }
 xgb = XGB(objective="reg:squarederror")
 gbr = GBR()
@@ -63,11 +63,11 @@ model = GA(
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 1,
-    nb_inds_each_task= 10,
+    steps_per_gen= 10,
+    nb_inds_each_task= 20,
     nb_generations= 100,
-    batch_size= 500,
-    nb_not_improve= 1,
+    batch_size= 200,
+    nb_not_improve= 3,
     test_size = 0.2,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,

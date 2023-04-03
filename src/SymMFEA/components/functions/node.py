@@ -5,8 +5,8 @@ class Node:
     is_nonlinear = False
     def __init__(self, 
                  arity: int = 1,
-                 value: float = 1,
-                 bias: float = 0,
+                #  value: float = 0,
+                #  bias: float = 0,
                 #  node_type: int = 1,
                 #  depth: int =  1,
                 #  lenth: int = 1,
@@ -31,9 +31,9 @@ class Node:
         
         self.arity:int = arity
         
-        self.value:float = float(value)
+        self.value:float = np.random.normal(0, 1, 1).item()
         
-        self.bias:float = bias
+        self.bias:float = np.random.normal(0, 1, 1).item()
         
         self.dW:np.ndarray
         self.dX:List[np.ndarray]

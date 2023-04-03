@@ -103,8 +103,8 @@ class Tree:
                         else create_mask_from_index(mask, self.length)
         
         if init_weight:
-            self.W = np.random.normal(0, 1 / len(self.nodes), len(self.nodes))
-            self.bias = np.random.normal(0, 1 / len(self.nodes), len(self.nodes))
+            self.W = np.random.normal(0, 1, len(self.nodes))
+            self.bias = np.random.normal(0, 1, len(self.nodes))
         else:
             for i, node in enumerate(self.nodes):
                 self.W[i] = node.value
