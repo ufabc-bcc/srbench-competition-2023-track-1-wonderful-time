@@ -10,13 +10,13 @@ def create_mask_from_index(idx: np.ndarray, length: int):
     return mask
 
 class Tree: 
-    def __init__(self, nodes: List[Node], deep_copoy = False, mask: np.ndarray = None) -> None:
+    def __init__(self, nodes: List[Node], deep_copoy = False, mask: np.ndarray = None, init_weight: bool = False) -> None:
         if deep_copoy:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
             self.nodes = nodes
         self.updateNodes()
-        self.compile(mask= mask)
+        self.compile(mask= mask, init_weight= init_weight)
         self.W: np.ndarray
         self.bias: np.ndarray
         self.dW: np.ndarray
@@ -89,10 +89,11 @@ class Tree:
         root = self.nodes[: point - self.nodes[point].length], self.nodes[ point + 1 : ]
         return branch, root
         
-    def compile(self, mask:np.ndarray = None):
+    def compile(self, mask:np.ndarray = None, init_weight = False):
         r'''
         compile from list of node manner to vector manner
         mask: index to have grad, other will turn off grad
+        after compile value and bias from node doesn't matter
         '''
         self.W = np.empty(self.length, dtype = np.float64)
         self.bias = np.empty(self.length, dtype = np.float64)
@@ -101,9 +102,15 @@ class Tree:
         self.node_grad_mask = np.ones(self.length, dtype = np.float64) if mask is None \
                         else create_mask_from_index(mask, self.length)
         
+        if init_weight:
+            self.W = np.random.normal(0, 1 / len(self.nodes), len(self.nodes))
+            self.bias = np.random.normal(0, 1 / len(self.nodes), len(self.nodes))
+        else:
+            for i, node in enumerate(self.nodes):
+                self.W[i] = node.value
+                self.bias[i] = node.bias
+        
         for i, node in enumerate(self.nodes):
-            self.W[i] = node.value
-            self.bias[i] = node.bias
             node.compile(self)
         
         self.bestW = self.W 
@@ -172,4 +179,4 @@ class TreeFactory:
         
         fill_postfix(0)
         
-        return Tree(nodes = postfix)
+        return Tree(nodes = postfix, init_weight = True)

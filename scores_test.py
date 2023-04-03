@@ -6,7 +6,7 @@ from scripts.score import Score
 def get_repo_name():
     with open(".git/config") as f:
         url = list(filter(lambda x: x.strip().startswith("url"), f.readlines()))[0]
-    return url.split("-")[-1].strip()
+    return url.split("-")[-2].strip() + '-' + url.split("-")[-1].strip()
 
 participant = get_repo_name()
 

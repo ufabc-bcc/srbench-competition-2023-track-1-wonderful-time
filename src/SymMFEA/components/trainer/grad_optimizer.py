@@ -27,6 +27,9 @@ class GradOpimizer:
         dW = normalize(tree.dW * tree.node_grad_mask )
         dB = normalize(tree.dB * tree.node_grad_mask )
         
+        # dW = tree.dW * tree.node_grad_mask
+        # dB = tree.dB * tree.node_grad_mask
+        
         tree.W = tree.W + dW * self.lr 
         tree.bias = tree.bias + dB * self.lr
         
