@@ -123,7 +123,7 @@ class Tree:
     def rollback_best(self):
         self.isPrime = True
         self.W = self.bestW 
-        self.bestBias = self.bias
+        self.bias = self.bestBias
 
 class TreeFactory:
     def __init__(self, terminal_set = [], num_terminal = 1, max_depth = 1, max_length = 1, *args, **kwargs):

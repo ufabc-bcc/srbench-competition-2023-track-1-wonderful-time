@@ -44,6 +44,7 @@ class SubTask:
             metric =  self.task.metric(self.data.y_val, y_hat)
             self.update_learning_state(ind, metric)
             
+            #get real current metric 
             if bypass_check:
                 return metric
             
@@ -88,4 +89,4 @@ class SubTask:
             pbar.update(loss= loss, metric = metric, best_metric = ind.best_metric, reverse = not self.task.metric.is_larger_better)
             
         ind.rollback_best()
-        assert self.eval(ind, bypass_check= True) == ind.best_metric
+        assert self.eval(ind, bypass_check= True) == ind.best_metric, self.eval(ind, bypass_check= True) - ind.best_metric
