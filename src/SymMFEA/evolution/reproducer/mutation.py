@@ -54,7 +54,7 @@ class GrowTreeMutation(Mutation):
         
         select_prob = np.array(select_prob)
         #don't find possible point
-        if np.sum(select_prob).item() == 0:
+        if np.sum(select_prob).item() < 1e-12:
             return []
         
         select_prob = normalize_norm1(select_prob)

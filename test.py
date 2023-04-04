@@ -17,10 +17,10 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 np.seterr(all='raise')
 
-# ix = 1
-# Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
-# X, y = Z[:, :-1], Z[:, -1]
-X, y = load_diabetes(return_X_y= True)
+ix = 3
+Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
+X, y = Z[:, :-1], Z[:, -1]
+# X, y = load_diabetes(return_X_y= True)
 
 
 X = X.astype(np.float64)
@@ -32,7 +32,7 @@ X_train, X_val = X[: train_size], X[train_size:]
 y_train, y_val = y[: train_size], y[train_size:]
 tree_config = {
     'max_length': 30,
-    'max_depth': 6,
+    'max_depth': 7,
 }
 xgb = XGB(objective="reg:squarederror")
 gbr = GBR()
@@ -67,14 +67,15 @@ model = GA(
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 3,
-    nb_inds_each_task= 20,
+    nb_inds_each_task= 50,
     nb_generations= 100,
     batch_size= 2000,
-    nb_not_improve= 3,
+    nb_not_improve= 5,
     test_size = 0.2,
+    nb_inds_min= 6,
     finetune_steps= 1000,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
-    visualize= True,
+    visualize= False,
 )
 
 xgb_pred = xgb.predict(X_val)

@@ -50,8 +50,17 @@ class GA:
                 draw_tree(best_trees[i * nb_columns + j].genes, axs[i * nb_columns, j])
         
         plt.show()
+        
+    def update_nb_inds_tasks(self, population:Population, generation: int):
+        population.update_nb_inds_tasks([int(
+                int(min((self.nb_inds_min - self.nb_inds_each_task)/(self.nb_generations - 1)* (generation - 1) + self.nb_inds_each_task, self.nb_inds_each_task))
+            )] * self.num_sub_tasks)
     
-    def generation_step(self, population: Population):
+    def generation_step(self, population: Population, generation: int):
+        
+        #update nb_inds_tasks 
+        self.update_nb_inds_tasks(population= population, generation= generation)
+        
         #create new individuals
         self.reproducer(population)
         
@@ -70,7 +79,7 @@ class GA:
         population.collect_best_info()
         
     def init_params(self, population:Population, **kwargs):
-        pass
+        self.num_sub_tasks: int = 1
     
     def finetune(self, ind:Individual):
         ind.finetune()
@@ -86,7 +95,8 @@ class GA:
             nb_not_improve:int = None,
             steps_per_gen: int = 10,
             nb_generations: int = 100,
-            nb_inds_each_task = 100,
+            nb_inds_each_task: int = 100,
+            nb_inds_min: int = 10,
             tree_config: dict = {},
             visualize:bool = False,
             test_size: float = 0.2, 
@@ -104,6 +114,9 @@ class GA:
         steps_per_gen: backprop step per generation
         '''
         
+        self.nb_inds_min = nb_inds_min
+        self.nb_generations = nb_generations
+        self.nb_inds_each_task = nb_inds_each_task
         
                 
         # initialize population
@@ -126,7 +139,7 @@ class GA:
         
         try:
             for generation in self.pbar.pbar:
-                self.generation_step(population)
+                self.generation_step(population, generation)
                 self.update_process_bar(population, reverse = not metric.is_larger_better)
             
             best_trees, self.final_solution = population.get_best_trees()
