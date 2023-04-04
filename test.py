@@ -5,7 +5,7 @@ from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer
 import numpy as np
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.evolution.algorithms import GA
-from src.SymMFEA.evolution.reproducer.mutation import VariableMutation, MutationList, NodeMutation
+from src.SymMFEA.evolution.reproducer.mutation import *
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.components.trainer.loss import MSE
 from src.SymMFEA.components.metrics import R2
@@ -17,10 +17,10 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 np.seterr(all='raise')
 
-ix = 1
-Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
-X, y = Z[:, :-1], Z[:, -1]
-# X, y = load_diabetes(return_X_y= True)
+# ix = 1
+# Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
+# X, y = Z[:, :-1], Z[:, -1]
+X, y = load_diabetes(return_X_y= True)
 
 
 X = X.astype(np.float64)
@@ -45,6 +45,7 @@ lnr.fit(X_train, y_train)
 crossover = SubTreeCrossover(2)
 mutation = MutationList(
     [VariableMutation(),
+     GrowTreeMutation(2),
     #  NodeMutation()
      ]
 )

@@ -34,7 +34,7 @@ class Reproducer:
             # choose parent 
             p = population.__getRandomInds__(1)[0]
             
-            mutate_offsprings.append(self.mutation(p))
+            mutate_offsprings.extend(self.mutation(p))
 
         population.ls_subPop[0].extend(cross_offsprings)
         population.ls_subPop[0].extend(mutate_offsprings)

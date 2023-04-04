@@ -1,4 +1,4 @@
-from ...components.tree import Tree
+from ...components.tree import Tree, get_possible_range
 from ..population import Individual
 from typing import List
 import numpy as np
@@ -35,13 +35,11 @@ class SubTreeCrossover(Crossover):
             tar_point = random.randint(1, pa.genes.length - 1)
         
         
-        tar_depth = pa.genes.nodes[tar_point].depth
-        tar_level = pa.genes.depth - tar_depth
-        max_depth = self.max_depth - tar_level
+        max_length, max_depth = get_possible_range(tree= pa, 
+                                                   point = tar_point,
+                                                   max_depth= self.max_depth,
+                                                   max_length= self.max_length)
         
-        tar_length = pa.genes.nodes[tar_point].length
-        tar_remain_length = pa.genes.length - tar_length
-        max_length = self.max_length - tar_remain_length
         
         candidates = []
         candidates_weight = []
@@ -72,10 +70,11 @@ class SubTreeCrossover(Crossover):
         
         
         child_a = Individual(Tree(tar_root[0] + src_branch + tar_root[1], mask = mask
-                                  , deep_copoy= True), task = pa.task)
+                                  , deepcopy= True), task = pa.task)
         
         
-        assert child_a.genes.length <= self.max_length and child_a.genes.depth <= self.max_depth
+        assert child_a.genes.length <= self.max_length, (child_a.genes.length, self.max_length)
+        assert child_a.genes.depth <= self.max_depth, (child_a.genes.depth, self.max_depth)
         
         #fine-tune the branch
         # pa.task.train(child_a, steps = self.finetune_steps)

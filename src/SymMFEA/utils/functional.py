@@ -1,10 +1,10 @@
 import numpy as np
 from numba import jit
 
-# @jit(nopython = True)
-# def normalize(x):
+@jit(nopython = True)
+def normalize_norm1(x):
     
-#     return x / (np.sum(np.abs(x)) + 1e-12)
+    return x / (np.sum(np.abs(x)) + 1e-12)
 
 @jit(nopython = True)
 def normalize(x):
