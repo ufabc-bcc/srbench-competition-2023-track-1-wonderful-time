@@ -34,3 +34,10 @@ class Individual:
     @property
     def stop_optimize(self):
         return self.task.stop_optimize(self)
+    
+    def flush_history(self):
+        self.nb_consecutive_not_improve = 0
+        self.genes.isPrime = False
+    
+    def finetune(self):
+        self.task.finetune_best(self)

@@ -6,6 +6,9 @@ class Trainer:
         self.optimizer = optimizer
         self.loss = loss
         
+    def update_lr(self, lr):
+        self.optimizer.update_lr(lr)
+        
     def fit(self, ind, data: TrainDataLoader, steps: int = 10):
         for _ in range(steps):
             step_loss = []
@@ -15,6 +18,7 @@ class Trainer:
                 dY, loss = self.loss(y, y_hat)
                 self.optimizer.backprop(ind.genes, dY)
                 step_loss.append(loss)
-                
+        
+        return np.mean(loss) 
         
             
