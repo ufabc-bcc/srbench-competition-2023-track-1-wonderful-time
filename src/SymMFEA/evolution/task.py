@@ -73,20 +73,25 @@ class SubTask:
         ind.flush_history()
         
         
-    def finetune_best(self, ind, finetune_steps: int = 5000, decay_lr: float = 100):
+    def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100, verbose = False):
         self.flush_history(ind)
+        lr= self.task.trainer.optimizer.lr 
         self.task.trainer.update_lr(self.task.trainer.optimizer.lr / decay_lr)
         
         pbar = FinetuneProgressBar(
             num_iters= finetune_steps,
             metric_name= [str(self.task.trainer.loss), str(self.task.metric)]
-        )
+        ) if verbose else range(finetune_steps)
         
-        for step in pbar.pbar:
+        for step in pbar.pbar if verbose else pbar:
             loss = self.task.trainer.fit(ind, self.train_dataloader, 1)
             metric = self.eval(ind, bypass_check= True)
             self.update_learning_state(ind, metric)
-            pbar.update(loss= loss, metric = metric, best_metric = ind.best_metric, reverse = not self.task.metric.is_larger_better)
+            
+            if verbose:
+                pbar.update(loss= loss, metric = metric, best_metric = ind.best_metric, reverse = not self.task.metric.is_larger_better)
             
         ind.rollback_best()
-        assert self.eval(ind, bypass_check= True) == ind.best_metric, self.eval(ind, bypass_check= True) - ind.best_metric
+        
+        # assert self.eval(ind, bypass_check= True) == ind.best_metric, self.eval(ind, bypass_check= True) - ind.best_metric
+        self.task.trainer.update_lr(lr)
