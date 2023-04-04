@@ -142,6 +142,9 @@ class Population:
         self.ls_subPop: List[SubPopulation] = [
             SubPopulation(self.nb_inds_tasks[skf], skill_factor = skf,  task= task, tree_config = tree_config) for skf in range(self.num_sub_tasks)
         ]
+        
+    def update_nb_inds_tasks(self, nb_inds_tasks):
+        self.nb_inds_tasks = nb_inds_tasks
 
     def __len__(self):
         return sum([len(subPop) for subPop in self.ls_subPop])
