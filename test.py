@@ -24,6 +24,8 @@ X, y = Z[:, :-1], Z[:, -1]
 
 
 X = X.astype(np.float64)
+
+
 y = y.astype(np.float64)
 
 print(X.shape)
@@ -31,8 +33,8 @@ train_size = int(0.8 * X.shape[0])
 X_train, X_val = X[: train_size], X[train_size:]
 y_train, y_val = y[: train_size], y[train_size:]
 tree_config = {
-    'max_length': 30,
-    'max_depth': 7,
+    'max_length': 50,
+    'max_depth': 9,
 }
 xgb = XGB(objective="reg:squarederror")
 gbr = GBR()
@@ -72,7 +74,7 @@ model.fit(
     batch_size= 2000,
     nb_not_improve= 5,
     test_size = 0.2,
-    nb_inds_min= 6,
+    nb_inds_min= 10,
     finetune_steps= 1000,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= False,

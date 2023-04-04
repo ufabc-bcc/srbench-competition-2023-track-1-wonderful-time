@@ -32,7 +32,7 @@ class VariableMutation(Mutation):
         return [Individual(Tree(child_nodes), task= parent.task)]
     
     def update_task_info(self, **kwargs):
-        self.num_terminal = kwargs['total_nb_termials']
+        self.num_terminal = kwargs['nb_terminals']
 
 
 class GrowTreeMutation(Mutation):
@@ -89,7 +89,7 @@ class GrowTreeMutation(Mutation):
         return [child]
     
     def update_task_info(self, **kwargs):
-        self.num_terminal = kwargs['total_nb_termials']
+        self.num_terminal = kwargs['nb_terminals']
         self.tree_creator = FlexTreeFactory(
             num_terminal= self.num_terminal,
         )
