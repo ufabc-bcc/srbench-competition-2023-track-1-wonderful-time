@@ -90,6 +90,8 @@ class GA:
             tree_config: dict = {},
             visualize:bool = False,
             test_size: float = 0.2, 
+            finetune_steps: int = 5000,
+            finetune_decay_lr: float = 100,
             **params,
             ):
         '''
@@ -130,7 +132,7 @@ class GA:
         
         
         #finetune solution
-        self.final_solution.finetune()
+        self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr)
         
         if visualize:
             self.display_final_result(population)

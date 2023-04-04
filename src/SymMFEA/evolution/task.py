@@ -73,9 +73,9 @@ class SubTask:
         ind.flush_history()
         
         
-    def finetune_best(self, ind, finetune_steps: int = 5000):
+    def finetune_best(self, ind, finetune_steps: int = 5000, decay_lr: float = 100):
         self.flush_history(ind)
-        self.task.trainer.update_lr(self.task.trainer.optimizer.lr / 100)
+        self.task.trainer.update_lr(self.task.trainer.optimizer.lr / decay_lr)
         
         pbar = FinetuneProgressBar(
             num_iters= finetune_steps,

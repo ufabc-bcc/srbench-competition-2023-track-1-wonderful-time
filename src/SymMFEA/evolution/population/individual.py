@@ -39,5 +39,5 @@ class Individual:
         self.nb_consecutive_not_improve = 0
         self.genes.isPrime = False
     
-    def finetune(self):
-        self.task.finetune_best(self)
+    def finetune(self, finetune_steps: int, decay_lr: float):
+        self.task.finetune_best(self, finetune_steps= finetune_steps, decay_lr = decay_lr)

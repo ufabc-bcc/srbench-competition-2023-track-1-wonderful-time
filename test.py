@@ -71,6 +71,7 @@ model.fit(
     batch_size= 2000,
     nb_not_improve= 3,
     test_size = 0.2,
+    finetune_steps= 1000,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
 )
