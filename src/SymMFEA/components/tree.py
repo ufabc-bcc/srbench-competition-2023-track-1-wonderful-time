@@ -4,14 +4,16 @@ from .functions import Node
 import numpy as np
 
 
+    
 def create_mask_from_index(idx: np.ndarray, length: int):
+    assert np.max(idx) < length, (idx, length)
     mask = np.zeros(length, dtype= np.float64)
     mask[idx] = 1
     return mask
 
 class Tree: 
-    def __init__(self, nodes: List[Node], deep_copoy = False, mask: np.ndarray = None, init_weight: bool = False) -> None:
-        if deep_copoy:
+    def __init__(self, nodes: List[Node], deepcopy = False, mask: np.ndarray = None, init_weight: bool = False) -> None:
+        if deepcopy:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
             self.nodes = nodes
@@ -76,7 +78,9 @@ class Tree:
                 j-= child.length + 1
                 
             node.depth += 1
-            
+        
+        assert self.length == len(self.nodes)
+        
     def remove_mask(self):
         self.node_grad_mask = np.ones(self.length, dtype= np.float64)
     
@@ -133,14 +137,14 @@ class TreeFactory:
         self.max_length = max_length
     
     
-    def create_tree(self):
+    def create_tree(self, root_linear_constrant = False):
         pset = Primitive(terminal_set= self.terminal_set, num_terminal= self.num_terminal)
         a_min, a_max = pset.get_arity_range()
         
         #create root
         a_min = min(a_min, self.max_length - 1)
         a_max = min(a_max, self.max_length - 1)
-        root = pset.sample_node(a_min, a_max, True)
+        root = pset.sample_node(a_min, a_max, get_nonlinear= not root_linear_constrant)
         
         num_open_nodes = root.arity
         
@@ -180,3 +184,19 @@ class TreeFactory:
         fill_postfix(0)
         
         return Tree(nodes = postfix, init_weight = True)
+
+class FlexTreeFactory(TreeFactory):
+    def update_config(self, max_depth: int, max_length: int):
+        self.max_depth = max_depth
+        self.max_length = max_length
+        
+
+def get_possible_range(tree:Tree, point: int, max_length: int, max_depth: int):
+    tar_depth = tree.genes.nodes[point].depth
+    tar_level = tree.genes.depth - tar_depth
+    max_depth = max_depth - tar_level
+    
+    tar_length = tree.genes.nodes[point].length 
+    tar_remain_length = tree.genes.length - tar_length
+    max_length = max_length - tar_remain_length
+    return max_length, max_depth

@@ -18,7 +18,7 @@ class Node:
                  **kwargs):
         r'''
         parent: index of parent node
-        level: length of the path to the root node
+        level: length of the path to the root node, not including the node itself
         value for constants or weighting factor for variables
         '''
         
