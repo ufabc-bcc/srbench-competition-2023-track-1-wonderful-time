@@ -1,12 +1,12 @@
 import numpy as np
 from ..ranker import SingleObjectiveRanker
-from ..population import Population
+from ..population import Population, Individual
 from ..reproducer import Reproducer
 from ..task import Task
 from ..selector import ElitismSelector
 from ...components.trainer import Loss, GradOpimizer
 from ...components.metrics import Metric
-from ...utils import ProgressBar, draw_tree
+from ...utils import GAProgressBar, draw_tree
 import matplotlib.pyplot as plt
 class GA:
     def __init__(self, seed:float = None,
@@ -47,7 +47,7 @@ class GA:
         fig, axs = plt.subplots(nb_rows, nb_columns, figsize = (20 * nb_rows, 10 * nb_columns), squeeze = False)
         for i in range(nb_rows):
             for j in range(nb_columns):
-                draw_tree(best_trees[i * nb_columns + j], axs[i * nb_columns, j])
+                draw_tree(best_trees[i * nb_columns + j].genes, axs[i * nb_columns, j])
         
         plt.show()
     
@@ -71,6 +71,10 @@ class GA:
         
     def init_params(self, population:Population, **kwargs):
         pass
+    
+    def finetune_best(self, ind:Individual):
+        ind.finetune()
+        
             
     def fit(self, X: np.ndarray,
             y: np.ndarray,
@@ -116,13 +120,17 @@ class GA:
         
         self.init_params(**params, population = population)
         
-        self.pbar = ProgressBar(nb_generations, metric_name = str(metric))
+        self.pbar = GAProgressBar(num_iters = nb_generations, metric_name = str(metric))
         
         for generation in self.pbar.pbar:
             self.generation_step(population)
             self.update_process_bar(population, reverse = not metric.is_larger_better)
         
         best_trees, self.final_solution = population.get_best_trees()
+        
+        
+        #finetune solution
+        self.final_solution.finetune()
         
         if visualize:
             self.display_final_result(population)

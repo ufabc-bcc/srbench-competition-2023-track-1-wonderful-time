@@ -63,10 +63,10 @@ model = GA(
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 10,
+    steps_per_gen= 3,
     nb_inds_each_task= 20,
     nb_generations= 100,
-    batch_size= 200,
+    batch_size= 2000,
     nb_not_improve= 3,
     test_size = 0.2,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,

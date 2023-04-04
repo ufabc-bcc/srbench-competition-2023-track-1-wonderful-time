@@ -10,6 +10,9 @@ class Loss:
     def __init__(self):
         pass
     
+    def __str__(self) -> str:
+        pass
+    
     def __call__(self, y: np.ndarray, y_hat: np.ndarray): 
         pass
 
@@ -22,6 +25,10 @@ def mse(y: np.ndarray, y_hat: np.ndarray):
 class MSE(Loss):
     def __init__(self):
         pass
+    
+    
+    def __str__(self) -> str:
+        return 'MSE'
     
     def __call__(self, y: np.ndarray, y_hat: np.ndarray) -> float:
         return mse(y, y_hat)

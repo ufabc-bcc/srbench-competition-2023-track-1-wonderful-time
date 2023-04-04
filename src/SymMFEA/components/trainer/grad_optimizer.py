@@ -4,6 +4,9 @@ from ...utils.functional import normalize
 class GradOpimizer:
     def __init__(self, lr: float = 1e-2):
         self.lr = lr 
+    
+    def update_lr(self, lr):
+        self.lr = lr
         
     def backprop(self, tree: Tree, dY: float):
         stack = []

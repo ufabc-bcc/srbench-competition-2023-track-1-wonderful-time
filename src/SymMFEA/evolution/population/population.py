@@ -176,7 +176,7 @@ class Population:
             subpop.collect_best_info()
     
     def get_best_trees(self):
-        best_trees = [subPop.ls_inds[subPop.best_idx].genes for subPop in self]
+        best_trees = [subPop.ls_inds[subPop.best_idx] for subPop in self]
         
         for tree in best_trees:
             tree.rollback_best()
