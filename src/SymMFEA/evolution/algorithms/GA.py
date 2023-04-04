@@ -1,14 +1,19 @@
 import numpy as np
-from ..ranker import SingleObjectiveRanker
+from ..ranker import SingleObjectiveRanker, Ranker
 from ..population import Population, Individual
 from ..reproducer import Reproducer
 from ..task import Task
-from ..selector import ElitismSelector
+from ..selector import ElitismSelector, Selector
 from ...components.trainer import Loss, GradOpimizer
 from ...components.metrics import Metric
 from ...utils import GAProgressBar, draw_tree
 import matplotlib.pyplot as plt
 class GA:
+    ranker_class = SingleObjectiveRanker
+    reproducer_class = Reproducer
+    selector_class = ElitismSelector
+    pass_down_params: list = ['nb_terminals']
+    
     def __init__(self, seed:float = None,
                  reproducer_config:dict = {},
                  ranker_config:dict = {},
@@ -23,14 +28,9 @@ class GA:
         '''
         # initial history of factorial cost
         self.seed = seed
-
-        # Add list abstract 
-        
-        self.generations = 100 # represent for 100% 
-        self.ranker = SingleObjectiveRanker(**ranker_config)
-        self.reproducer = Reproducer(**reproducer_config)
-        self.selector = ElitismSelector(**selector_config)
-        self.nb_tasks = 1
+        self.ranker: Ranker = self.ranker_class(**ranker_config)
+        self.reproducer: Reproducer = self.reproducer_class(**reproducer_config)
+        self.selector: Selector = self.selector_class(**selector_config)
         self.final_solution = None
     
     
@@ -80,6 +80,8 @@ class GA:
         
     def init_params(self, population:Population, **kwargs):
         self.num_sub_tasks: int = 1
+        
+        return {}
     
     def finetune(self, ind:Individual):
         ind.finetune()
@@ -117,7 +119,7 @@ class GA:
         self.nb_inds_min = nb_inds_min
         self.nb_generations = nb_generations
         self.nb_inds_each_task = nb_inds_each_task
-        
+        self.nb_terminals=X.shape[1]
                 
         # initialize population
         population = Population(
@@ -128,12 +130,13 @@ class GA:
             tree_config= tree_config,
         )
         
+        self.init_params(**params, population = population)
+        
+        #update task info for reproducer
         self.reproducer.update_task_info(
             **tree_config,
-            total_nb_termials=X.shape[1]
+            **{attr: getattr(self, attr) for attr in self.pass_down_params},
         )
-        
-        self.init_params(**params, population = population)
         
         self.pbar = GAProgressBar(num_iters = nb_generations, metric_name = str(metric))
         
