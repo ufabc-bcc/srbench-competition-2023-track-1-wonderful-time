@@ -19,6 +19,6 @@ class Trainer:
                 self.optimizer.backprop(ind.genes, dY)
                 step_loss.append(loss)
         
-        return np.mean(loss) 
+        return np.mean(step_loss) 
         
             

@@ -124,18 +124,22 @@ class GA:
         
         self.pbar = GAProgressBar(num_iters = nb_generations, metric_name = str(metric))
         
-        for generation in self.pbar.pbar:
-            self.generation_step(population)
-            self.update_process_bar(population, reverse = not metric.is_larger_better)
+        try:
+            for generation in self.pbar.pbar:
+                self.generation_step(population)
+                self.update_process_bar(population, reverse = not metric.is_larger_better)
+            
+            best_trees, self.final_solution = population.get_best_trees()
+            
+            #finetune solution
+            self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr)
         
-        best_trees, self.final_solution = population.get_best_trees()
-        
-        
-        #finetune solution
-        self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr)
-        
-        if visualize:
-            self.display_final_result(population)
+        except KeyboardInterrupt:
+            best_trees, self.final_solution = population.get_best_trees()
+            
+        else:
+            if visualize:
+                self.display_final_result(population)
         
     def predict(self, X: np.ndarray):
         return self.final_solution(X)
