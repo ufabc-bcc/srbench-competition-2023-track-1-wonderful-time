@@ -72,7 +72,7 @@ class GA:
     def init_params(self, population:Population, **kwargs):
         pass
     
-    def finetune_best(self, ind:Individual):
+    def finetune(self, ind:Individual):
         ind.finetune()
         
             
@@ -132,7 +132,7 @@ class GA:
             best_trees, self.final_solution = population.get_best_trees()
             
             #finetune solution
-            self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr)
+            self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True)
         
         except KeyboardInterrupt:
             best_trees, self.final_solution = population.get_best_trees()

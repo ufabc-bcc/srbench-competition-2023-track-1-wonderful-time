@@ -78,8 +78,8 @@ class SubTreeCrossover(Crossover):
         assert child_a.genes.length <= self.max_length and child_a.genes.depth <= self.max_depth
         
         #fine-tune the branch
-        pa.task.train(child_a, steps = self.finetune_steps)
-        
+        # pa.task.train(child_a, steps = self.finetune_steps)
+        pa.finetune(self.finetune_steps, decay_lr= self.finetune_steps)
         child_a.genes.remove_mask()
         
         
