@@ -130,14 +130,16 @@ class Tree:
         self.bias = self.bestBias
 
 class TreeFactory:
-    def __init__(self, task_idx:int,  tree_config: dict, *args, **kwargs):
+    def __init__(self, task_idx:int, num_total_terminals: int,  tree_config: dict, *args, **kwargs):
         self.task_idx = task_idx
-        self.terminal_set: list
-        self.num_total_terminals: int
-        self.max_depth: int
-        self.max_length: int
         for attr in tree_config.keys():
             setattr(self, attr, self.handle_params(tree_config, attr))
+            
+        self.num_total_terminals: int= num_total_terminals
+        self.terminal_set: list= [i for i in range(self.num_total_terminals)]
+        self.max_depth: int
+        self.max_length: int
+        
     
     def handle_params(self, tree_config, attr):
         
@@ -198,6 +200,11 @@ class TreeFactory:
         return Tree(nodes = postfix, init_weight = True)
 
 class FlexTreeFactory(TreeFactory):
+    def __init__(self, num_total_terminals: int, *args, **kwargs):
+        #NOTE: HARD CORD HERE
+        self.num_total_terminals = num_total_terminals
+        self.terminal_set = [i for i in range(num_total_terminals)]
+        
     def update_config(self, max_depth: int, max_length: int):
         self.max_depth = max_depth
         self.max_length = max_length
