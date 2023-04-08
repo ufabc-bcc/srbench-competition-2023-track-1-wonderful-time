@@ -141,6 +141,7 @@ class SMP_Reproducer(Reproducer):
     def __call__(self, population: Population):              
         num_offsprings = 0
         total_num_offsprings = sum(population.nb_inds_tasks)
+        offsprings = [[] for _ in range(population.num_sub_tasks)]
         while num_offsprings  < total_num_offsprings:
             
             
@@ -148,37 +149,48 @@ class SMP_Reproducer(Reproducer):
             
             #if crossover
             if type(parents) == list:
-                offsprings= self.crossover(*parents)
+                new_offsprings= self.crossover(*parents)
                   
             #else mutation
             else:
                 parents = self.select_mutation_parent(population= population, skf= parents)
-                offsprings = []
+                new_offsprings = []
                 for p in parents:
-                    offsprings.extend(self.mutation(p))
+                    new_offsprings.extend(self.mutation(p))
             
+            num_offsprings+= len(new_offsprings)   
+        
             #append offsprings
-            population.ls_subPop[parents[0].skill_factor].extend(offsprings)
+            offsprings[parents[0].skill_factor].extend(new_offsprings)
+        
+        for subpop, off in zip(population, offsprings):
+            subpop.ls_inds.extend(off)
             
-            
-            num_offsprings+= len(offsprings)   
-            
-            return offsprings
+        return offsprings
                     
     def update_smp(self, population: Population, offsprings: List[Individual]):
         Delta:List[List[float]] = np.zeros((population.num_sub_tasks, population.num_sub_tasks + 1)).tolist()
         count_Delta: List[List[float]] = np.zeros((population.num_sub_tasks, population.num_sub_tasks + 1)).tolist()  
+        num_task = population.num_sub_tasks
         
-        for o in offsprings:
-            num_parents = o.parent_profile.get('num_parents')
-            for i in range(num_parents):
-                parent_new_born_objective = o.parent_profile.get('parent_new_born_objective')[i]
-                
-                #hardcode first objective
-                d = (o.new_born_objective[0] - parent_new_born_objective[0]) / (parent_new_born_objective[0] ** 2 + 1e-50)
+        for skf, offsprings_skf in enumerate(offsprings):
+            for o in offsprings_skf:
+                num_parents = o.parent_profile.get('num_parents')
+                for i in range(num_parents):
+                    parent_new_born_objective = o.parent_profile.get('parent_new_born_objective')[i]
+                    
+                    
+                    
+                    #hardcode first objective
+                    d = (o.new_born_objective[0] - parent_new_born_objective[0]) / (parent_new_born_objective[0] ** 2 + 1e-50)
 
-                Delta[o.skill_factor][o.parent_profile.get('parent_skf')[i]] += max([d, 0])**2
-                count_Delta[o.skill_factor][o.parent_profile.get('parent_skf')[i]] += 1
+                    if o.parent_profile.get('born_way') == 'crossover':
+                        Delta[skf][o.parent_profile.get('parent_skf')[i]] += max([d, 0])**2
+                        count_Delta[skf][o.parent_profile.get('parent_skf')[i]] += 1
+                    else:
+                        Delta[skf][num_task] += max([d, 0])**2
+                        count_Delta[skf][num_task] += 1
+                    
 
         for i, smp in enumerate(self.smp):
             smp.update_smp(Delta_task= Delta[i], count_Delta_tasks= count_Delta[i])

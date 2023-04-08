@@ -88,7 +88,7 @@ class GrowTreeMutation(Mutation):
         mask = np.arange(grow_point, grow_point + len(branch))
         
         
-        child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True, mask= mask, skill_factor= parent.skill_factor), task= parent.task)
+        child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True, mask= mask), task= parent.task, skill_factor= parent.skill_factor)
         
         assert child.genes.length <= self.max_length, (child.genes.length, self.max_length)
         assert child.genes.depth <= self.max_depth, (child.genes.depth, self.max_depth)

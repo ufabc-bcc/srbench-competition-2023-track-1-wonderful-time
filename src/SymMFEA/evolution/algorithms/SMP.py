@@ -45,6 +45,9 @@ class SMP(GA):
         
         #update info to display
         population.collect_best_info()
+        
+        #update smp
+        self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
             
     def init_params(self, **kwargs):
         self.history_smp: list = []
@@ -69,53 +72,57 @@ class SMP(GA):
         #save history
         self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
 
-
-def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None):
-    
-    if title is None:
-        title = self.__class__.__name__
-    if shape is None:
-        shape = (int(np.ceil(self.num_sub_tasks / 3)), 3)
-    else:
-        assert shape[0] * shape[1] >= self.num_sub_tasks
-
-    if label_shape is None:
-        label_shape = (1, self.num_sub_tasks)
-    else:
-        assert label_shape[0] * label_shape[1] >= self.num_sub_tasks
-
-    if label_loc is None:
-        label_loc = 'lower center'
-
-    if figsize is None:
-        figsize = (shape[1]* 6, shape[0] * 5)
-
-    fig = plt.figure(figsize= figsize, dpi = dpi)
-    fig.suptitle(title, size = 15)
-    fig.set_facecolor("white")
-    fig.subplots(shape[0], shape[1])
-
-    his_smp:np.ndarray = np.copy(self.history_smp)
-    y_lim = (-0.1, 1.1)
-
-    for idx_task, task in enumerate(self.tasks):
-        fig.axes[idx_task].stackplot(
-            np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])),
-            [his_smp[
-                np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])), 
-                idx_task, t] for t in range(self.num_sub_tasks + 1)],
-            labels = ['Task' + str(i + 1) for i in range(self.num_sub_tasks)] + ["mutation"]
-        )
-        # plt.legend()
-        fig.axes[idx_task].set_title('Task ' + str(idx_task + 1) +": " + task.name)
-        fig.axes[idx_task].set_xlabel('Generations')
-        fig.axes[idx_task].set_ylabel("SMP")
-        fig.axes[idx_task].set_ylim(bottom = y_lim[0], top = y_lim[1])
+    def display_final_result(self, population:Population):
+        super().display_final_result(population)
+        self.render_smp()
 
 
-    lines, labels = fig.axes[0].get_legend_handles_labels()
-    fig.tight_layout()
-    fig.legend(lines, labels, loc = label_loc, ncol = label_shape[1])
-    plt.show()
-    if re_fig:
-        return fig
+    def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None):
+        
+        if title is None:
+            title = self.__class__.__name__
+        if shape is None:
+            shape = (int(np.ceil(self.num_sub_tasks / 3)), 3)
+        else:
+            assert shape[0] * shape[1] >= self.num_sub_tasks
+
+        if label_shape is None:
+            label_shape = (1, self.num_sub_tasks)
+        else:
+            assert label_shape[0] * label_shape[1] >= self.num_sub_tasks
+
+        if label_loc is None:
+            label_loc = 'lower center'
+
+        if figsize is None:
+            figsize = (shape[1]* 6, shape[0] * 5)
+
+        fig = plt.figure(figsize= figsize, dpi = dpi)
+        fig.suptitle(title, size = 15)
+        fig.set_facecolor("white")
+        fig.subplots(shape[0], shape[1])
+
+        his_smp:np.ndarray = np.copy(self.history_smp)
+        y_lim = (-0.1, 1.1)
+
+        for idx_task in range(self.num_sub_tasks):
+            fig.axes[idx_task].stackplot(
+                np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])),
+                [his_smp[
+                    np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])), 
+                    idx_task, t] for t in range(self.num_sub_tasks + 1)],
+                labels = ['Task' + str(i + 1) for i in range(self.num_sub_tasks)] + ["mutation"]
+            )
+            # plt.legend()
+            fig.axes[idx_task].set_title('Task ' + str(idx_task + 1) +": " + str(idx_task))
+            fig.axes[idx_task].set_xlabel('Generations')
+            fig.axes[idx_task].set_ylabel("SMP")
+            fig.axes[idx_task].set_ylim(bottom = y_lim[0], top = y_lim[1])
+
+
+        lines, labels = fig.axes[0].get_legend_handles_labels()
+        fig.tight_layout()
+        fig.legend(lines, labels, loc = label_loc, ncol = label_shape[1])
+        plt.show()
+        if re_fig:
+            return fig

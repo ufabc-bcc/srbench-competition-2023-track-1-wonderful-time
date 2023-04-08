@@ -187,6 +187,6 @@ class Population:
         for tree in best_trees:
             tree.rollback_best()
         
-        best_tree = best_trees[np.argmax(subPop.max_main_objective for subPop in self)]
+        best_tree = best_trees[np.argmax([subPop.max_main_objective for subPop in self])]
         return best_trees, best_tree
         
