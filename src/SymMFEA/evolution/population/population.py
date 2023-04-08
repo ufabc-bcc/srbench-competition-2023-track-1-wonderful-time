@@ -28,7 +28,7 @@ class SubPopulation:
         self.tree_factory = TreeFactory(terminal_set= self.task.terminal_set,
                                                 **tree_config)
         
-        self.ls_inds = [Individual(self.tree_factory.create_tree(), task = self.task) for _ in range(num_inds)]
+        self.ls_inds = [Individual(self.tree_factory.create_tree(), task = self.task, skill_factor = skill_factor) for _ in range(num_inds)]
         
         self.scalar_fitness: np.ndarray = None
         self.objective: np.ndarray = None
@@ -115,6 +115,9 @@ class SubPopulation:
             self.task.train(ind)
             metric = self.task.eval(ind)
             ind.objective = [metric if self.task.is_larger_better else -metric]
+            
+            if ind.new_born_objective is None:
+                ind.new_born_objective = ind.objective
             
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds])

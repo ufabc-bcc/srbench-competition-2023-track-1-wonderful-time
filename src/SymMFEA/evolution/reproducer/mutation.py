@@ -15,6 +15,15 @@ class Mutation:
     
     def update_task_info(self, **kwargs):
         pass
+    
+    @staticmethod
+    def update_parent_profile(child, parent: Individual):
+        child.update_parent_profile(
+            born_way= 'mutation',
+            num_parents = 1,
+            parent_new_born_objective= [parent.new_born_objective],
+            parent_skf = [parent.skill_factor]
+        )
 
 class VariableMutation(Mutation):
     def __init__(self, *args, **kwargs):
@@ -28,8 +37,9 @@ class VariableMutation(Mutation):
             
             else:
                 child_nodes.append(Node.deepcopy(node))
-        
-        return [Individual(Tree(child_nodes), task= parent.task)]
+        child = Individual(Tree(child_nodes), task= parent.task, skill_factor= parent.skill_factor)
+        self.update_parent_profile(child, parent)
+        return [child]
     
     def update_task_info(self, **kwargs):
         self.num_terminal = kwargs['nb_terminals']
@@ -78,7 +88,7 @@ class GrowTreeMutation(Mutation):
         mask = np.arange(grow_point, grow_point + len(branch))
         
         
-        child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True, mask= mask), task= parent.task)
+        child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True, mask= mask, skill_factor= parent.skill_factor), task= parent.task)
         
         assert child.genes.length <= self.max_length, (child.genes.length, self.max_length)
         assert child.genes.depth <= self.max_depth, (child.genes.depth, self.max_depth)
@@ -86,6 +96,9 @@ class GrowTreeMutation(Mutation):
         #finetune
         child.finetune(self.finetune_steps, decay_lr= self.finetune_steps)
         child.genes.remove_mask()
+        
+        self.update_parent_profile(child, parent)
+        
         return [child]
     
     def update_task_info(self, **kwargs):
@@ -111,8 +124,10 @@ class NodeMutation(Mutation):
         candidates = funcion_set[node.arity]
         new_node = Node.deepcopy(node, new_class= candidates[random.randint(0, len(candidates) - 1)])
         
+        child =Individual(Tree(parent.genes.nodes[:node.id] + [new_node] + parent.genes.nodes[node.id + 1 : ]), task= parent.task, deepcopy = True, skill_factor= parent.skill_factor)
+        self.update_parent_profile(child, parent)
         
-        return [Individual(Tree(parent.genes.nodes[:node.id] + [new_node] + parent.genes.nodes[node.id + 1 : ]), task= parent.task, deepcopy = True)]
+        return [child]
 
         
 class MutationList(Mutation):

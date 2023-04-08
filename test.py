@@ -4,7 +4,7 @@ from src.SymMFEA.components.functions import *
 from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer
 import numpy as np
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
-from src.SymMFEA.evolution.algorithms import GA
+from src.SymMFEA.evolution.algorithms import GA, SMP
 from src.SymMFEA.evolution.reproducer.mutation import *
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.components.trainer.loss import MSE
@@ -54,7 +54,7 @@ mutation = MutationList(
 
 loss = MSE()
 optimizer = GradOpimizer(1e-1)
-model = GA(
+model = SMP(
     reproducer_config={
         'crossover': crossover,
         'mutation': mutation,
@@ -65,6 +65,13 @@ model = GA(
         'select_optimizing_inds': 0.5
     }
 )
+
+
+SMP_configs = {
+    'p_const_intra': 0.1,
+    'delta_lr': 0.1,
+    'num_sub_task': 10,
+}
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
@@ -78,6 +85,7 @@ model.fit(
     finetune_steps= 1000,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= False,
+    **SMP_configs,
 )
 
 xgb_pred = xgb.predict(X_val)

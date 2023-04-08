@@ -17,7 +17,7 @@ class SMP(GA):
     ranker_class = SingleObjectiveRanker
     reproducer_class = SMP_Reproducer
     selector_class = ElitismSelector
-    pass_down_params: list = ['nb_terminals']
+    pass_down_params: list = ['nb_terminals', "smp", 'p_choose_father']
     
     def generation_step(self, population: Population, generation: int):
         
@@ -25,10 +25,15 @@ class SMP(GA):
         self.update_nb_inds_tasks(population= population, generation= generation)
         
         #create new individuals
-        self.reproducer(population)
+        offsprings = self.reproducer(population)
         
         #train and get fitness from individuals
         population.optimize()
+        
+        #update smp
+        self.reproducer.update_smp(population, offsprings)
+        
+        
         population.collect_fitness_info()
         
         
@@ -41,35 +46,28 @@ class SMP(GA):
         #update info to display
         population.collect_best_info()
             
-    def init_params(self, population: Population, **kwargs):
+    def init_params(self, **kwargs):
         self.history_smp: list = []
         self.p_const_intra: float = kwargs['p_const_intra']
         self.delta_lr: int = kwargs['delta_lr']
+        self.num_sub_tasks: int = kwargs['num_sub_task']
 
         
         # prob choose first parent
-        self.p_choose_father = np.ones((len(self.tasks), ))/ len(self.tasks)
+        self.p_choose_father = np.full(self.num_sub_tasks, 1 / self.num_sub_tasks) 
         
         
         # count_eval_stop: nums evals not decrease factorial cost
         # maxcount_es: max of count_eval_stop
         # if count_eval[i] == maxcount_es: p_choose_father[i] == 0
-        self.count_eval_stop = [0] * len(self.tasks)
+        self.count_eval_stop = [0] * self.num_sub_tasks
         
         
-        # Initialize memory M_smp
-        M_smp = [battle_smp(i, self.num_sub_tasks, self.delta_lr, self.p_const_intra) for i in range(len(self.tasks))]
+        # Initialize memory smp
+        self.smp = [battle_smp(idx_host= i, nb_tasks= self.num_sub_tasks, lr = self.delta_lr, p_const_intra= self.p_const_intra) for i in range(self.num_sub_tasks)]
 
         #save history
-        self.history_cost.append([ind.fcost for ind in population.get_solves()])
-        self.history_smp.append([M_smp[i].get_smp() for i in range(len(self.tasks))])
-
-        # Delta epoch
-        self.Delta:List[List[float]] = np.zeros((len(self.tasks), len(self.tasks) + 1)).tolist()
-        self.count_Delta: List[List[float]] = np.zeros((len(self.tasks), len(self.tasks) + 1)).tolist()
-
-
-
+        self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
 
 
 def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None):
@@ -77,14 +75,14 @@ def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, ste
     if title is None:
         title = self.__class__.__name__
     if shape is None:
-        shape = (int(np.ceil(len(self.tasks) / 3)), 3)
+        shape = (int(np.ceil(self.num_sub_tasks / 3)), 3)
     else:
-        assert shape[0] * shape[1] >= len(self.tasks)
+        assert shape[0] * shape[1] >= self.num_sub_tasks
 
     if label_shape is None:
-        label_shape = (1, len(self.tasks))
+        label_shape = (1, self.num_sub_tasks)
     else:
-        assert label_shape[0] * label_shape[1] >= len(self.tasks)
+        assert label_shape[0] * label_shape[1] >= self.num_sub_tasks
 
     if label_loc is None:
         label_loc = 'lower center'
@@ -105,8 +103,8 @@ def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, ste
             np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])),
             [his_smp[
                 np.append(np.arange(0, len(his_smp), step), np.array([len(his_smp) - 1])), 
-                idx_task, t] for t in range(len(self.tasks) + 1)],
-            labels = ['Task' + str(i + 1) for i in range(len(self.tasks))] + ["mutation"]
+                idx_task, t] for t in range(self.num_sub_tasks + 1)],
+            labels = ['Task' + str(i + 1) for i in range(self.num_sub_tasks)] + ["mutation"]
         )
         # plt.legend()
         fig.axes[idx_task].set_title('Task ' + str(idx_task + 1) +": " + task.name)
