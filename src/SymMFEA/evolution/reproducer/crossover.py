@@ -14,6 +14,15 @@ class Crossover:
 
     def update_task_info(self, **kwargs):
         pass
+    
+    @staticmethod
+    def update_parent_profile(child, parent: List[Individual]):
+        child.update_parent_profile(
+            born_way= 'crossover',
+            num_parents = len(parent),
+            parent_new_born_objective= [p.new_born_objective for p in parent],
+            parent_skf = [p.skill_factor for p in parent]
+        )
 
 class SubTreeCrossover(Crossover):
     def __init__(self, finetune_steps: int = 0, *args, **kwargs):
@@ -70,7 +79,7 @@ class SubTreeCrossover(Crossover):
         
         
         child_a = Individual(Tree(tar_root[0] + src_branch + tar_root[1], mask = mask
-                                  , deepcopy= True), task = pa.task)
+                                  , deepcopy= True), task = pa.task, skill_factor= pa.skill_factor)
         
         
         assert child_a.genes.length <= self.max_length, (child_a.genes.length, self.max_length)
@@ -78,9 +87,10 @@ class SubTreeCrossover(Crossover):
         
         #fine-tune the branch
         # pa.task.train(child_a, steps = self.finetune_steps)
-        pa.finetune(self.finetune_steps, decay_lr= self.finetune_steps)
+        child_a.finetune(self.finetune_steps, decay_lr= self.finetune_steps)
         child_a.genes.remove_mask()
         
+        self.update_parent_profile(child_a, [pa, pb])
         
         children = [child_a]
         

@@ -9,13 +9,15 @@ class Individual:
     + `skill_factor`: skill factor of the individual\n
     + `fcost`: factorial cost of the individual for skill_factor
     '''
-    def __init__(self, genes, task:SubTask, *args, **kwargs): 
-        self.skill_factor: int = None
+    def __init__(self, genes, task:SubTask, skill_factor: int, *args, **kwargs): 
+        self.skill_factor: int = skill_factor
         self.objective: List[float] = None
         self.genes: Tree = genes
         self.best_metric: float = None
         self.nb_consecutive_not_improve: int = 0
         self.task = task
+        self.new_born_objective: List[float]= None
+        self.parent_profile:dict= dict()
     
     @property
     def isPrime(self):
@@ -38,6 +40,10 @@ class Individual:
     def flush_history(self):
         self.nb_consecutive_not_improve = 0
         self.genes.isPrime = False
+    
+    def update_parent_profile(self, **profile):
+        for k, v in profile.items():
+            self.parent_profile[k] = v
     
     def finetune(self, finetune_steps: int, decay_lr: float, verbose = False):
         self.task.finetune(self, finetune_steps= finetune_steps, decay_lr = decay_lr, verbose = verbose)

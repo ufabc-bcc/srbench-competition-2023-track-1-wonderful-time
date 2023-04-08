@@ -121,16 +121,18 @@ class GA:
         self.nb_inds_each_task = nb_inds_each_task
         self.nb_terminals=X.shape[1]
                 
+        self.init_params(**params)
+        
         # initialize population
         population = Population(
             nb_inds_tasks = nb_inds_each_task, 
             task = Task(X, y, loss, optimzier, metric, steps_per_gen= steps_per_gen,
                         batch_size= batch_size, test_size= test_size,
                         shuffle= shuffle, nb_not_improve= nb_not_improve),
-            tree_config= tree_config,
+            tree_config= tree_config, num_sub_tasks = self.num_sub_tasks
         )
         
-        self.init_params(**params, population = population)
+        population.optimize()
         
         #update task info for reproducer
         self.reproducer.update_task_info(
