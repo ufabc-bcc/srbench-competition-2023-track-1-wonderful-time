@@ -130,15 +130,27 @@ class Tree:
         self.bias = self.bestBias
 
 class TreeFactory:
-    def __init__(self, terminal_set = [], num_terminal = 1, max_depth = 1, max_length = 1, *args, **kwargs):
-        self.terminal_set = terminal_set
-        self.num_terminal = num_terminal
-        self.max_depth = max_depth
-        self.max_length = max_length
+    def __init__(self, task_idx:int,  tree_config: dict, *args, **kwargs):
+        self.task_idx = task_idx
+        self.terminal_set: list
+        self.num_total_terminals: int
+        self.max_depth: int
+        self.max_length: int
+        for attr in tree_config.keys():
+            setattr(self, attr, self.handle_params(tree_config, attr))
+    
+    def handle_params(self, tree_config, attr):
+        
+        #handle terminal set
+        
+        if type(tree_config[attr]) == list: 
+            return tree_config[attr][self.task_idx]
+        
+        return attr
     
     
     def create_tree(self, root_linear_constrant = False):
-        pset = Primitive(terminal_set= self.terminal_set, num_terminal= self.num_terminal)
+        pset = Primitive(terminal_set= self.terminal_set, num_total_terminals= self.num_total_terminals)
         a_min, a_max = pset.get_arity_range()
         
         #create root

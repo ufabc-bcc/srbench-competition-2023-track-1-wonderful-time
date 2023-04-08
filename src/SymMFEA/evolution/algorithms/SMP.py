@@ -13,7 +13,7 @@ class SMP(GA):
     reproducer_class = SMP_Reproducer
     selector_class = ElitismSelector
     pass_down_params: list = ['nb_terminals', "smp", 'p_choose_father']
-    
+        
     def generation_step(self, population: Population, generation: int):
         
         #update nb_inds_tasks 

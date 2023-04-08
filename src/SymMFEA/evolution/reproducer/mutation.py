@@ -27,13 +27,13 @@ class Mutation:
 
 class VariableMutation(Mutation):
     def __init__(self, *args, **kwargs):
-        self.num_terminal: int 
+        self.num_total_terminals: int 
     
     def __call__(self, parent: Individual):
         child_nodes = []
         for node in parent.genes.nodes:
             if isinstance(node, Operand):
-                child_nodes.append(Operand(index = random.randint(0, self.num_terminal - 1)))
+                child_nodes.append(Operand(index = random.randint(0, self.num_total_terminals - 1)))
             
             else:
                 child_nodes.append(Node.deepcopy(node))
@@ -42,7 +42,7 @@ class VariableMutation(Mutation):
         return [child]
     
     def update_task_info(self, **kwargs):
-        self.num_terminal = kwargs['nb_terminals']
+        self.num_total_terminals = kwargs['nb_terminals']
 
 
 class GrowTreeMutation(Mutation):
@@ -102,9 +102,9 @@ class GrowTreeMutation(Mutation):
         return [child]
     
     def update_task_info(self, **kwargs):
-        self.num_terminal = kwargs['nb_terminals']
+        self.num_total_terminals = kwargs['nb_terminals']
         self.tree_creator = FlexTreeFactory(
-            num_terminal= self.num_terminal,
+            num_total_terminals= self.num_total_terminals,
         )
         self.max_depth: int = kwargs['max_depth']
         self.max_length: int = kwargs['max_length']
@@ -114,7 +114,7 @@ class GrowTreeMutation(Mutation):
 #NOTE: Numerically unstable
 class NodeMutation(Mutation):
     def __init__(self, *args, **kwargs):
-        self.num_terminal: int 
+        self.num_total_terminals: int 
     
     def __call__(self, parent: Individual):
         node = parent.genes.nodes[random.randint(0, parent.genes.length - 1)]
