@@ -17,10 +17,10 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 np.seterr(all='raise')
 
-# ix = 3
-# Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
-# X, y = Z[:, :-1], Z[:, -1]
-X, y = load_diabetes(return_X_y= True)
+ix = 1
+Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
+X, y = Z[:, :-1], Z[:, -1]
+# X, y = load_diabetes(return_X_y= True)
 
 
 X = X.astype(np.float64)
@@ -33,8 +33,8 @@ train_size = int(0.8 * X.shape[0])
 X_train, X_val = X[: train_size], X[train_size:]
 y_train, y_val = y[: train_size], y[train_size:]
 tree_config = {
-    'max_length': 50,
-    'max_depth': 9,
+    'max_length': [50, 30, 30, 30, 30],
+    'max_depth': [9, 7, 7, 7, 7],
 }
 xgb = XGB(objective="reg:squarederror")
 gbr = GBR()

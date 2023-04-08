@@ -3,9 +3,9 @@ import numpy as np
 import random
 
 class Primitive:
-    def __init__(self, terminal_set = [], num_terminal = 2) -> None:
+    def __init__(self, terminal_set = [], num_total_terminals = 2) -> None:
         self.terminal_set = terminal_set
-        self.num_terminal = num_terminal
+        self.num_total_terminals = num_total_terminals
     
     def get_arity_range(self):
         num_arities = FUNCTION_SET.keys()
@@ -28,5 +28,5 @@ class Primitive:
             node_cls = candidate_functions[random.randint(0, len(candidate_functions) -1)]
         
         if node_cls == Operand:
-            return node_cls(index = self.terminal_set[random.randint(0, len(self.terminal_set) - 1)] if len(self.terminal_set) else np.random.randint(0, self.num_terminal))
+            return node_cls(index = self.terminal_set[random.randint(0, len(self.terminal_set) - 1)] if len(self.terminal_set) else np.random.randint(0, self.num_total_terminals))
         return node_cls()
