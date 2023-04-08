@@ -6,11 +6,18 @@ def normalize_norm1(x):
     
     return x / (np.sum(np.abs(x)) + 1e-12)
 
+# @jit(nopython = True)
+# def normalize(x):
+#     norm2 = np.sum(x ** 2, axis = 0)
+#     norm2 = np.sqrt(norm2) + 1e-12
+#     return x / norm2
+
 @jit(nopython = True)
 def normalize(x):
-    norm2 = np.sum(x ** 2, axis = 0)
-    norm2 = np.sqrt(norm2) + 1e-12
-    return x / norm2
+    margin = np.abs(x)
+    margin = np.where(margin > 1, 1 + np.log(margin), margin)
+    sign = np.sign(x)
+    return sign * margin
 
 
 @jit(nopython = True)

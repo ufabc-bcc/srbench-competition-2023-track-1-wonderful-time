@@ -17,7 +17,7 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 np.seterr(all='raise')
 
-ix = 1
+ix = 2
 Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
 X, y = Z[:, :-1], Z[:, -1]
 # X, y = load_diabetes(return_X_y= True)
@@ -53,7 +53,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = GradOpimizer(1e-1)
+optimizer = GradOpimizer(1e-2)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -75,7 +75,7 @@ SMP_configs = {
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 3,
+    steps_per_gen= 5,
     nb_inds_each_task= 20,
     nb_generations= 100,
     batch_size= 2000,

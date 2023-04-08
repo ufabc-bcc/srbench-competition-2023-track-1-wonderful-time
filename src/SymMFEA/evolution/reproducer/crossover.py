@@ -44,10 +44,12 @@ class SubTreeCrossover(Crossover):
             tar_point = random.randint(1, pa.genes.length - 1)
         
         
+        
+        
         max_length, max_depth = get_possible_range(tree= pa, 
                                                    point = tar_point,
-                                                   max_depth= self.max_depth,
-                                                   max_length= self.max_length)
+                                                   max_depth= self.max_depth[pa.skill_factor],
+                                                   max_length= self.max_length[pa.skill_factor])
         
         
         candidates = []
@@ -82,8 +84,8 @@ class SubTreeCrossover(Crossover):
                                   , deepcopy= True), task = pa.task, skill_factor= pa.skill_factor)
         
         
-        assert child_a.genes.length <= self.max_length, (child_a.genes.length, self.max_length)
-        assert child_a.genes.depth <= self.max_depth, (child_a.genes.depth, self.max_depth)
+        assert child_a.genes.length <= self.max_length[pa.skill_factor], (child_a.genes.length, self.max_length[pa.skill_factor])
+        assert child_a.genes.depth <= self.max_depth[pa.skill_factor], (child_a.genes.depth, self.max_depth[pa.skill_factor])
         
         #fine-tune the branch
         # pa.task.train(child_a, steps = self.finetune_steps)

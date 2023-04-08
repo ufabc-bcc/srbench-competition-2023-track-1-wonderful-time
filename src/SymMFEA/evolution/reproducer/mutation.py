@@ -51,15 +51,15 @@ class GrowTreeMutation(Mutation):
         self.tree_creator: FlexTreeFactory
     
     def __call__(self, parent: Individual):
-        assert self.max_length >= parent.genes.length
-        assert self.max_depth >= parent.genes.depth
+        assert self.max_length[parent.skill_factor] >= parent.genes.length
+        assert self.max_depth[parent.skill_factor] >= parent.genes.depth
         #find leaf able to grow
         select_prob = []
         for i, node in enumerate(parent.genes.nodes):
             r = get_possible_range(tree= parent, 
                                             point = i,
-                                            max_depth= self.max_depth,
-                                            max_length= self.max_length)
+                                            max_depth= self.max_depth[parent.skill_factor],
+                                            max_length= self.max_length[parent.skill_factor])
             select_prob.append((r[0] - 1) * (r[1] - 1) * int(node.is_leaf))
         
         select_prob = np.array(select_prob)
@@ -74,8 +74,8 @@ class GrowTreeMutation(Mutation):
         
         max_length, max_depth = get_possible_range(tree= parent, 
                                             point = grow_point,
-                                            max_depth= self.max_depth,
-                                            max_length= self.max_length)
+                                            max_depth= self.max_depth[parent.skill_factor],
+                                            max_length= self.max_length[parent.skill_factor])
         
         self.tree_creator.update_config(
             max_depth= max_depth, max_length= max_length   
@@ -90,8 +90,8 @@ class GrowTreeMutation(Mutation):
         
         child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True, mask= mask), task= parent.task, skill_factor= parent.skill_factor)
         
-        assert child.genes.length <= self.max_length, (child.genes.length, self.max_length)
-        assert child.genes.depth <= self.max_depth, (child.genes.depth, self.max_depth)
+        assert child.genes.length <= self.max_length[parent.skill_factor], (child.genes.length, self.max_length[parent.skill_factor])
+        assert child.genes.depth <= self.max_depth[parent.skill_factor], (child.genes.depth, self.max_depth[parent.skill_factor])
         
         #finetune
         child.finetune(self.finetune_steps, decay_lr= self.finetune_steps)
