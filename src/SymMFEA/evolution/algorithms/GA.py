@@ -42,12 +42,21 @@ class GA:
         best_trees, _ = population.get_best_trees()
         sqrt = np.sqrt(len(best_trees)).item()
         nb_columns = int(sqrt)
-    
-        nb_rows = nb_columns if sqrt == nb_columns else nb_columns + 1
-        fig, axs = plt.subplots(nb_rows, nb_columns, figsize = (20 * nb_rows, 10 * nb_columns), squeeze = False)
+
+        if sqrt == nb_columns:
+            nb_rows = nb_columns
+        elif sqrt - nb_columns < 0.5:
+            nb_rows = nb_columns + 1
+        else:
+            nb_rows = nb_columns + 2
+        
+        fig, axs = plt.subplots(nb_rows, nb_columns, figsize = (10 * nb_rows, 5 * nb_columns), squeeze = False)
         for i in range(nb_rows):
             for j in range(nb_columns):
-                draw_tree(best_trees[i * nb_columns + j].genes, axs[i * nb_columns, j])
+                cur_tree = i * nb_columns + j
+                if  cur_tree == len(best_trees):
+                    break
+                draw_tree(best_trees[cur_tree].genes, axs[i, j])
         
         plt.show()
         

@@ -70,14 +70,14 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0.1,
     'delta_lr': 0.1,
-    'num_sub_task': 3,
+    'num_sub_task': 5,
 }
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 3,
     nb_inds_each_task= 20,
-    nb_generations= 10,
+    nb_generations= 100,
     batch_size= 2000,
     nb_not_improve= 5,
     test_size = 0.2,

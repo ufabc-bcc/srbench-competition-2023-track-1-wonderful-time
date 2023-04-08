@@ -3,14 +3,9 @@ import numpy as np
 import numpy as np
 from ..ranker import SingleObjectiveRanker
 from ..population import Population
-from ..reproducer import Reproducer, SMP_Reproducer, battle_smp
-from ..task import Task
+from ..reproducer import SMP_Reproducer, battle_smp
 from ..selector import ElitismSelector
-from ...components.trainer import Loss, GradOpimizer
-from ...components.metrics import Metric
 import matplotlib.pyplot as plt
-from typing import List
-
 
 class SMP(GA):
     
