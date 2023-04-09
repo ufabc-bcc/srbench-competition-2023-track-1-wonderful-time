@@ -19,5 +19,5 @@ class Tanh(Node):
         
         self.dW = out
         self.dX = np.expand_dims(1 - out ** 2, axis = 0)
-        assert self.dX.ndim == 2
+        assert self.dX.ndim == 2, self.dX.ndim
         return out

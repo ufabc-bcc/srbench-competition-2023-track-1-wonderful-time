@@ -24,5 +24,5 @@ class AQ(Node):
         self.dX[0] = self.value / np.sqrt(operands[1] ** 2 + 1)
         self.dX[1] = - self.value * operands[0] * operands[1] / (1 + operands[1] ** 2) ** 1.5
         
-        assert self.dX.ndim == 2
+        assert self.dX.ndim == 2, self.dX.ndim
         return out

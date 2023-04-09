@@ -1,6 +1,5 @@
 from .node import Node
 import numpy as np
-from ...utils.functional import normalize
 import numba as nb
 
 @nb.njit
@@ -20,5 +19,5 @@ class Prod(Node):
         
         
         self.dX = self.value * operands[::-1]
-        assert self.dX.ndim == 2
+        assert self.dX.ndim == 2, self.dX.ndim
         return out

@@ -21,7 +21,7 @@ class Primitive:
             
             candidate_functions = None
             while candidate_functions is None:
-                arity = random.randint(a_min, a_max )
+                arity = random.randint(a_min, a_max)
                 
                 candidate_functions = f.get(arity)
         

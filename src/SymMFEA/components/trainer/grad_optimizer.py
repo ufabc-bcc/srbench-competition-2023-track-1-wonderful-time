@@ -1,6 +1,6 @@
 from ..tree import Tree
 import numpy as np
-from ...utils.functional import normalize
+from ...utils.functional import log_normalize
 from numba import jit
 
 
@@ -38,8 +38,8 @@ class GradOpimizer:
         tree.bias = tree.bias - dB * self.lr
     
     def compute_gradient(self, tree):
-        dW = normalize(tree.dW * (tree.node_grad_mask + self.weight_decay))
-        dB = normalize(tree.dB * (tree.node_grad_mask + self.weight_decay))
+        dW = log_normalize(tree.dW * (tree.node_grad_mask + self.weight_decay))
+        dB = log_normalize(tree.dB * (tree.node_grad_mask + self.weight_decay))
         return dW, dB
     
 
