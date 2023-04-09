@@ -1,15 +1,11 @@
 from .node import Node
 import numpy as np
 from ...utils.functional import normalize
-# import numba as nb
+import numba as nb
 
-# @nb.njit
-def prod(operands: list):
-    r'''
-    operands: list of 1d np.array
-    '''
+@nb.njit
+def prod(operands): 
     return operands[0] * operands[1]
-
 
 class Prod(Node):
     def __init__(self):
@@ -18,11 +14,11 @@ class Prod(Node):
     def __str__(self) -> str:
         return '*'
     
-    def __call__(self, operands: list):
+    def __call__(self, operands: np.ndarray):
         out =  prod(operands)
         self.dW = out
         
         
-        self.dX = [self.value * operands[1], self.value * operands[0]]
-        
+        self.dX = self.value * operands[::-1]
+        assert self.dX.ndim == 2
         return out

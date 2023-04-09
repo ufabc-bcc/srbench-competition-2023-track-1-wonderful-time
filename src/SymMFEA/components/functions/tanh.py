@@ -1,8 +1,8 @@
 from .node import Node
 import numpy as np
-# import numba as nb
+import numba as nb
 
-# @nb.njit
+@nb.njit
 def tanh(X):
     return np.tanh(X)
 
@@ -18,6 +18,6 @@ class Tanh(Node):
         out = tanh(X[0])
         
         self.dW = out
-        self.dX = [1 - out ** 2]
-        
+        self.dX = np.expand_dims(1 - out ** 2, axis = 0)
+        assert self.dX.ndim == 2
         return out

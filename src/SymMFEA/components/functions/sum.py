@@ -1,13 +1,10 @@
 from .node import Node
 import numpy as np
-# import numba as nb
+import numba as nb
 
-# @nb.njit
-def sum(operands: list):
-    r'''
-    operands: list of 2d np.array
-    '''
-    return operands[0] + operands[1]
+@nb.njit
+def nbsum(operands):
+    return np.sum(operands, axis = 0)
 
 
 class Sum(Node):
@@ -17,10 +14,9 @@ class Sum(Node):
     def __str__(self) -> str:
         return '+'
     
-    def __call__(self, operands: list):
-        out =  sum(operands)
+    def __call__(self, operands: np.ndarray):
+        out =  nbsum(operands)
         self.dW = out
-        self.dX = [self.value, self.value]
-        #normalize to prevent overflow
-        # self.dX = [1, 1]
+        self.dX = np.full((operands.shape[0], operands.shape[1]), self.value, dtype= np.float64)
+        assert self.dX.ndim == 2
         return out
