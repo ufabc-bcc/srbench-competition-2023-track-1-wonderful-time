@@ -75,7 +75,7 @@ SMP_configs = {
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 0,
+    steps_per_gen= 5,
     nb_inds_each_task= 20,
     nb_generations= 100,
     batch_size= 2000,
