@@ -18,7 +18,7 @@ class Loss:
 
 @loss_jit
 def mse(y: np.ndarray, y_hat: np.ndarray):
-    diff = y - y_hat 
+    diff = y_hat - y 
     return 2 * diff, np.mean(diff * diff )
 
 

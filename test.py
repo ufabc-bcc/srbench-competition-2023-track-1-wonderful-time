@@ -9,7 +9,7 @@ from src.SymMFEA.evolution.reproducer.mutation import *
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.components.trainer.loss import MSE
 from src.SymMFEA.components.metrics import R2
-from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer
+from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer, ADAM
 from sklearn.datasets import load_diabetes
 from sklearn.metrics import r2_score
 from xgboost import XGBRegressor as XGB
@@ -17,10 +17,10 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 np.seterr(all='raise')
 
-# ix = 2
-# Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
-# X, y = Z[:, :-1], Z[:, -1]
-X, y = load_diabetes(return_X_y= True)
+ix = 1
+Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
+X, y = Z[:, :-1], Z[:, -1]
+# X, y = load_diabetes(return_X_y= True)
 
 
 X = X.astype(np.float64)
@@ -46,14 +46,15 @@ lnr.fit(X_train, y_train)
 
 crossover = SubTreeCrossover(2)
 mutation = MutationList(
-    [VariableMutation(),
+    [
+    # VariableMutation(),
      GrowTreeMutation(2),
     #  NodeMutation()
      ]
 )
 
 loss = MSE()
-optimizer = GradOpimizer(1e-2)
+optimizer = ADAM(1e-2, weight_decay= 0)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -68,7 +69,7 @@ model = SMP(
 
 
 SMP_configs = {
-    'p_const_intra': 0.1,
+    'p_const_intra': 0,
     'delta_lr': 0.1,
     'num_sub_task': 5,
 }

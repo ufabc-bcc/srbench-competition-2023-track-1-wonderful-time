@@ -17,7 +17,9 @@ class Individual:
         self.nb_consecutive_not_improve: int = 0
         self.task = task
         self.new_born_objective: List[float]= None
-        self.parent_profile:dict= dict()
+        self.parent_profile: dict= dict()
+        self.optimizer_profile: dict= dict()
+        
     
     @property
     def isPrime(self):
