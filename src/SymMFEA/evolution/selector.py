@@ -2,7 +2,8 @@ import numpy as np
 from ..evolution.population import Population
 from math import ceil
 from typing import List
-from ..utils.functional import numba_randomchoice
+from ..utils.timer import *
+
 class Selector():
     def __init__(self, select_optimizing_inds: float = 0.5, *args, **kwds) -> None:
         self.select_optimizing_inds = select_optimizing_inds
@@ -15,7 +16,8 @@ class ElitismSelector(Selector):
         super().__init__(*args, **kwds)
         assert 0<= random_percent and random_percent <= 1
         self.random_percent = random_percent        
-        
+    
+    @timed
     def __call__(self, population:Population, *args, **kwds) -> List[int]:
         ls_idx_selected = []
         for idx_subpop, subpop in enumerate(population):

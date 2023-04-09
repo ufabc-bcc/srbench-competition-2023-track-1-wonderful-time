@@ -8,7 +8,7 @@ import numpy as np
 from typing import Type, List
 from numba import jit
 from ...utils.functional import numba_randomchoice
-
+from ...utils.timer import *
 from ..task import Task, SubTask
 
         
@@ -108,7 +108,6 @@ class SubPopulation:
     def select(self, index_selected_inds: list):
         self.ls_inds = [self.ls_inds[idx] for idx in index_selected_inds]
         
-        
     def optimize(self):
         for ind in self.ls_inds:
             self.task.train(ind)
@@ -172,10 +171,12 @@ class Population:
         for supop in self.ls_subPop:
             supop.optimize()
     
+    @timed
     def collect_fitness_info(self):
         for subpop in self.ls_subPop:
             subpop.collect_fitness_info()
-            
+    
+    @timed     
     def collect_best_info(self):
         for subpop in self.ls_subPop:
             subpop.collect_best_info()

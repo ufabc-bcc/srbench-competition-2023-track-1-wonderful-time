@@ -3,7 +3,7 @@ from .crossover import *
 from .mutation import *
 from ..population import Population, SubPopulation
 from ...utils.functional import numba_randomchoice
-
+from ...utils.timer import *
 
 
 class Reproducer:
@@ -23,7 +23,7 @@ class Reproducer:
     def select_mutation_parent(population: Population):
         return population.__getRandomInds__(1)[0]
     
-
+    @timed
     def __call__(self, population: Population):
         
         assert population.num_sub_tasks == 1
@@ -137,7 +137,7 @@ class SMP_Reproducer(Reproducer):
         self.smp = kwargs['smp']
         self.p_choose_father = kwargs['p_choose_father']
         
-    
+    @timed
     def __call__(self, population: Population):              
         num_offsprings = 0
         total_num_offsprings = sum(population.nb_inds_tasks)
