@@ -1,6 +1,14 @@
 from __future__ import annotations
 from typing import List
 import numpy as np
+import numba as nb
+
+@nb.njit
+def matrix_vec_prod(m, v):
+    result = np.empty_like(m, dtype = np.float64)
+    for i in nb.prange(m.shape[0]):
+        result[i] = m[i] * v
+    return result
 class Node:
     is_nonlinear = False
     def __init__(self, 
@@ -62,7 +70,8 @@ class Node:
         #len self.dX = arity
         if self.is_leaf:
             return None
-        return [dY * dX for dX in self.dX]
+        return matrix_vec_prod(self.dX, dY)
+        
         
         
     @property
@@ -72,3 +81,4 @@ class Node:
     def compile(self, tree):
         self.tree = tree
         self.compiled = True
+        

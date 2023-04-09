@@ -46,18 +46,23 @@ class Tree:
         X: matrix with first axis is batch axis
         y: output
         '''
-        stack = []
+        #init to prevent multiple allocate
+        stack = np.empty((self.length, X.shape[0]), dtype = np.float64)
+        top = 0
         
         for i, node in enumerate(self.nodes):
             if node.is_leaf:
-                stack.append(node(X))
+                stack[top] = node(X) * self.W[i] + self.bias[i]
+                top += 1
             
             else:
-                val = node(stack[-node.arity : ]) * self.W[i] + self.bias[i]
-                stack = stack[:-node.arity]
-                stack.append(val)
+                val = node(stack[top - node.arity : top]) * self.W[i] + self.bias[i]
+                top -= node.arity
+                stack[top] = val
+                top += 1
         
-        return stack[-1]
+        assert top == 1
+        return stack[0]
     
     def updateNodes(self):
         for i, node in enumerate(self.nodes):
@@ -107,8 +112,8 @@ class Tree:
                         else create_mask_from_index(mask, self.length)
         
         if init_weight:
-            self.W = np.random.normal(0, 1, len(self.nodes))
-            self.bias = np.random.normal(0, 1, len(self.nodes))
+            self.W = np.ones(len(self.nodes), dtype= np.float64)
+            self.bias = np.zeros(len(self.nodes), dtype= np.float64)
         else:
             for i, node in enumerate(self.nodes):
                 self.W[i] = node.value

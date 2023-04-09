@@ -14,13 +14,13 @@ class Relu(Node):
     def __str__(self) -> str:
         return 'relu'
     
-    def __call__(self, operands: list):
+    def __call__(self, operands: np.ndarray):
         out = relu(operands[0])
         
         #calculate d
         self.dW = out
-        self.dX =  [np.maximum(operands[0], 0) * self.value]
-        
+        self.dX =  np.expand_dims(np.maximum(operands[0], 0) * self.value, axis =0)
+        assert self.dX.ndim == 2
         return out
     
     

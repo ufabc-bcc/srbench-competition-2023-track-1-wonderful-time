@@ -1,7 +1,6 @@
 
 
 from src.SymMFEA.components.functions import *
-from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer
 import numpy as np
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.evolution.algorithms import GA, SMP
@@ -47,7 +46,7 @@ lnr.fit(X_train, y_train)
 crossover = SubTreeCrossover(2)
 mutation = MutationList(
     [
-    # VariableMutation(),
+    VariableMutation(),
      GrowTreeMutation(2),
     #  NodeMutation()
      ]
