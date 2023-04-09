@@ -2,7 +2,7 @@ from typing import List, Tuple
 from .primitive import Primitive
 from .functions import Node
 import numpy as np
-
+from ..utils.timer import *
 
     
 def create_mask_from_index(idx: np.ndarray, length: int):
@@ -151,6 +151,7 @@ class TreeFactory:
         return attr
     
     
+    @timed
     def create_tree(self, root_linear_constrant = False):
         pset = Primitive(terminal_set= self.terminal_set, num_total_terminals= self.num_total_terminals)
         a_min, a_max = pset.get_arity_range()

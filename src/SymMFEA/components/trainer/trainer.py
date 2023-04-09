@@ -10,6 +10,8 @@ class Trainer:
         self.optimizer.update_lr(lr)
         
     def fit(self, ind, data: TrainDataLoader, steps: int = 10):
+        if steps == 0:
+            return 0
         for _ in range(steps):
             step_loss = []
             while data.hasNext:

@@ -80,6 +80,9 @@ class SubTask:
         
     def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100, verbose = False):
         self.flush_history(ind)
+        if finetune_steps < 1:
+            return
+        
         lr= self.task.trainer.optimizer.lr 
         self.task.trainer.update_lr(self.task.trainer.optimizer.lr / decay_lr)
         
