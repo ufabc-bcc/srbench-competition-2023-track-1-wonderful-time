@@ -57,11 +57,12 @@ class SubTreeCrossover(Crossover):
         for node in pb.genes.nodes:
             if node.depth <= max_depth and node.length <= max_length:
                 candidates.append(node.id)
-                candidates_weight.append(node.value)
+                candidates_weight.append(node.length)
                 
-        assert len(candidates)
+        if len(candidates) == 0:
+            return []
                         
-        #the more weight the more possible of valuable information
+        #want it as long as possible
         #also want it to have the same sign with the target
         candidates_weight = softmax(np.array(candidates_weight) * np.sign(pa.genes.nodes[tar_point].value))
         

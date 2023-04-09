@@ -2,7 +2,7 @@ from .node import Node
 import numpy as np
 
 class Operand(Node):
-    def __init__(self, index: int = 0, value:float = 1, bias = 0):      
+    def __init__(self, index: int = 0, value:float = 1, bias = 0, **kwargs):      
         self.index = index
         super().__init__(arity = 0, value = value, bias = bias)
     

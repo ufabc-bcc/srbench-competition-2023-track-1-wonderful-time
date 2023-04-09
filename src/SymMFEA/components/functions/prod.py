@@ -7,7 +7,7 @@ def prod(operands):
     return operands[0] * operands[1]
 
 class Prod(Node):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(arity = 2)
     
     def __str__(self) -> str:

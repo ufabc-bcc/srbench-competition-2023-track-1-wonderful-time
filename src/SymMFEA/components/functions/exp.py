@@ -9,7 +9,7 @@ def exp(X):
 #deprecated
 class Exp(Node):
     is_nonlinear = True
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(arity = 1)
     
     def __str__(self) -> str:
