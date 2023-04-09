@@ -1,5 +1,6 @@
 import numpy as np
 import numba as nb
+from ..utils.timer import *
 
 @nb.njit(nb.int64[:](nb.float64[:]))
 def sort_scalar_fitness(ls_fcost):
@@ -30,6 +31,7 @@ class SingleObjectiveRanker(Ranker):
         
         return idx
     
+    @timed
     def __call__(self, population):
         for subpop in population:
             idx = self.subpop_sort(subpop)

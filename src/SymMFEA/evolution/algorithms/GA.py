@@ -8,6 +8,8 @@ from ...components.trainer import Loss, GradOpimizer
 from ...components.metrics import Metric
 from ...utils import GAProgressBar, draw_tree
 import matplotlib.pyplot as plt
+from ...utils.timer import *
+
 class GA:
     ranker_class = SingleObjectiveRanker
     reproducer_class = Reproducer
@@ -167,6 +169,8 @@ class GA:
         else:
             if visualize:
                 self.display_final_result(population)
+                
+            Timer.display()
         
     def predict(self, X: np.ndarray):
         return self.final_solution(X)

@@ -5,6 +5,9 @@ from ..components.trainer import Loss, GradOpimizer
 from ..components.metrics import Metric
 import numpy as np
 from ..utils import FinetuneProgressBar
+from ..utils.timer import *
+
+
 class Task:
     def __init__(self, X: np.ndarray, y:np.ndarray, loss: Loss,
                  optimizer: GradOpimizer, metric: Metric, steps_per_gen: int, batch_size:int,
@@ -31,12 +34,14 @@ class SubTask:
         self.train_dataloader = TrainDataLoader(self.data, **self.task.train_dataloader_cfg)
         self.is_larger_better = self.task.metric.is_larger_better
     
+    @timed
     def train(self, ind, steps = None):
         if self.stop_optimize(ind):
             return
             
         self.task.trainer.fit(ind, self.train_dataloader, self.task.steps_per_gen if steps is None else steps)
-            
+    
+    @timed  
     def eval(self, ind, bypass_check: bool = False):
         
         if not self.stop_optimize(ind) or bypass_check:
