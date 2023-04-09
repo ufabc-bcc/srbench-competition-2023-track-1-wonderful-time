@@ -41,7 +41,7 @@ class Node:
     def deepcopy(node: Node, new_class = None):
         assert node.compiled, 'make sure to compile node before copy'
         
-        new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class()
+        new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class(arity= node.arity, index= node.index)
         new_node.value = node.tree.W[node.id]
         new_node.bias = node.tree.bias[node.id] 
         return new_node
