@@ -159,11 +159,12 @@ class TreeFactory:
     @timed
     def create_tree(self, root_linear_constrant = False):
         pset = Primitive(terminal_set= self.terminal_set, num_total_terminals= self.num_total_terminals)
-        a_min, a_max = pset.get_arity_range()
+        
         
         #create root
-        a_min = min(a_min, self.max_length - 1)
-        a_max = min(a_max, self.max_length - 1)
+        a_min = 1
+        a_max = self.max_length - 1
+        
         root = pset.sample_node(a_min, a_max, get_nonlinear= not root_linear_constrant)
         
         num_open_nodes = root.arity
@@ -179,7 +180,7 @@ class TreeFactory:
                 d = depth + 1
                 for _ in range(node.arity):
                     cur_a_max = min(a_max, self.max_length - num_open_nodes - i - 1) if d < (self.max_depth - 1) else 0
-                    cur_a_min = min(a_min, cur_a_max)
+                    cur_a_min = min(1, cur_a_max)
                     child_node = pset.sample_node(cur_a_min, cur_a_max, get_nonlinear= not node.is_nonlinear)
                     ls_nodes.append([child_node, d, None])
                     num_open_nodes += child_node.arity

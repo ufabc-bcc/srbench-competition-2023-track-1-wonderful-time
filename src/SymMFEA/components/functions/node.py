@@ -12,31 +12,19 @@ def matrix_vec_prod(m, v):
 class Node:
     is_nonlinear = False
     def __init__(self, 
-                 arity: int = 1,
-                #  value: float = 0,
-                #  bias: float = 0,
-                #  node_type: int = 1,
-                #  depth: int =  1,
-                #  lenth: int = 1,
-                #  parent: int = 1,
-                #  level: int = 1,
-                 
-                #  id: int = 1,
-                 
+                 arity: int = 1,   
+                 index: int = -1,              
                  **kwargs):
         r'''
         parent: index of parent node
         level: length of the path to the root node, not including the node itself
         value for constants or weighting factor for variables
         '''
-        
+        self.index = index
         self.id:int
         self.depth:int
         self.length:int
         self.parent:int
-        # self.level = level
-        # self.node_type = node_type
-        
         self.arity:int = arity
         
         self.value:float = np.random.normal(0, 1, 1).item()
@@ -53,7 +41,7 @@ class Node:
     def deepcopy(node: Node, new_class = None):
         assert node.compiled, 'make sure to compile node before copy'
         
-        new_node = node.__class__() if new_class is None else new_class()
+        new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class()
         new_node.value = node.tree.W[node.id]
         new_node.bias = node.tree.bias[node.id] 
         return new_node

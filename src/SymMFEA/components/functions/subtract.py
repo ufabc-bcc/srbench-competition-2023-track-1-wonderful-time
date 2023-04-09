@@ -8,8 +8,9 @@ def nbsubtract(operands):
 
 
 class Subtract(Node):
-    def __init__(self):
-        super().__init__(arity = 2)
+    def __init__(self, arity: int, **kwargs):
+        assert arity > 1
+        super().__init__(arity = arity)
     
     def __str__(self) -> str:
         return '-'

@@ -16,20 +16,17 @@ FUNCTION_SET = {
     ],
     1: [
         Tanh,
-        # Exp,
         Log,
         Relu,
     ],
     2: [
-        Sum,
-        Subtract, 
         Prod,
         AQ,
     ],
-    # -1:[
-    #     Sum,
-    #     Subtract, 
-    # ]
+    -1:[
+        Sum,
+        Subtract, 
+    ]
 }
 
 LINEAR_FUNCTION_SET = {k: [f for f in v if not f.is_nonlinear]  for k, v in FUNCTION_SET.items() if len([f for f in v if not f.is_nonlinear])}

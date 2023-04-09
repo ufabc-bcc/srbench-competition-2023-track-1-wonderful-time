@@ -11,7 +11,7 @@ def aq(operands: np.ndarray):
 
 
 class AQ(Node):
-    def __init__(self):
+    def __init__(self,**kwargs):
         super().__init__(arity = 2)
     
     def __str__(self) -> str:
