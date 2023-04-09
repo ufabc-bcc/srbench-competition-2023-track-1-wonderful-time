@@ -16,7 +16,7 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 np.seterr(all='raise')
 
-ix = 1
+ix = 3
 Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
 X, y = Z[:, :-1], Z[:, -1]
 # X, y = load_diabetes(return_X_y= True)

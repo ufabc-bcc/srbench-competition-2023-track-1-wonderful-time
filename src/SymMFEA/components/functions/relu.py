@@ -19,8 +19,8 @@ class Relu(Node):
         
         #calculate d
         self.dW = out
-        self.dX =  np.expand_dims(np.maximum(operands[0], 0) * self.value, axis =0)
-        assert self.dX.ndim == 2
+        self.dX =  np.where(operands > 0, 1.0, 0.0)
+        assert self.dX.ndim == 2, self.dX.ndim
         return out
     
     

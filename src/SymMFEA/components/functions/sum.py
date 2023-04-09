@@ -18,5 +18,5 @@ class Sum(Node):
         out =  nbsum(operands)
         self.dW = out
         self.dX = np.full((operands.shape[0], operands.shape[1]), self.value, dtype= np.float64)
-        assert self.dX.ndim == 2
+        assert self.dX.ndim == 2, self.dX.ndim
         return out
