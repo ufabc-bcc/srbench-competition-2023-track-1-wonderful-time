@@ -1,7 +1,6 @@
 from .node import Node
 import numpy as np
-from ...utils.functional import normalize
-# import numba as nb
+
 
 # @nb.njit
 def aq(operands: list):

@@ -12,13 +12,16 @@ class Trainer:
     def fit(self, ind, data: TrainDataLoader, steps: int = 10):
         if steps == 0:
             return 0
+        
+        profile = ind.optimizer_profile
+        
         for _ in range(steps):
             step_loss = []
             while data.hasNext:
                 X, y = next(data)
                 y_hat = ind(X)
                 dY, loss = self.loss(y, y_hat)
-                self.optimizer.backprop(ind.genes, dY)
+                self.optimizer.backprop(ind.genes, dY, profile= profile)
                 step_loss.append(loss)
         
         return np.mean(step_loss) 
