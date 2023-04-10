@@ -4,11 +4,11 @@ from .operand import Operand
 from .node import Node
 from .tanh import Tanh
 from .prod import Prod
-from .exp import Exp
 from .relu import Relu
 from .aq import AQ
 from .constant import Constant
 from .log import Log
+from .valve import Valve
 FUNCTION_SET = {
     0 : [
         Operand,
@@ -22,6 +22,7 @@ FUNCTION_SET = {
     2: [
         Prod,
         AQ,
+        Valve,
     ],
     -1:[
         Sum,

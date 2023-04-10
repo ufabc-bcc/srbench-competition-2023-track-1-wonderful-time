@@ -31,9 +31,14 @@ print(X.shape)
 train_size = int(0.8 * X.shape[0])
 X_train, X_val = X[: train_size], X[train_size:]
 y_train, y_val = y[: train_size], y[train_size:]
+# tree_config = {
+#     'max_length': [100]* 2 + [60] * 3 + [30] * 5,
+#     'max_depth': [9] * 2 + [7] * 3 + [5] * 5,
+# }
+
 tree_config = {
-    'max_length': [50, 30, 15],
-    'max_depth': [9, 7, 4],
+    'max_length': [30]* 2 + [20] * 2 + [4] * 3,
+    'max_depth': [7] * 2 + [5] * 2 + [2] * 3,
 }
 xgb = XGB(objective="reg:squarederror")
 gbr = GBR()
@@ -53,7 +58,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = ADAM(1e-2, weight_decay= 0)
+optimizer = ADAM(1e-2, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -70,7 +75,7 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
-    'num_sub_task': 3,
+    'num_sub_task': 7,
 }
 
 model.fit(
