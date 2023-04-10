@@ -1,8 +1,8 @@
 from .node import Node
 import numpy as np
-import numba as nb
+from ...utils.functional import numba_operator_wrapper
 
-@nb.njit
+@numba_operator_wrapper
 def nbsum(operands):
     return np.sum(operands, axis = 0)
 

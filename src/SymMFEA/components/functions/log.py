@@ -1,15 +1,16 @@
 from .node import Node
 import numpy as np
-from numba import jit
+from ...utils.functional import numba_operator_with_grad_wrapper
 
-@jit(nopython = True)
+@numba_operator_with_grad_wrapper
 def log(x):
+    x = np.ravel(x)
     margin = np.abs(x)
     margin = np.where(margin > 1, 1 + np.log(margin), margin)
     sign = np.sign(x)
     
     dX = np.where(margin > 1, 1 / margin, 1)
-    return sign * margin, dX * sign
+    return sign * margin,  np.expand_dims(dX * sign, axis = 0)
 
 
 
@@ -22,9 +23,9 @@ class Log(Node):
         return 'log'
     
     def __call__(self, X):
-        out, dX = log(X[0])
+        out, self.dX = log(X)
         
         self.dW = out
-        self.dX = np.expand_dims(dX, axis= 0)
+        
         assert self.dX.ndim == 2, self.dX.ndim
         return out

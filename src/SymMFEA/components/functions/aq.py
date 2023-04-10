@@ -1,8 +1,8 @@
 from .node import Node
 import numpy as np
-import numba as nb
+from ...utils.functional import numba_operator_wrapper
 
-@nb.njit
+@numba_operator_wrapper
 def aq(operands: np.ndarray):
     r'''
     operands: np.ndarray of 1d np.array

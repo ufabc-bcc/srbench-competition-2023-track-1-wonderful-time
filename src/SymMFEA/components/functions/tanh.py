@@ -1,10 +1,10 @@
 from .node import Node
 import numpy as np
-import numba as nb
+from ...utils.functional import numba_operator_wrapper
 
-@nb.njit
+@numba_operator_wrapper
 def tanh(X):
-    return np.tanh(X)
+    return np.tanh(np.ravel(X))
 
 class Tanh(Node):
     is_nonlinear = True
@@ -15,7 +15,7 @@ class Tanh(Node):
         return 'tanh'
     
     def __call__(self, X):
-        out = tanh(X[0])
+        out = tanh(X)
         
         self.dW = out
         self.dX = np.expand_dims(1 - out ** 2, axis = 0)

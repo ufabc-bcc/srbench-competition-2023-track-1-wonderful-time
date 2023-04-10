@@ -1,8 +1,8 @@
 from .node import Node
 import numpy as np
-import numba as nb
+from ...utils.functional import numba_operator_wrapper
 
-@nb.njit
+@numba_operator_wrapper
 def prod(operands): 
     return operands[0] * operands[1]
 

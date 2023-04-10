@@ -1,10 +1,10 @@
 from .node import Node
 import numpy as np
-# import numba as nb
+from ...utils.functional import numba_operator_wrapper
 
-# @nb.njit
+@numba_operator_wrapper
 def relu(X):
-    return np.maximum(X, 0)
+    return np.maximum(np.ravel(X), 0)
 
 class Relu(Node):
     is_nonlinear = True
@@ -15,7 +15,7 @@ class Relu(Node):
         return 'relu'
     
     def __call__(self, operands: np.ndarray):
-        out = relu(operands[0])
+        out = relu(operands)
         
         #calculate d
         self.dW = out
