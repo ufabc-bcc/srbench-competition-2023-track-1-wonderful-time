@@ -1,13 +1,24 @@
 import numpy as np
-from numba import jit
+import numba as nb
 
-@jit(nopython = True)
+numba_operator_wrapper = nb.njit(nb.float64[:](nb.float64[:, :]))
+numba_operator_with_grad_wrapper = nb.njit(nb.types.Tuple((nb.float64[:], nb.float64[:, :]))(nb.float64[:, :]))
+
+
+numba_v2v_float_wrapper = nb.njit(nb.float64[:](nb.float64[:]))
+
+numba_v2v_wrapper = nb.njit([nb.float64[:](nb.float64[:]),
+                             nb.float64[:](nb.int64[:]),
+                             nb.float64[:](nb.int32[:]),
+                             nb.int64[:](nb.int64[:])])
+
+@numba_v2v_wrapper
 def normalize_norm1(x):
     
     return x / (np.sum(np.abs(x)) + 1e-12)
 
 
-@jit(nopython = True)
+@numba_v2v_float_wrapper
 def log_normalize(x):
     margin = np.abs(x)
     margin = np.where(margin > 1, 1 + np.log(margin), margin)
@@ -15,7 +26,7 @@ def log_normalize(x):
     return sign * margin
 
 
-@jit(nopython = True)
+@nb.njit
 def numba_randomchoice_w_prob( prob):
     assert np.abs(np.sum(prob) - 1.0) < 1e-9
     rd = np.random.rand()
@@ -26,11 +37,11 @@ def numba_randomchoice_w_prob( prob):
         sum_p += prob[res]
     return res
 
-@jit(nopython = True)
-def numba_randomchoice(a, size= None, replace= True):
+@nb.njit
+def numba_randomchoice(a, size, replace= True):
     return np.random.choice(a, size= size, replace= replace)
 
-@jit(nopython = True)
+@numba_v2v_float_wrapper
 def softmax(x):
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0) 

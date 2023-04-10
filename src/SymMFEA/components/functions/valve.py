@@ -1,14 +1,15 @@
 from .node import Node
 import numpy as np
-import numba as nb
+from ...utils.functional import numba_operator_with_grad_wrapper, numba_v2v_float_wrapper
 
-@nb.njit(nb.float64[:](nb.float64[:]))
+
+@numba_v2v_float_wrapper
 def sigmoid(x):
     z = np.exp(np.sign(-x) * x)
     z = np.where(x < 0, z, 1) / (1 + z)
     return z
 
-@nb.njit
+@numba_operator_with_grad_wrapper
 def valve(operands):
     
     switch = sigmoid(operands[0])
@@ -25,7 +26,7 @@ class Valve(Node):
         super().__init__(arity = 2)
     
     def __str__(self) -> str:
-        return '*'
+        return '_ \_'
     
     def __call__(self, operands: np.ndarray):
         out, self.dX =  valve(operands)

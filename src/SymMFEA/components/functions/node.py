@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import numba as nb
 
-@nb.njit
+@nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]))
 def matrix_vec_prod(m, v):
     result = np.empty_like(m, dtype = np.float64)
     for i in nb.prange(m.shape[0]):
