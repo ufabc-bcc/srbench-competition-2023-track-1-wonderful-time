@@ -3,7 +3,7 @@ from .primitive import Primitive
 from .functions import Node
 import numpy as np
 from ..utils.timer import *
-
+from ..utils.functional import numba_randomchoice
     
 def create_mask_from_index(idx: np.ndarray, length: int):
     assert np.max(idx) < length, (idx, length)
@@ -141,7 +141,17 @@ class TreeFactory:
             setattr(self, attr, self.handle_params(tree_config, attr))
             
         self.num_total_terminals: int= num_total_terminals
-        self.terminal_set: list= [i for i in range(self.num_total_terminals)]
+        
+        
+        
+        if not hasattr(self, 'terminal_set'):
+            self.terminal_set: list= [i for i in range(self.num_total_terminals)] 
+        else:
+            if isinstance(self.terminal_set, float):
+                self.terminal_set: list= numba_randomchoice(np.arange(self.num_total_terminals), size= int(self.terminal_set * self.num_total_terminals), replace= False).tolist()
+            else:
+                self.terminal_set = self.terminal_set
+                
         self.max_depth: int
         self.max_length: int
         
