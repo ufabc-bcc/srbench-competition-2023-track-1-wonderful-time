@@ -19,7 +19,7 @@ class Trainer:
             step_loss = []
             while data.hasNext:
                 X, y = next(data)
-                y_hat = ind(X)
+                y_hat = ind(X, update_stats = True)
                 dY, loss = self.loss(y, y_hat)
                 self.optimizer.backprop(ind.genes, dY, profile= profile)
                 step_loss.append(loss)

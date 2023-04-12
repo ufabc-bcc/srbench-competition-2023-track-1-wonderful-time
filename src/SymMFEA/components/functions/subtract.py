@@ -15,7 +15,7 @@ class Subtract(Node):
     def __str__(self) -> str:
         return '-'
     
-    def __call__(self, operands: np.ndarray):
+    def __call__(self, operands: np.ndarray, update_stats= False):
         '''
         operands 2d array
         first axis is number of operands
@@ -29,5 +29,7 @@ class Subtract(Node):
         self.dX[0] = -self.dX[0]
         
         assert self.dX.ndim == 2, self.dX.ndim
+        if update_stats:
+            self.update_stats(out)
         return out 
         

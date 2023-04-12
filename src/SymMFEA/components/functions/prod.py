@@ -13,11 +13,13 @@ class Prod(Node):
     def __str__(self) -> str:
         return '*'
     
-    def __call__(self, operands: np.ndarray):
+    def __call__(self, operands: np.ndarray, update_stats= False):
         out =  prod(operands)
         self.dW = out
         
         
         self.dX = self.value * operands[::-1]
         assert self.dX.ndim == 2, self.dX.ndim
+        if update_stats:
+            self.update_stats(out)
         return out

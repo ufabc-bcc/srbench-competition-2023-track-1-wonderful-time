@@ -49,8 +49,11 @@ def get_node_color(k, tree):
         return '#1b78bf' if tree.nodes[k].is_leaf else '#8a5c0c'
     
     return '#1b78bf'
-    
 
+def format_attr(x):
+    if isinstance(x, float):
+        return '{:.2f}'.format(x)
+    else: return x
 
 def draw_tree(tree, ax = None):
     stack = []
@@ -103,12 +106,12 @@ def draw_tree(tree, ax = None):
 
     edge_weight = {}
     
-    attr_list = ['id', 'parent', 'depth', 'length', 'arity']
+    attr_list = ['id', 'parent', 'depth', 'length', 'arity', 'mean', 'var']
     
     node_attr = {}
     for u in G.nodes:
         if u < len(tree.nodes):
-            node_attr[u] = {attr : getattr(tree.nodes[u], attr) for attr in attr_list}
+            node_attr[u] = {attr : format_attr(getattr(tree.nodes[u], attr)) for attr in attr_list}
         else:
             node_attr[u] = {}
     
