@@ -12,7 +12,9 @@ class Constant(Node):
     def __str__(self) -> str:
         return 'null' if self.null else '1'
     
-    def __call__(self, X):
+    def __call__(self, X, update_stats= False):
         #make shape consistent
-        return np.ones(X.shape[0], dtype = np.float64)
+        out = np.ones(X.shape[0], dtype = np.float64)
+        if update_stats:
+            self.update_stats(out)
         

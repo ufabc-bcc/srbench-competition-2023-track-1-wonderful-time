@@ -9,6 +9,14 @@ def matrix_vec_prod(m, v):
     for i in nb.prange(m.shape[0]):
         result[i] = m[i] * v
     return result
+
+@nb.njit(nb.types.Tuple((nb.float64, nb.float64, nb.int64))(nb.float64, nb.float64, nb.int64, nb.float64[:]))
+def update_stats(old_mean, old_var, old_samples, X):
+    new_samples = X.shape[0] + old_samples
+    mean = (old_mean * old_samples + X.sum()) / new_samples
+    var = (old_var * old_samples + X.var() * X.shape[0]) / new_samples
+    return mean, var, new_samples
+    
 class Node:
     is_nonlinear = False
     def __init__(self, 
@@ -36,6 +44,20 @@ class Node:
         
         self.tree = None
         self.compiled: bool = False
+        
+        #tracking mean and var
+        self.mean: float = 0.0
+        self.var: float  = 0.0
+        self.n_samples: int = 0
+    
+    def __call__(self, X, update_stats: bool= False):
+        pass
+    
+    def update_stats(self, X):
+        '''
+        X: 1d array
+        '''
+        self.mean, self.var, self.n_samples = update_stats(self.mean, self.var, self.n_samples, X)
         
     @staticmethod
     def deepcopy(node: Node, new_class = None):
