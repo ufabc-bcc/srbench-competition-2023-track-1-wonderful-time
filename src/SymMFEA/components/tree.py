@@ -4,7 +4,7 @@ from .functions import Node, Operand, Constant
 import numpy as np
 from ..utils.timer import *
 from ..utils.functional import numba_randomchoice
-    
+import math
 def create_mask_from_index(idx: np.ndarray, length: int):
     assert np.max(idx) < length, (idx, length)
     mask = np.zeros(length, dtype= np.float64)
@@ -151,7 +151,7 @@ class TreeFactory:
             self.terminal_set: list= [i for i in range(self.num_total_terminals)] 
         else:
             if isinstance(self.terminal_set, float):
-                self.terminal_set: list= numba_randomchoice(np.arange(self.num_total_terminals), size= int(self.terminal_set * self.num_total_terminals), replace= False).tolist()
+                self.terminal_set: list= numba_randomchoice(np.arange(self.num_total_terminals), size= math.ceil(self.terminal_set * self.num_total_terminals), replace= False).tolist()
             else:
                 self.terminal_set = self.terminal_set
                 
