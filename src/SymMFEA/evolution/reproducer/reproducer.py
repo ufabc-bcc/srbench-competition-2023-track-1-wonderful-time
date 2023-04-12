@@ -160,10 +160,14 @@ class SMP_Reproducer(Reproducer):
             
             num_offsprings+= len(new_offsprings)   
         
-            #append offsprings
+            #append offsprings    
             offsprings[parents[0].skill_factor].extend(new_offsprings)
         
         for subpop, off in zip(population, offsprings):
+            #remove unknown operands
+            for o in off:
+                subpop.tree_factory.convert_tree(o.genes)
+                
             subpop.ls_inds.extend(off)
             
         return offsprings

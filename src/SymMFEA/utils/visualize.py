@@ -106,7 +106,7 @@ def draw_tree(tree, ax = None):
 
     edge_weight = {}
     
-    attr_list = ['id', 'parent', 'depth', 'length', 'arity', 'mean', 'var']
+    attr_list = ['__class__','id', 'parent', 'depth', 'length', 'arity', 'mean', 'var']
     
     node_attr = {}
     for u in G.nodes:

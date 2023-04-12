@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from .primitive import Primitive
-from .functions import Node
+from .functions import Node, Operand, Constant
 import numpy as np
 from ..utils.timer import *
 from ..utils.functional import numba_randomchoice
@@ -17,6 +17,7 @@ class Tree:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
             self.nodes = nodes
+                
         self.updateNodes()
         self.compile(mask= mask, init_weight= init_weight)
         self.W: np.ndarray
@@ -31,6 +32,8 @@ class Tree:
             s += str(n) + ' '
             
         return s
+    
+    
     
     
     @property
@@ -215,6 +218,24 @@ class TreeFactory:
         fill_postfix(0)
         
         return Tree(nodes = postfix, init_weight = True)
+    
+    def convert_unknown_node(self, node: Node):
+        new_node =  Constant()
+        new_node.value = node.mean 
+        new_node.bias = 0
+        
+        return new_node
+    
+    def convert_tree(self, tree: Tree):
+        for i, n in enumerate(tree.nodes):
+            if isinstance(n, Operand):
+                if n.index not in self.terminal_set:
+                    tree.nodes[i] = self.convert_unknown_node(n)
+        
+        #NOTE: redundant compute
+        tree.updateNodes()        
+        tree.compile()
+                
 
 class FlexTreeFactory(TreeFactory):
     def __init__(self, num_total_terminals: int, *args, **kwargs):
