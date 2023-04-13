@@ -15,6 +15,7 @@ class Trainer:
         if steps == 0:
             return 0
         
+        assert not ind.is_optimized
         profile = ind.optimizer_profile
         
         for _ in range(steps):
@@ -35,6 +36,7 @@ class Trainer:
                 ind.rollback_best()
                 break
         
+        ind.is_optimized = True
         return ind.best_metric, np.mean(step_loss) 
         
     def update_learning_state(self, ind, metric: float):

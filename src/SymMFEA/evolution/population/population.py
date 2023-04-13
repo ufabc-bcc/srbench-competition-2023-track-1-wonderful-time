@@ -110,8 +110,9 @@ class SubPopulation:
         
     def optimize(self):
         for ind in self.ls_inds:
-            metric, loss= self.task.train(ind)
-            ind.objective = [metric if self.task.is_larger_better else -metric]
+            if not ind.is_optimized:
+                metric, loss= self.task.train(ind)
+                ind.objective = [metric if self.task.is_larger_better else -metric]
             
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds])

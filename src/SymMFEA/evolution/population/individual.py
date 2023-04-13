@@ -18,6 +18,7 @@ class Individual:
         self.task = task
         self.parent_profile: dict= dict()
         self.optimizer_profile: dict= dict()
+        self.is_optimized = False
         
     
     @property
@@ -34,9 +35,6 @@ class Individual:
     def __call__(self, X: np.ndarray, update_stats = False):
         return self.genes(X, update_stats = update_stats)
     
-    @property
-    def stop_optimize(self):
-        return self.task.stop_optimize(self)
     
     def flush_history(self):
         self.nb_consecutive_not_improve = 0
