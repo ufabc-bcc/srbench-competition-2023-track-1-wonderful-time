@@ -17,7 +17,6 @@ def normalize_norm1(x):
     
     return x / (np.sum(np.abs(x)) + 1e-12)
 
-
 @numba_v2v_float_wrapper
 def log_normalize(x):
     margin = np.abs(x)
