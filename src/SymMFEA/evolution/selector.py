@@ -27,13 +27,13 @@ class ElitismSelector(Selector):
             N_elitism = ceil(N_i* (1 - self.random_percent))
             idx_selected_inds = np.arange(N_elitism)
             
-            if self.select_optimizing_inds > 0:
+            # if self.select_optimizing_inds > 0:
                 
-                idx_not_fully_optimized = np.ravel(np.argwhere([not ind.stop_optimize for ind in subpop.ls_inds]))
-                idx_not_fully_optimized = np.random.permutation(idx_not_fully_optimized)[:int(N_i * self.select_optimizing_inds)]
+            #     idx_not_fully_optimized = np.ravel(np.argwhere([not ind.stop_optimize for ind in subpop.ls_inds]))
+            #     idx_not_fully_optimized = np.random.permutation(idx_not_fully_optimized)[:int(N_i * self.select_optimizing_inds)]
                 
-                if len(idx_not_fully_optimized):
-                    idx_selected_inds = np.union1d(idx_selected_inds, idx_not_fully_optimized)
+            #     if len(idx_not_fully_optimized):
+            #         idx_selected_inds = np.union1d(idx_selected_inds, idx_not_fully_optimized)
                 
             
             idx_selected_inds = idx_selected_inds.tolist()
