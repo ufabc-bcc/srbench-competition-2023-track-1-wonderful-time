@@ -6,8 +6,8 @@ import random
 from ...utils.functional import numba_randomchoice_w_prob, softmax
 
 class Crossover:
-    def __init__(self, finetune_steps: int = 0, *args, **kwargs):
-        self.finetune_steps:int = finetune_steps
+    def __init__(self, *args, **kwargs):
+        pass
 
     def __call__(self, pa: Individual, pb: Individual, skf_oa= None, skf_ob= None, *args, **kwargs) -> List[Individual]:
         pass
@@ -25,11 +25,11 @@ class Crossover:
         )
 
 class SubTreeCrossover(Crossover):
-    def __init__(self, finetune_steps: int = 0, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         '''
         finetune step (only new insert branch)
         '''
-        super().__init__(finetune_steps, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         
     def __call__(self, pa: Individual, pb: Individual, *args, **kwargs) -> List[Individual]:
         '''
@@ -77,22 +77,15 @@ class SubTreeCrossover(Crossover):
         src_branch, src_root = pb.genes.split_tree(src_point)
         
         
-        #add mask to fine tune branch 
-        mask = np.arange(len(tar_root[0]), len(tar_root[0]) + len(src_branch))
         
         
-        child_a = Individual(Tree(tar_root[0] + src_branch + tar_root[1], mask = mask
+        child_a = Individual(Tree(tar_root[0] + src_branch + tar_root[1]
                                   , deepcopy= True), task = pa.task, skill_factor= pa.skill_factor)
         
         
         assert child_a.genes.length <= self.max_length[pa.skill_factor], (child_a.genes.length, self.max_length[pa.skill_factor])
         assert child_a.genes.depth <= self.max_depth[pa.skill_factor], (child_a.genes.depth, self.max_depth[pa.skill_factor])
-        
-        #fine-tune the branch
-        # pa.task.train(child_a, steps = self.finetune_steps)
-        child_a.finetune(self.finetune_steps, decay_lr= self.finetune_steps)
-        child_a.genes.remove_mask()
-        
+                
         self.update_parent_profile(child_a, [pa, pb])
         
         children = [child_a]
