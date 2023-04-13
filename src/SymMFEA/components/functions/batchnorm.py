@@ -6,8 +6,7 @@ import numba as nb
 def batchnorm(x, mean, var):
     x = np.ravel(x)
     if var < 1e-12:
-        std = 1 / (x.std() + 1e-12)
-        return (x - x.mean()) * std, np.full((1, x.shape[0]),std.item())
+        return x - x.mean(), np.ones((1, x.shape[0]))
     
     std = 1 / np.sqrt(var)
     return (x - mean) * std, np.full((1, x.shape[0]),std.item())

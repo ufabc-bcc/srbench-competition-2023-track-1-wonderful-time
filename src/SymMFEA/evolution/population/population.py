@@ -110,8 +110,7 @@ class SubPopulation:
         
     def optimize(self):
         for ind in self.ls_inds:
-            self.task.train(ind)
-            metric = self.task.eval(ind)
+            metric, loss= self.task.train(ind)
             ind.objective = [metric if self.task.is_larger_better else -metric]
             
             if ind.new_born_objective is None:

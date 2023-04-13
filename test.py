@@ -67,7 +67,7 @@ model = SMP(
         'mutation_size': 1,
     },
     selector_config={
-        'select_optimizing_inds': 0.5
+        # 'select_optimizing_inds': 0.5
     }
 )
 
@@ -80,7 +80,7 @@ SMP_configs = {
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 5,
+    steps_per_gen= 10,
     nb_inds_each_task= 20,
     nb_generations= 100,
     batch_size= 2000,
