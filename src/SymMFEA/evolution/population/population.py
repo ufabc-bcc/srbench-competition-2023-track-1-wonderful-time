@@ -113,9 +113,6 @@ class SubPopulation:
             metric, loss= self.task.train(ind)
             ind.objective = [metric if self.task.is_larger_better else -metric]
             
-            if ind.new_born_objective is None:
-                ind.new_born_objective = ind.objective
-            
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds])
         self.scalar_fitness = np.mean(self.objective, axis = 1) + 1e-12 
