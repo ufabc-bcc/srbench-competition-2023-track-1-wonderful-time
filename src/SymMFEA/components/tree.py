@@ -5,21 +5,17 @@ import numpy as np
 from ..utils.timer import *
 from ..utils.functional import numba_randomchoice
 import math
-def create_mask_from_index(idx: np.ndarray, length: int):
-    assert np.max(idx) < length, (idx, length)
-    mask = np.zeros(length, dtype= np.float64)
-    mask[idx] = 1
-    return mask
+
 
 class Tree: 
-    def __init__(self, nodes: List[Node], deepcopy = False, mask: np.ndarray = None, init_weight: bool = False) -> None:
+    def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False) -> None:
         if deepcopy:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
             self.nodes = nodes
                 
         self.updateNodes()
-        self.compile(mask= mask, init_weight= init_weight)
+        self.compile(init_weight= init_weight)
         self.W: np.ndarray
         self.bias: np.ndarray
         self.dW: np.ndarray
@@ -111,8 +107,7 @@ class Tree:
         self.bias = np.empty(self.length, dtype = np.float64)
         self.dW = np.empty(self.length, dtype = np.float64)
         self.dB = np.empty(self.length, dtype = np.float64)
-        self.node_grad_mask = np.ones(self.length, dtype = np.float64) if mask is None \
-                        else create_mask_from_index(mask, self.length)
+
         
         if init_weight:
             self.W = np.ones(len(self.nodes), dtype= np.float64)

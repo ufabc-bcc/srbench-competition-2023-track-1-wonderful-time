@@ -7,9 +7,9 @@ import random
 from typing import List
 
 class Mutation:
-    def __init__(self, finetune_steps: int = 0, *args, **kwargs):
-        self.finetune_steps:int = finetune_steps
-
+    def __init__(self, *args, **kwargs):
+        pass
+        
     def __call__(self, parent: Individual) -> Individual:
         pass
     
@@ -46,8 +46,8 @@ class VariableMutation(Mutation):
 
 
 class GrowTreeMutation(Mutation):
-    def __init__(self, finetune_steps:int = 0, *args, **kwargs):
-        super().__init__(finetune_steps= finetune_steps)
+    def __init__(self, *args, **kwargs):
+        super().__init__()
         self.tree_creator: FlexTreeFactory
     
     def __call__(self, parent: Individual):
@@ -85,17 +85,13 @@ class GrowTreeMutation(Mutation):
         branch = self.tree_creator.create_tree(root_linear_constrant= not parent.genes.nodes[parent.genes.nodes[grow_point].parent].is_nonlinear).nodes
 
 
-        mask = np.arange(grow_point, grow_point + len(branch))
         
         
-        child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True, mask= mask), task= parent.task, skill_factor= parent.skill_factor)
+        child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True), task= parent.task, skill_factor= parent.skill_factor)
         
         assert child.genes.length <= self.max_length[parent.skill_factor], (child.genes.length, self.max_length[parent.skill_factor])
         assert child.genes.depth <= self.max_depth[parent.skill_factor], (child.genes.depth, self.max_depth[parent.skill_factor])
         
-        #finetune
-        child.finetune(self.finetune_steps, decay_lr= self.finetune_steps)
-        child.genes.remove_mask()
         
         self.update_parent_profile(child, parent)
         
