@@ -181,12 +181,12 @@ class SMP_Reproducer(Reproducer):
             for o in offsprings_skf:
                 num_parents = o.parent_profile.get('num_parents')
                 for i in range(num_parents):
-                    parent_new_born_objective = o.parent_profile.get('parent_new_born_objective')[i]
+                    parent_objective = o.parent_profile.get('parent_objective')[i]
                     
                     
                     
-                    #hardcode first objective
-                    d = (o.new_born_objective[0] - parent_new_born_objective[0]) / (parent_new_born_objective[0] ** 2 + 1e-50)
+                    #NOTE: hardcode first objective
+                    d = (o.objective[0] - parent_objective[0]) / (parent_objective[0] ** 2 + 1e-50)
 
                     if o.parent_profile.get('born_way') == 'crossover':
                         Delta[skf][o.parent_profile.get('parent_skf')[i]] += max([d, 0])**2

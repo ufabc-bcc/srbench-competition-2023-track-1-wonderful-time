@@ -20,7 +20,7 @@ class Crossover:
         child.update_parent_profile(
             born_way= 'crossover',
             num_parents = len(parent),
-            parent_new_born_objective= [p.new_born_objective for p in parent],
+            parent_objective= [p.objective for p in parent],
             parent_skf = [p.skill_factor for p in parent]
         )
 
