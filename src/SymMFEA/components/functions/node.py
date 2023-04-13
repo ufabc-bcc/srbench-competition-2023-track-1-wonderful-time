@@ -10,7 +10,7 @@ def matrix_vec_prod(m, v):
         result[i] = m[i] * v
     return result
 
-@nb.njit(nb.types.Tuple((nb.float64, nb.float64, nb.int64))(nb.float64, nb.float64, nb.int64, nb.float64[:]))
+# @nb.njit(nb.types.Tuple((nb.float64, nb.float64, nb.int64))(nb.float64, nb.float64, nb.int64, nb.float64[:]))
 def update_stats(old_mean, old_var, old_samples, X):
     new_samples = X.shape[0] + old_samples
     mean = (old_mean * old_samples + X.sum()) / new_samples
