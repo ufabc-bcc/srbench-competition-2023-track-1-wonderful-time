@@ -37,8 +37,8 @@ y_train, y_val = y[: train_size], y[train_size:]
 # }
 
 tree_config = {
-    'max_length': [50]* 2 + [30] * 2 + [7] * 3 + [2] * 7,
-    'max_depth': [9] * 2 + [7] * 2 + [3] * 3 + [2] * 7,
+    'max_length': [50]* 2 + [30] * 2 + [7] * 3,
+    'max_depth': [9] * 2 + [7] * 2 + [3] * 3,
     'num_columns': [0.7] * 7 + [0.4] * 7,
 }
 xgb = XGB(objective="reg:squarederror")
@@ -75,12 +75,12 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
-    'num_sub_task': 14,
+    'num_sub_task': 7,
 }
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 10,
+    steps_per_gen= 20,
     nb_inds_each_task= 20,
     nb_generations= 100,
     batch_size= 2000,

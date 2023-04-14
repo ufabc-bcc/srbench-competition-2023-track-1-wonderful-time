@@ -61,6 +61,7 @@ class GA:
                 draw_tree(best_trees[cur_tree].genes, axs[i, j])
         
         plt.show()
+        plt.savefig('Trees.png')
         
     def update_nb_inds_tasks(self, population:Population, generation: int):
         population.update_nb_inds_tasks([int(
