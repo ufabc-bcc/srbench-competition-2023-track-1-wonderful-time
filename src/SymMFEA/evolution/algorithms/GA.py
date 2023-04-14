@@ -9,7 +9,8 @@ from ...components.metrics import Metric
 from ...utils import GAProgressBar, draw_tree
 import matplotlib.pyplot as plt
 from ...utils.timer import *
-
+from ...components.weight_manager import initWM
+import os
 class GA:
     ranker_class = SingleObjectiveRanker
     reproducer_class = Reproducer
@@ -128,10 +129,14 @@ class GA:
         steps_per_gen: backprop step per generation
         '''
         
+        assert X.shape[0] == y.shape[0]
+        
         self.nb_inds_min = nb_inds_min
         self.nb_generations = nb_generations
         self.nb_inds_each_task = nb_inds_each_task
         self.nb_terminals=X.shape[1]
+        
+        initWM((1000000, max(tree_config.get('max_length'))))
                 
         self.init_params(**params)
         

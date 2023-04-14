@@ -35,9 +35,9 @@ class Node:
         self.parent:int
         self.arity:int = arity
         
-        self.value:float = np.random.normal(0, 1, 1).item()
+        self.value:float = 1
         
-        self.bias:float = np.random.normal(0, 1, 1).item()
+        self.bias:float = 0
         
         self.dW:np.ndarray
         self.dX:List[np.ndarray]

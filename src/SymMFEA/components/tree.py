@@ -4,11 +4,14 @@ from .functions import Node, Operand, Constant
 import numpy as np
 from ..utils.timer import *
 from ..utils.functional import numba_randomchoice
+from ..components import weight_manager
 import math
 
 
 class Tree: 
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False) -> None:
+        self.position = next(weight_manager.WM)
+        self.isPrime: bool = False
         if deepcopy:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
@@ -16,11 +19,11 @@ class Tree:
                 
         self.updateNodes()
         self.compile(init_weight= init_weight)
-        self.W: np.ndarray
-        self.bias: np.ndarray
-        self.dW: np.ndarray
-        self.dB: np.ndarray
-        self.isPrime: bool = False
+        # self.W: np.ndarray
+        # self.bias: np.ndarray
+        # self.dW: np.ndarray
+        # self.dB: np.ndarray
+        
     
     def __str__(self) -> str:
         s = ''
@@ -29,9 +32,26 @@ class Tree:
             
         return s
     
+    @property
+    def W(self):
+        
+        return weight_manager.WM.weight[self.position]
     
+    @property
+    def bias(self):
+        
+        return weight_manager.WM.bias[self.position]
     
+    @property
+    def dW(self):
+        
+        return weight_manager.WM.dW[self.position]
     
+    @property
+    def dB(self):
+        
+        return weight_manager.WM.dB[self.position]
+        
     @property
     def length(self):
         return self.nodes[-1].length + 1
@@ -48,14 +68,16 @@ class Tree:
         #init to prevent multiple allocate
         stack = np.empty((self.length, X.shape[0]), dtype = np.float64)
         top = 0
+        W = self.W 
+        bias = self.bias 
         
         for i, node in enumerate(self.nodes):
             if node.is_leaf:
-                stack[top] = node(X, update_stats= update_stats) * self.W[i] + self.bias[i]
+                stack[top] = node(X, update_stats= update_stats) * W[i] + bias[i]
                 top += 1
             
             else:
-                val = node(stack[top - node.arity : top], update_stats= update_stats) * self.W[i] + self.bias[i]
+                val = node(stack[top - node.arity : top], update_stats= update_stats) * W[i] + bias[i]
                 top -= node.arity
                 stack[top] = val
                 top += 1
@@ -74,7 +96,7 @@ class Tree:
             
             j = i - 1
             
-            for k in range(node.arity):
+            for _ in range(node.arity):
                 child = self.nodes[j]
                 node.length += child.length
                 node.depth = max (node.depth, child.depth)
@@ -85,8 +107,6 @@ class Tree:
         
         assert self.length == len(self.nodes)
         
-    def remove_mask(self):
-        self.node_grad_mask = np.ones(self.length, dtype= np.float64)
     
     def get_branch_nodes(self, i, return_both = False):
         return self.nodes[i - self.nodes[i].length : i + 1]
@@ -97,40 +117,39 @@ class Tree:
         root = self.nodes[: point - self.nodes[point].length], self.nodes[ point + 1 : ]
         return branch, root
         
-    def compile(self, mask:np.ndarray = None, init_weight = False):
+    def compile(self, init_weight = False):
         r'''
         compile from list of node manner to vector manner
-        mask: index to have grad, other will turn off grad
         after compile value and bias from node doesn't matter
         '''
-        self.W = np.empty(self.length, dtype = np.float64)
-        self.bias = np.empty(self.length, dtype = np.float64)
-        self.dW = np.empty(self.length, dtype = np.float64)
-        self.dB = np.empty(self.length, dtype = np.float64)
-
+        W = self.W
+        bias = self.bias
         
         if init_weight:
-            self.W = np.ones(len(self.nodes), dtype= np.float64)
-            self.bias = np.zeros(len(self.nodes), dtype= np.float64)
+            W = np.ones(len(self.nodes), dtype= np.float64)
+            bias = np.zeros(len(self.nodes), dtype= np.float64)
         else:
             for i, node in enumerate(self.nodes):
-                self.W[i] = node.value
-                self.bias[i] = node.bias
+                W[i] = node.value
+                bias[i] = node.bias
         
         for i, node in enumerate(self.nodes):
             node.compile(self)
         
-        self.bestW = self.W 
-        self.bestBias = self.bias
+        bestW = self.W 
+        bestBias = self.bias
       
     def update(self):
-        self.bestW = self.W 
-        self.bestBias = self.bias   
+        
+        weight_manager.WM.best_weight[self.position] = weight_manager.WM.weight[self.position]
+        weight_manager.WM.best_bias[self.position] = weight_manager.WM.bias[self.position]
+
     
     def rollback_best(self):
+        
         self.isPrime = True
-        self.W = self.bestW 
-        self.bias = self.bestBias
+        weight_manager.WM.weight[self.position] = weight_manager.WM.best_weight[self.position]
+        weight_manager.WM.bias[self.position] = weight_manager.WM.best_bias[self.position]
 
 class TreeFactory:
     def __init__(self, task_idx:int, num_total_terminals: int,  tree_config: dict, *args, **kwargs):

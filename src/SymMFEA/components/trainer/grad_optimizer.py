@@ -4,7 +4,7 @@ from ...utils.functional import log_normalize
 from numba import jit
 
 
-#NOTE: syntax outdated
+#NOTE: syntax may be outdated
 class GradOpimizer:
     def __init__(self, lr: float = 1e-2, weight_decay: float=0):
         self.lr = lr 
@@ -34,8 +34,11 @@ class GradOpimizer:
             
         dW, dB = self.compute_gradient(tree)
         
-        tree.W = tree.W - dW * self.lr 
-        tree.bias = tree.bias - dB * self.lr
+        W = tree.W 
+        bias = tree.bias 
+        
+        W = W - dW * self.lr 
+        bias = bias - dB * self.lr
     
     def compute_gradient(self, tree):
         dW = log_normalize(tree.dW * (1 + self.weight_decay))
@@ -103,8 +106,9 @@ class ADAM(GradOpimizer):
         profile['vw'], vw_hat = update_v(profile['vw'], self.betas2, dW, profile['step'])
         profile['vb'], vb_hat = update_v(profile['vb'], self.betas2, dB, profile['step'])
         
-                
-        tree.W = tree.W - profile['lr'] * mw_hat / (np.sqrt(vw_hat) + self.eps)
-        tree.bias = tree.bias - profile['lr'] * mb_hat / (np.sqrt(vb_hat) + self.eps)
+        W = tree.W 
+        bias = tree.bias    
+        W = W - profile['lr'] * mw_hat / (np.sqrt(vw_hat) + self.eps)
+        bias = bias - profile['lr'] * mb_hat / (np.sqrt(vb_hat) + self.eps)
         
         profile['step'] = profile['step'] + 1
