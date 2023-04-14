@@ -119,5 +119,6 @@ class SMP(GA):
         fig.tight_layout()
         fig.legend(lines, labels, loc = label_loc, ncol = label_shape[1])
         plt.show()
+        plt.savefig('SMP.png')
         if re_fig:
             return fig
