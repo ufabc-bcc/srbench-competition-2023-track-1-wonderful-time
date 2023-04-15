@@ -11,10 +11,11 @@ class Multiprocessor:
     def __init__(self, num_workers:int = 1, chunksize: int = 50):
         self.num_workers= num_workers
         self.chunksize= chunksize
-        
+    
+    @timed
     def __enter__(self):
         self.pool = mp.Pool(self.num_workers)
-        return self.pool 
+        return self
     
     @timed
     def execute(self, jobs: List[Tuple[SubTask, List]]):
@@ -26,7 +27,7 @@ class Multiprocessor:
             loss.append(rs[1])
             train_steps.append(rs[2])
         return metric, loss, train_steps    
-                
+    
     def __exit__(self, *args, **kwargs):
         self.pool.close()
         self.pool.join()
