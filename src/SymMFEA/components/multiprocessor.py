@@ -8,7 +8,7 @@ def execute_one_job(args: Tuple[SubTask, List]):
     return task.task.trainer.fit(ind, task.train_dataloader, steps= task.task.steps_per_gen, val_data = task.data)
 
 class Multiprocessor:
-    def __init__(self, num_workers:int = 1, chunksize: int = 10):
+    def __init__(self, num_workers:int = 1, chunksize: int = 50):
         self.num_workers= num_workers
         self.chunksize= chunksize
         
@@ -21,7 +21,7 @@ class Multiprocessor:
         metric = []
         loss = []
         train_steps = []
-        for rs in self.pool.map(execute_one_job, jobs, chunksize= self.chunksize):
+        for rs in self.pool.map(execute_one_job, jobs, chunksize= len(jobs) // self.num_workers):
             metric.append(rs[0])
             loss.append(rs[1])
             train_steps.append(rs[2])
