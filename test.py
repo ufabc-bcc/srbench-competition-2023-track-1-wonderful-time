@@ -49,11 +49,11 @@ gbr.fit(X_train, y_train)
 lnr.fit(X_train, y_train)
 
 
-crossover = SubTreeCrossover(2)
+crossover = SubTreeCrossover()
 mutation = MutationList(
     [
     VariableMutation(),
-     GrowTreeMutation(2),
+     GrowTreeMutation(),
      ]
 )
 

@@ -35,22 +35,22 @@ class Tree:
     @property
     def W(self):
         
-        return weight_manager.WM.weight[self.position]
+        return weight_manager.WM.weight[self.position][:len(self.nodes)]
     
     @property
     def bias(self):
         
-        return weight_manager.WM.bias[self.position]
+        return weight_manager.WM.bias[self.position][:len(self.nodes)]
     
     @property
     def dW(self):
         
-        return weight_manager.WM.dW[self.position]
+        return weight_manager.WM.dW[self.position][:len(self.nodes)]
     
     @property
     def dB(self):
         
-        return weight_manager.WM.dB[self.position]
+        return weight_manager.WM.dB[self.position][:len(self.nodes)]
         
     @property
     def length(self):
@@ -126,8 +126,8 @@ class Tree:
         bias = self.bias
         
         if init_weight:
-            W = np.ones(len(self.nodes), dtype= np.float64)
-            bias = np.zeros(len(self.nodes), dtype= np.float64)
+            W[:] = np.ones(len(self.nodes), dtype= np.float64)
+            bias[:] = np.zeros(len(self.nodes), dtype= np.float64)
         else:
             for i, node in enumerate(self.nodes):
                 W[i] = node.value
@@ -136,8 +136,7 @@ class Tree:
         for i, node in enumerate(self.nodes):
             node.compile(self)
         
-        bestW = self.W 
-        bestBias = self.bias
+        self.update()
       
     def update(self):
         
