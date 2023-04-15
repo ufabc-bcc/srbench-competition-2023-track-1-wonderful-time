@@ -37,8 +37,8 @@ class GradOpimizer:
         W = tree.W 
         bias = tree.bias 
         
-        W = W - dW * self.lr 
-        bias = bias - dB * self.lr
+        W[:] = W - dW * self.lr 
+        bias[:] = bias - dB * self.lr
     
     def compute_gradient(self, tree):
         dW = log_normalize(tree.dW * (1 + self.weight_decay))
@@ -108,7 +108,7 @@ class ADAM(GradOpimizer):
         
         W = tree.W 
         bias = tree.bias    
-        W = W - profile['lr'] * mw_hat / (np.sqrt(vw_hat) + self.eps)
-        bias = bias - profile['lr'] * mb_hat / (np.sqrt(vb_hat) + self.eps)
+        W[:] = W - profile['lr'] * mw_hat / (np.sqrt(vw_hat) + self.eps)
+        bias[:] = bias - profile['lr'] * mb_hat / (np.sqrt(vb_hat) + self.eps)
         
         profile['step'] = profile['step'] + 1
