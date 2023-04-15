@@ -18,7 +18,7 @@ class Trainer:
         assert not ind.is_optimized
         profile = ind.optimizer_profile
         
-        for _ in range(steps):
+        for step in range(steps):
             step_loss = []
             while data.hasNext:
                 X, y = next(data)
@@ -36,8 +36,8 @@ class Trainer:
                 ind.rollback_best()
                 break
         
-        ind.is_optimized = True
-        return ind.best_metric, np.mean(step_loss) 
+        
+        return ind.best_metric, np.mean(step_loss), step + 1 
         
     def update_learning_state(self, ind, metric: float):
         if ind.best_metric is not None: 

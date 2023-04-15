@@ -140,7 +140,7 @@ class SMP_Reproducer(Reproducer):
     @timed
     def __call__(self, population: Population):              
         num_offsprings = 0
-        total_num_offsprings = sum(population.nb_inds_tasks)
+        total_num_offsprings = sum(population.nb_inds_tasks) * population.offspring_size
         offsprings = [[] for _ in range(population.num_sub_tasks)]
         while num_offsprings  < total_num_offsprings:
             

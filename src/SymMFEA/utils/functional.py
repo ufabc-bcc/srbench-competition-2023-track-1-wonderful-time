@@ -7,6 +7,9 @@ numba_operator_with_grad_wrapper = nb.njit(nb.types.Tuple((nb.float64[:], nb.flo
 
 numba_v2v_float_wrapper = nb.njit(nb.float64[:](nb.float64[:]))
 
+numba_v2v_int_wrapper = nb.njit(nb.int64[:](nb.float64[:]))
+
+
 numba_v2v_wrapper = nb.njit([nb.float64[:](nb.float64[:]),
                              nb.float64[:](nb.int64[:]),
                              nb.float64[:](nb.int32[:]),

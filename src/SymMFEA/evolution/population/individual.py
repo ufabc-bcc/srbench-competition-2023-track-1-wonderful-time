@@ -20,10 +20,6 @@ class Individual:
         self.optimizer_profile: dict= dict()
         self.is_optimized = False
         
-    
-    @property
-    def isPrime(self):
-        return self.genes.isPrime
         
     def update_best_tree(self, metric):
         self.best_metric = metric
@@ -35,10 +31,6 @@ class Individual:
     def __call__(self, X: np.ndarray, update_stats = False):
         return self.genes(X, update_stats = update_stats)
     
-    
-    def flush_history(self):
-        self.nb_consecutive_not_improve = 0
-        self.genes.isPrime = False
     
     def update_parent_profile(self, **profile):
         for k, v in profile.items():

@@ -10,7 +10,7 @@ from ...utils import GAProgressBar, draw_tree
 import matplotlib.pyplot as plt
 from ...utils.timer import *
 from ...components.weight_manager import initWM
-import os
+from termcolor import colored
 class GA:
     ranker_class = SingleObjectiveRanker
     reproducer_class = Reproducer
@@ -117,6 +117,8 @@ class GA:
             test_size: float = 0.2, 
             finetune_steps: int = 5000,
             finetune_decay_lr: float = 100,
+            num_workers:int = 4,
+            offspring_size: float= 1.0,
             **params,
             ):
         '''
@@ -146,7 +148,7 @@ class GA:
             task = Task(X, y, loss, optimzier, metric, steps_per_gen= steps_per_gen,
                         batch_size= batch_size, test_size= test_size,
                         shuffle= shuffle, nb_not_improve= nb_not_improve),
-            tree_config= tree_config, num_sub_tasks = self.num_sub_tasks
+            tree_config= tree_config, num_sub_tasks = self.num_sub_tasks, num_workers= num_workers, offspring_size= offspring_size,
         )
         
         population.optimize()
@@ -177,6 +179,8 @@ class GA:
                 self.display_final_result(population)
                 
             Timer.display()
+            print(f'Total number of train steps: {colored(population.train_steps, "red")}')
+            
         
     def predict(self, X: np.ndarray):
         return self.final_solution(X)
