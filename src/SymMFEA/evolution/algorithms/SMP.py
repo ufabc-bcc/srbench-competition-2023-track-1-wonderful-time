@@ -6,6 +6,7 @@ from ..population import Population
 from ..reproducer import SMP_Reproducer, battle_smp
 from ..selector import ElitismSelector
 import matplotlib.pyplot as plt
+from .. import offsprings_pool
 
 class SMP(GA):
     
@@ -16,30 +17,64 @@ class SMP(GA):
         
     def generation_step(self, population: Population, generation: int):
         
-        #update nb_inds_tasks 
-        self.update_nb_inds_tasks(population= population, generation= generation)
+        if generation > 0:
+            #update nb_inds_tasks 
+            self.update_nb_inds_tasks(population= population, generation= generation)
+            
+            #create new individuals
+            offsprings = self.reproducer(population)
+            
+            #so far new_born is not necessary because reproducer is not concurrent
+            
+            #append to new_born pool
+            offsprings_pool.new_born.append_offsprings(offsprings)
+        else:
+            #append to new_born pool
+            offsprings_pool.new_born.append_offsprings(population.all())
         
-        #create new individuals
-        offsprings = self.reproducer(population)
+        #submit optimization jobs to multiprocessor
+        #optimized inds will be append to optimized pool
+        optimize_jobs = offsprings_pool.new_born.collect_optimize_job()
+        #create callback function to append offsprings when finish optimization
+        append_callback = offsprings_pool.optimized.create_append_callback(optimize_jobs=optimize_jobs)
         
-        #train and get fitness from individuals
-        population.optimize()
+        self.multiprocessor.execute(optimize_jobs, append_callback, wait_for_result= generation == 0)
         
-        #update smp
-        self.reproducer.update_smp(population, offsprings)
-        
-        
-        population.collect_fitness_info()
+        #collect optimized offprings
+        offsprings, num_offsprings = offsprings_pool.optimized.collect_optimized(population.num_sub_tasks)
         
         
-        #ranking
-        self.ranker(population)
-    
-        #select best indivudals
-        self.selector(population)
+        #if there are optimized offsprings
+        if num_offsprings:
+            
+            if generation > 0:
+                #update smp
+                self.reproducer.update_smp(population, offsprings)
+                #add offsprings to population
+                
+                for subpop, offspring in zip(population, offsprings):
+                    subpop.ls_inds.extend(offspring)
+            
+            
+            else:
+                #assign optimized individual to population for first generation
+                for subpop, offspring in zip(population, offsprings):
+                    subpop.ls_inds = offspring
+            
+            
+            population.collect_fitness_info()
+            
+            #ranking
+            self.ranker(population)
         
-        #update info to display
-        population.collect_best_info()
+            #select best indivudals
+            self.selector(population)
+            
+            #update info to display
+            population.collect_best_info()
+            
+            #update process bar
+            self.update_process_bar(population, reverse=not self.is_larger_better)
         
         #update smp
         self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
@@ -49,7 +84,7 @@ class SMP(GA):
         self.p_const_intra: float = kwargs['p_const_intra']
         self.delta_lr: int = kwargs['delta_lr']
         self.num_sub_tasks: int = kwargs['num_sub_task']
-
+        self.is_larger_better = kwargs['is_larger_better']
         
         # prob choose first parent
         self.p_choose_father = np.full(self.num_sub_tasks, 1 / self.num_sub_tasks) 

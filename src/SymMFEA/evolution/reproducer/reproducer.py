@@ -5,7 +5,7 @@ from ..population import Population, SubPopulation
 from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
 
-
+#NOTE: this reproducer call is outdated
 class Reproducer:
     '''
     Reproducer for 1 subpop population
@@ -168,10 +168,14 @@ class SMP_Reproducer(Reproducer):
             for o in off:
                 subpop.tree_factory.convert_tree(o.genes)
                 
-            subpop.ls_inds.extend(off)
             
-        return offsprings
-                    
+        all_offsprings = []
+        for o in offsprings:
+            all_offsprings.extend(o)
+            
+        return all_offsprings
+    
+    @timed    
     def update_smp(self, population: Population, offsprings: List[Individual]):
         Delta:List[List[float]] = np.zeros((population.num_sub_tasks, population.num_sub_tasks + 1)).tolist()
         count_Delta: List[List[float]] = np.zeros((population.num_sub_tasks, population.num_sub_tasks + 1)).tolist()  
