@@ -6,6 +6,7 @@ from typing import Iterable
 #NOTE: so far not remove not used memory
 
 def create_shared_np(shape: Iterable[int]):
+    # return np.empty(shape, dtype= np.float64)
     num_blocks = 1
     for s in shape:
         num_blocks *= s

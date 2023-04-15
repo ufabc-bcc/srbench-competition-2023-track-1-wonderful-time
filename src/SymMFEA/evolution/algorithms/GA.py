@@ -166,18 +166,19 @@ class GA:
                 self.generation_step(population, generation)
                 self.update_process_bar(population, reverse = not metric.is_larger_better)
             
-            best_trees, self.final_solution = population.get_best_trees()
             
             #finetune solution
-            self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True)
+            # self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True)
         
         except KeyboardInterrupt:
-            best_trees, self.final_solution = population.get_best_trees()
-            
+            pass
+        
         else:
             if visualize:
                 self.display_final_result(population)
                 
+        finally:
+            best_trees, self.final_solution = population.get_best_trees()
             Timer.display()
             print(f'Total number of train steps: {colored(population.train_steps, "red")}')
             

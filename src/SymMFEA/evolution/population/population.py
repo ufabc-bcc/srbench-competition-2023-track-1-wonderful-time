@@ -8,6 +8,7 @@ from typing import List
 from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
 from ..task import Task, SubTask
+import random
 
         
 class SubPopulation:
@@ -146,6 +147,9 @@ class Population:
         optimize_jobs = []
         for subpop in self: 
             optimize_jobs.extend(subpop.collect_optimize_jobs())
+            
+        #shuffle because some jobs are shorter
+        random.shuffle(optimize_jobs)
         return optimize_jobs
         
     def optimize(self):
