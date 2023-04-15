@@ -1,12 +1,10 @@
-from typing import List
 from ...components.tree import TreeFactory
 from .individual import Individual
-from numba import jit 
+from ...utils.functional import numba_v2v_int_wrapper
 import numpy as np
+from ...components.multiprocessor import Multiprocessor
 
-
-from typing import Type, List
-from numba import jit
+from typing import List
 from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
 from ..task import Task, SubTask
@@ -31,6 +29,11 @@ class SubPopulation:
         
         self.scalar_fitness: np.ndarray = None
         self.objective: np.ndarray = None
+        
+        self.optimized_idx:int = 0
+        
+    def update_optimized_idx(self):
+        self.optimized_idx = len(self.ls_inds)
                 
     def __len__(self): 
         return len(self.ls_inds)
@@ -62,35 +65,10 @@ class SubPopulation:
     @property 
     def __getBestIndividual__(self):
         return self.ls_inds[int(np.argmin(self.factorial_rank))]   
-    @property 
-    def __getWorstIndividual__(self):
-        return self.ls_inds[int(np.argmax(self.factorial_rank))]
-    
-    @staticmethod
-    @jit(nopython = True)
-    def _numba_meanInds(ls_genes):
-        res = [np.mean(ls_genes[:, i]) for i in range(ls_genes.shape[1])]
-        return np.array(res)
 
-    @property 
-    def __meanInds__(self):
-        # return self.__class__._numba_meanInds(np.array([ind.genes for ind in self.ls_inds]))
-        return np.mean([ind.genes for ind in self.ls_inds], axis= 0)
 
     @staticmethod
-    @jit(nopython = True)
-    def _numba_stdInds(ls_genes):
-        res = [np.std(ls_genes[:, i]) for i in range(ls_genes.shape[1])]
-        return np.array(res)
-
-
-    @property 
-    def __stdInds__(self):
-        # return self.__class__._numba_stdInds(np.array([ind.genes for ind in self.ls_inds]))
-        return np.std([ind.genes for ind in self.ls_inds], axis= 0)
-
-    @staticmethod
-    @jit(nopython = True)
+    @numba_v2v_int_wrapper
     def _sort_rank(ls_fcost):
         return np.argsort(np.argsort(ls_fcost)) + 1
 
@@ -98,7 +76,6 @@ class SubPopulation:
         '''
         Update `factorial_rank` and `scalar_fitness`
         '''
-        # self.factorial_rank = np.argsort(np.argsort([ind.objective for ind in self.ls_inds])) + 1
         if len(self.ls_inds):
             self.factorial_rank = self.__class__._sort_rank(np.array([ind.objective for ind in self.ls_inds]))
         else:
@@ -107,12 +84,10 @@ class SubPopulation:
 
     def select(self, index_selected_inds: list):
         self.ls_inds = [self.ls_inds[idx] for idx in index_selected_inds]
+        self.update_optimized_idx()
         
-    def optimize(self):
-        for ind in self.ls_inds:
-            if not ind.is_optimized:
-                metric, loss= self.task.train(ind)
-                ind.objective = [metric if self.task.is_larger_better else -metric]
+    def collect_optimize_jobs(self):
+        return [(self.task, ind) for ind in self.ls_inds[self.optimized_idx:]]
             
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds])
@@ -127,7 +102,7 @@ class SubPopulation:
 
 class Population:
     def __init__(self, nb_inds_tasks: List[int], task:Task, num_sub_tasks: int = 1, 
-        tree_config:dict = {}) -> None:
+        tree_config:dict = {}, num_workers:int = 4, offspring_size:float = 1.0) -> None:
         '''
         A Population include:\n
         + `nb_inds_tasks`: number individual of tasks; nb_inds_tasks[i] = num individual of task i
@@ -140,6 +115,9 @@ class Population:
         self.ls_subPop: List[SubPopulation] = [
             SubPopulation(self.nb_inds_tasks[skf], skill_factor = skf,  task= task, tree_config = tree_config) for skf in range(self.num_sub_tasks)
         ]
+        self.offspring_size= offspring_size
+        self.multiprocessor = Multiprocessor(num_workers= num_workers)
+        self.train_steps:int = 0
         
     def update_nb_inds_tasks(self, nb_inds_tasks):
         self.nb_inds_tasks = nb_inds_tasks
@@ -163,11 +141,32 @@ class Population:
                 res += self.ls_subPop[idx].__getRandomItems__(size = nb_inds, replace= replace)
 
             return res
-
+        
+    def collect_optimize_jobs(self):
+        optimize_jobs = []
+        for subpop in self: 
+            optimize_jobs.extend(subpop.collect_optimize_jobs())
+        return optimize_jobs
+        
     def optimize(self):
-        for supop in self.ls_subPop:
-            supop.optimize()
+        optimize_jobs = self.collect_optimize_jobs()
+
+        with self.multiprocessor:
+            metrics, loss, train_steps = self.multiprocessor.execute(optimize_jobs)
+        
+        for metric, job in zip(metrics, optimize_jobs):
+            task, ind= job
+            ind.objective = [metric if task.is_larger_better else -metric]
+            ind.is_optimized = True
+        
+        self.train_steps += sum(train_steps)
+        self.update_optimized_idx()
     
+    def update_optimized_idx(self):
+        for subpop in self:
+            subpop.update_optimized_idx()
+
+        
     @timed
     def collect_fitness_info(self):
         for subpop in self.ls_subPop:
@@ -186,4 +185,3 @@ class Population:
         
         best_tree = best_trees[np.argmax([subPop.max_main_objective for subPop in self])]
         return best_trees, best_tree
-        

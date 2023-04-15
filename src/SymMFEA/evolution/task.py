@@ -16,7 +16,6 @@ class Task:
         self.terminal_set = [i for i in range(X.shape[1])]
         self.data_pool = DataPool(X, y, test_size= test_size)
         self.trainer = Trainer(loss= loss, optimizer=optimizer, metric= metric)
-        # self.metric = metric
         self.train_dataloader_cfg = {
             'batch_size': batch_size,
             'shuffle': shuffle,
@@ -38,9 +37,6 @@ class SubTask:
     @timed
     def train(self, ind, steps = None):            
         return self.task.trainer.fit(ind, self.train_dataloader, steps= self.task.steps_per_gen if steps is None else steps, val_data = self.data)
-        
-    # def flush_history(self, ind):
-    #     ind.flush_history()
         
         
     def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100, verbose = False):

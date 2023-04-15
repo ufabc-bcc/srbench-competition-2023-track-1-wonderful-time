@@ -11,7 +11,6 @@ import math
 class Tree: 
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False) -> None:
         self.position = next(weight_manager.WM)
-        self.isPrime: bool = False
         if deepcopy:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
@@ -19,12 +18,7 @@ class Tree:
                 
         self.updateNodes()
         self.compile(init_weight= init_weight)
-        # self.W: np.ndarray
-        # self.bias: np.ndarray
-        # self.dW: np.ndarray
-        # self.dB: np.ndarray
-        
-    
+
     def __str__(self) -> str:
         s = ''
         for n in self.nodes:
@@ -146,7 +140,6 @@ class Tree:
     
     def rollback_best(self):
         
-        self.isPrime = True
         weight_manager.WM.weight[self.position] = weight_manager.WM.best_weight[self.position]
         weight_manager.WM.bias[self.position] = weight_manager.WM.best_bias[self.position]
 

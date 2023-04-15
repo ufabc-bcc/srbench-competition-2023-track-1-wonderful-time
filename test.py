@@ -90,6 +90,8 @@ model.fit(
     finetune_steps= 1000,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
+    num_workers= 16,
+    offspring_size= 3,
     **SMP_configs,
 )
 
