@@ -9,6 +9,7 @@ from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
 from ..task import Task, SubTask
 import random
+from .. import offsprings_pool
 
         
 class SubPopulation:
@@ -33,8 +34,8 @@ class SubPopulation:
         
         self.optimized_idx:int = 0
         
-    def update_optimized_idx(self):
-        self.optimized_idx = len(self.ls_inds)
+    # def update_optimized_idx(self):
+    #     self.optimized_idx = len(self.ls_inds)
                 
     def __len__(self): 
         return len(self.ls_inds)
@@ -82,13 +83,17 @@ class SubPopulation:
         else:
             self.factorial_rank = np.array([])
         self.scalar_fitness = 1/self.factorial_rank
+        
+    def append_offsprings(self, offsprings: List[Individual]):
+        self.ls_inds.extend(offsprings)
+        # self.update_optimized_idx
 
     def select(self, index_selected_inds: list):
         self.ls_inds = [self.ls_inds[idx] for idx in index_selected_inds]
-        self.update_optimized_idx()
+        # self.update_optimized_idx()
         
-    def collect_optimize_jobs(self):
-        return [(self.task, ind) for ind in self.ls_inds[self.optimized_idx:]]
+    # def collect_optimize_jobs(self):
+    #     return [(self.task, ind) for ind in self.ls_inds[self.optimized_idx:]]
             
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds])
@@ -129,6 +134,12 @@ class Population:
 
     def __getitem__(self, index) -> SubPopulation: 
         return self.ls_subPop[index]
+    
+    def all(self):
+        inds = []
+        for subpop in self:
+            inds.extend(subpop.ls_inds)
+        return inds
 
     def __getRandomInds__(self, size: int = None, replace: bool = False):
         if size == None:
@@ -144,31 +155,32 @@ class Population:
 
             return res
         
-    def collect_optimize_jobs(self):
-        optimize_jobs = []
-        for subpop in self: 
-            optimize_jobs.extend(subpop.collect_optimize_jobs())
+    # def collect_optimize_jobs(self):
+    #     optimize_jobs = []
+    #     for subpop in self: 
+    #         optimize_jobs.extend(subpop.collect_optimize_jobs())
             
-        #shuffle because some jobs are shorter
-        random.shuffle(optimize_jobs)
-        return optimize_jobs
+    #     #shuffle because some jobs are shorter
+    #     random.shuffle(optimize_jobs)
+    #     return optimize_jobs
         
-    def optimize(self):
-        optimize_jobs = self.collect_optimize_jobs()
+    # def optimize(self):
+    #     optimize_jobs = self.collect_optimize_jobs()
 
-        metrics, loss, train_steps = self.multiprocessor.execute(optimize_jobs)
+    #     metrics, loss, train_steps = self.multiprocessor.execute(optimize_jobs)
         
-        for metric, job in zip(metrics, optimize_jobs):
-            task, ind= job
-            ind.objective = [metric if task.is_larger_better else -metric]
-            ind.is_optimized = True
+    #     for metric, job in zip(metrics, optimize_jobs):
+    #         task, ind= job
+    #         ind.objective = [metric if task.is_larger_better else -metric]
+    #         ind.is_optimized = True
         
-        self.train_steps += sum(train_steps)
-        self.update_optimized_idx()
+    #     self.train_steps += sum(train_steps)
+        
+    #     self.update_optimized_idx()
     
-    def update_optimized_idx(self):
-        for subpop in self:
-            subpop.update_optimized_idx()
+    # def update_optimized_idx(self):
+    #     for subpop in self:
+    #         subpop.update_optimized_idx()
 
         
     @timed

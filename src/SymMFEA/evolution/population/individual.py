@@ -20,6 +20,9 @@ class Individual:
         self.optimizer_profile: dict= dict()
         self.is_optimized = False
         
+    @property
+    def position(self):
+        return self.genes.position
         
     def update_best_tree(self, metric):
         self.best_metric = metric

@@ -12,8 +12,10 @@ from ...utils.timer import *
 from ...components.weight_manager import initWM
 from termcolor import colored
 from ...components.multiprocessor import Multiprocessor
+from ..offsprings_pool import initOffspringsPool
+from ..import offsprings_pool
 
-
+#NOTE: probably generation step outdated and GA is not working
 class GA:
     ranker_class = SingleObjectiveRanker
     reproducer_class = Reproducer
@@ -94,9 +96,12 @@ class GA:
 
         # update info to display
         population.collect_best_info()
+        
+        self.update_process_bar(population, reverse=not self.is_larger_better)
 
     def init_params(self, population: Population, **kwargs):
         self.num_sub_tasks: int = 1
+        self.is_larger_better = kwargs['is_larger_better']
 
         return {}
 
@@ -141,13 +146,18 @@ class GA:
         self.nb_inds_each_task = nb_inds_each_task
         self.nb_terminals = X.shape[1]
 
-        initWM((1000000, max(tree_config.get('max_length'))))
+        #init multiprocessor
+        initWM((100000, max(tree_config.get('max_length'))))
+        
+        #init offsprings pool
+        initOffspringsPool()
 
-        self.init_params(**params)
+        self.init_params(**params, is_larger_better= metric.is_larger_better)
         
         
 
         with Multiprocessor(num_workers= num_workers) as multiprocessor:
+            self.multiprocessor = multiprocessor
             
             # initialize population
             population = Population(
@@ -159,7 +169,6 @@ class GA:
                 offspring_size=offspring_size, multiprocessor= multiprocessor
             )
 
-            population.optimize()
 
             # update task info for reproducer
             self.reproducer.update_task_info(
@@ -173,9 +182,7 @@ class GA:
             try:
                 for generation in self.pbar.pbar:
                     self.generation_step(population, generation)
-                    self.update_process_bar(
-                        population, reverse=not metric.is_larger_better)
-
+                    
                 # finetune solution
                 # self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True)
 
@@ -187,10 +194,10 @@ class GA:
                     self.display_final_result(population)
 
             finally:
-                best_trees, self.final_solution = population.get_best_trees()
                 Timer.display()
-                print(
-                    f'Total number of train steps: {colored(population.train_steps, "red")}')
+                best_trees, self.final_solution = population.get_best_trees()
+                
+                print(f'Total number of train steps: {colored(offsprings_pool.optimized.train_steps.value, "red")}')
 
     def predict(self, X: np.ndarray):
         return self.final_solution(X)
