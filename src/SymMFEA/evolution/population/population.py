@@ -102,8 +102,8 @@ class SubPopulation:
 # ==================================================================================
 
 class Population:
-    def __init__(self, nb_inds_tasks: List[int], task:Task, num_sub_tasks: int = 1, 
-        tree_config:dict = {}, num_workers:int = 4, offspring_size:float = 1.0) -> None:
+    def __init__(self, nb_inds_tasks: List[int], task:Task, multiprocessor: Multiprocessor, num_sub_tasks: int = 1, 
+        tree_config:dict = {}, offspring_size:float = 1.0) -> None:
         '''
         A Population include:\n
         + `nb_inds_tasks`: number individual of tasks; nb_inds_tasks[i] = num individual of task i
@@ -117,8 +117,9 @@ class Population:
             SubPopulation(self.nb_inds_tasks[skf], skill_factor = skf,  task= task, tree_config = tree_config) for skf in range(self.num_sub_tasks)
         ]
         self.offspring_size= offspring_size
-        self.multiprocessor = Multiprocessor(num_workers= num_workers)
+        
         self.train_steps:int = 0
+        self.multiprocessor = multiprocessor
         
     def update_nb_inds_tasks(self, nb_inds_tasks):
         self.nb_inds_tasks = nb_inds_tasks
@@ -155,8 +156,7 @@ class Population:
     def optimize(self):
         optimize_jobs = self.collect_optimize_jobs()
 
-        with self.multiprocessor:
-            metrics, loss, train_steps = self.multiprocessor.execute(optimize_jobs)
+        metrics, loss, train_steps = self.multiprocessor.execute(optimize_jobs)
         
         for metric, job in zip(metrics, optimize_jobs):
             task, ind= job

@@ -1,12 +1,12 @@
 from typing import List
 from ..components.trainer import Trainer
-from ..components.data_pool import DataPool, DataView, TrainDataLoader
+from ..components.data_pool import DataPool, DataView, TrainDataLoader, initDataPool
 from ..components.trainer import Loss, GradOpimizer
 from ..components.metrics import Metric
 import numpy as np
 from ..utils import FinetuneProgressBar
 from ..utils.timer import *
-
+from ..components import data_pool
 
 class Task:
     def __init__(self, X: np.ndarray, y:np.ndarray, loss: Loss,
@@ -14,7 +14,12 @@ class Task:
                  shuffle: bool, nb_not_improve: int = None, test_size: float = 0.2):
         assert len(X.shape) == 2
         self.terminal_set = [i for i in range(X.shape[1])]
-        self.data_pool = DataPool(X, y, test_size= test_size)
+        
+        #init datapool
+        initDataPool(X, y, test_size= test_size)
+        self.data_pool = data_pool.data_pool
+        # self.data_pool = DataPool(X, y, test_size= test_size)
+        
         self.trainer = Trainer(loss= loss, optimizer=optimizer, metric= metric)
         self.train_dataloader_cfg = {
             'batch_size': batch_size,

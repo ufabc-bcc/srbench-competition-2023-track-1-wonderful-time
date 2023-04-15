@@ -1,9 +1,19 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
 from typing import Tuple
+from ..utils import create_shared_np
+
 class DataPool:
     def __init__(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, stratify:bool = False):
-        self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X, y, test_size=test_size, stratify= y if stratify else None)
+        tmp = train_test_split(X, y, test_size=test_size, stratify= y if stratify else None)
+        
+        self.X_train, self.X_val, self.y_train, self.y_val = tuple([
+            create_shared_np(mat.shape, mat) for mat in tmp
+        ])
+        
+        # self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X, y, test_size=test_size, stratify= y if stratify else None)
+        
+    
     
 class DataView:
     def __init__(self, data_pool: DataPool, sample: float = 1):
@@ -62,3 +72,7 @@ class TrainDataLoader:
     
     def shuffle_view(self):
         self.index = np.random.permutation(self.data_view.len_train)
+        
+def initDataPool(*args, **kwargs):
+    global data_pool 
+    data_pool = DataPool(*args, **kwargs)

@@ -1,17 +1,5 @@
-import multiprocessing as mp
-import numpy as np
-import ctypes
-from typing import Iterable
 
-#NOTE: so far not remove not used memory
-
-def create_shared_np(shape: Iterable[int]):
-    # return np.empty(shape, dtype= np.float64)
-    num_blocks = 1
-    for s in shape:
-        num_blocks *= s
-    shared_arr = mp.Array(ctypes.c_double, num_blocks)
-    return np.frombuffer(shared_arr.get_obj()).reshape(shape)
+from ..utils import create_shared_np
 
 
 class WeightManager:
