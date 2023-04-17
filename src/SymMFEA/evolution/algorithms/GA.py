@@ -14,6 +14,7 @@ from termcolor import colored
 from ...components.multiprocessor import Multiprocessor
 from ..offsprings_pool import initOffspringsPool
 from ..import offsprings_pool
+import traceback
 
 #NOTE: probably generation step outdated and GA is not working
 class GA:
@@ -42,9 +43,9 @@ class GA:
         self.selector: Selector = self.selector_class(**selector_config)
         self.final_solution = None
 
-    def update_process_bar(self, population: Population, reverse: bool):
+    def update_process_bar(self, population: Population, reverse: bool, **kwargs):
         self.pbar.update(
-            [subPop.max_main_objective for subPop in population], reverse=reverse)
+            [subPop.max_main_objective for subPop in population], reverse=reverse, **kwargs)
 
     def display_final_result(self, population: Population):
         best_trees, _ = population.get_best_trees()
@@ -186,9 +187,10 @@ class GA:
                 # finetune solution
                 # self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True)
 
-            except KeyboardInterrupt:
-                pass
-
+            except Exception as e:
+                print(traceback.format_exc())
+                raise e
+            
             else:
                 if visualize:
                     self.display_final_result(population)
@@ -196,8 +198,6 @@ class GA:
             finally:
                 Timer.display()
                 best_trees, self.final_solution = population.get_best_trees()
-                
-                print(f'Total number of train steps: {colored(offsprings_pool.optimized.train_steps.value, "red")}')
-
+            
     def predict(self, X: np.ndarray):
         return self.final_solution(X)

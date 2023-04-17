@@ -74,7 +74,9 @@ class SMP(GA):
             population.collect_best_info()
             
             #update process bar
-            self.update_process_bar(population, reverse=not self.is_larger_better)
+            self.update_process_bar(population, 
+                                    reverse=not self.is_larger_better,
+                                    train_steps= offsprings_pool.optimized.train_steps.value,)
         
         #update smp
         self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
