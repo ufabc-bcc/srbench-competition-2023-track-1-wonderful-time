@@ -27,14 +27,14 @@ class SMP(GA):
             #so far new_born is not necessary because reproducer is not concurrent
             
             #append to new_born pool
-            offsprings_pool.new_born.append_offsprings(offsprings)
+            offsprings_pool.new_born.append(offsprings)
         else:
             #append to new_born pool
-            offsprings_pool.new_born.append_offsprings(population.all())
+            offsprings_pool.new_born.append(population.all())
         
         #submit optimization jobs to multiprocessor
         #optimized inds will be append to optimized pool
-        optimize_jobs = offsprings_pool.new_born.collect_optimize_job()
+        optimize_jobs = offsprings_pool.new_born.collect_optimize_jobs()
         #create callback function to append offsprings when finish optimization
         append_callback = offsprings_pool.optimized.create_append_callback(optimize_jobs=optimize_jobs)
         
