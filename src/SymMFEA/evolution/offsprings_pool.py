@@ -10,7 +10,7 @@ class OffspringsPool:
     def __init__(self):
         self.pool= np.empty(MAX_SIZE, dtype = object)
         self.ready_to_collect = create_shared_np(MAX_SIZE, val=0, dtype= ctypes.c_bool)
-    
+            
     @timed
     def collect(self):
         idx = self.ready_to_collect

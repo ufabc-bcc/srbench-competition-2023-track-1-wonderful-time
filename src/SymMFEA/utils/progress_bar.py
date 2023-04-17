@@ -6,7 +6,7 @@ import numpy as np
 
 class ProgressBar:
     def __init__(self, num_iters: int, dsc: str = ' ', metric_name:str = 'Obj', **kwargs) -> None:
-        self.pbar = tqdm(range(num_iters))
+        self.pbar = tqdm(range(num_iters), position= 0)
         self.pbar.set_description(colored(dsc, 'red'))
         self.metric_name = metric_name
         
@@ -17,12 +17,15 @@ class GAProgressBar(ProgressBar):
     def __init__(self, num_iters: int, metric_name:str = 'Obj', **kwargs) -> None:
         super().__init__(num_iters= num_iters, metric_name= metric_name, dsc = 'GA progress')
     
-    def update(self, objectives: List[int], reverse = False):
+    def update(self, objectives: List[int], reverse = False, train_steps:int= 0):
         argmax = np.argmax(objectives)
         
         objectives = objectives if not reverse else [-o for o in objectives]
         
-        display_str = f'{self.metric_name}: '
+        display_str = colored(f'Train steps: {train_steps};', 'red')
+        
+        
+        display_str += f' {self.metric_name}: '
         
         for i, o in enumerate(objectives):
             text = '{:.2f}; '.format(o)

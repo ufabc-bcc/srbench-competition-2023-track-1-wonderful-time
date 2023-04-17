@@ -7,6 +7,9 @@ def execute_one_job(args: Tuple[SubTask, List]):
     task, ind= args
     return task.task.trainer.fit(ind, task.train_dataloader, steps= task.task.steps_per_gen, val_data = task.data)
 
+def custom_error_callback(error):
+    raise ValueError(f'Got an error: {error}')
+
 class Multiprocessor:
     def __init__(self, num_workers:int = 1, chunksize: int = 10):
         self.num_workers= num_workers
@@ -20,11 +23,10 @@ class Multiprocessor:
     @timed
     def execute(self, jobs: List[Tuple[SubTask, List]], callback: Callable, wait_for_result: bool = False):
         
-        result = self.pool.map_async(execute_one_job, jobs, self.chunksize, callback=callback)
+        result = self.pool.map_async(execute_one_job, jobs, self.chunksize, callback=callback, error_callback= custom_error_callback)
         if wait_for_result:
             result.wait()
     
     def __exit__(self, *args, **kwargs):
         self.pool.close()
         self.pool.join()
-        del self.pool
