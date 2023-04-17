@@ -84,7 +84,7 @@ class SubPopulation:
             self.factorial_rank = np.array([])
         self.scalar_fitness = 1/self.factorial_rank
         
-    def append_offsprings(self, offsprings: List[Individual]):
+    def append(self, offsprings: List[Individual]):
         self.ls_inds.extend(offsprings)
         # self.update_optimized_idx
 

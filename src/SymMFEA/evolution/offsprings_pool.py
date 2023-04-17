@@ -1,35 +1,35 @@
 
-from typing import Dict, List
+from typing import List
 from ..utils.timer import timed
+from ..utils import create_shared_np
 import multiprocessing as mp
-
+import ctypes
+import numpy as np
+MAX_SIZE = 1000000
 class OffspringsPool:
     def __init__(self):
-        global manager
-        self.pool: Dict[int, object] = manager.dict()
+        self.pool= np.empty(MAX_SIZE, dtype = object)
+        self.ready_to_collect = create_shared_np(MAX_SIZE, val=0, dtype= ctypes.c_bool)
     
     @timed
-    def append_offsprings(self, inds: List[object]):
-        for ind in inds:
-            self.pool[ind.position] = ind
-        
+    def collect(self):
+        idx = self.ready_to_collect
+        rs = self.pool[idx]
+        self.ready_to_collect[idx] = 0
+        return rs
     
-    def remove(self, idx):
-        for i in idx:
-            del self.pool[i]
-
+    @timed
+    def append(self, inds: list):
+        idx = [ind.position for ind in inds]
+        self.pool[idx] = inds
+        self.ready_to_collect[idx] = 1 
+        
         
 class NewBorn(OffspringsPool):
-    def collect_optimize_job(self):
+    def collect_optimize_jobs(self):
+        inds = self.collect()
+        return [(ind.task, ind) for ind in inds]
         
-        idx = self.pool.keys()
-        jobs = [
-            (self.pool[i].task, self.pool[i]) for i in idx
-        ]
-        
-        self.remove(idx)
-        
-        return jobs
     
 class Optimized(OffspringsPool):
     def __init__(self):
@@ -53,29 +53,26 @@ class Optimized(OffspringsPool):
     def create_append_callback(self, optimize_jobs):
         def wrapper(result):
             inds, train_steps = self.handle_result(result, optimize_jobs= optimize_jobs)
-            self.append_offsprings(inds)
+            self.append(inds)
             self.train_steps.value = self.train_steps.value + train_steps
         
         return wrapper
     
     def collect_optimized(self, num_subpops):
-        num = len(self.pool)
-        if num == 0:
-            return [], num
-        
-        offsprings = [[] for _ in range(num_subpops)]
-        
-        idx = self.pool.keys()
-        for i in idx:
-            o = self.pool[i]
-            offsprings[o.skill_factor].append(o)
-        
-        self.remove(idx)
+        opt = self.collect()
+        num = len(opt)
+        if num:
+            offsprings = [[] for _ in range(num_subpops)]
+            
+            
+            for ind in opt:
+                offsprings[ind.skill_factor].append(ind)
+        else:
+            offsprings = []
         return offsprings, num
         
 
 def initOffspringsPool():
-    global new_born, optimized, manager
-    manager = mp.Manager()
+    global new_born, optimized
     new_born = NewBorn()
     optimized = Optimized()
