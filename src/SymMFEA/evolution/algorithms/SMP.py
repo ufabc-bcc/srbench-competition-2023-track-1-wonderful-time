@@ -7,7 +7,7 @@ from ..reproducer import SMP_Reproducer, battle_smp
 from ..selector import ElitismSelector
 import matplotlib.pyplot as plt
 from .. import offsprings_pool
-
+import time
 class SMP(GA):
     
     ranker_class = SingleObjectiveRanker
@@ -83,6 +83,8 @@ class SMP(GA):
             #update info to display
             population.collect_best_info()
             
+            
+            time.sleep(max((self.multiprocessor.in_queue.value - self.expected_inqueue) / 1000, 0))
             #update process bar
             self.update_process_bar(population, 
                                     reverse=not self.is_larger_better,
