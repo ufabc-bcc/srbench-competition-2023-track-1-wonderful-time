@@ -34,7 +34,7 @@ class NewBorn(OffspringsPool):
 class Optimized(OffspringsPool):
     def __init__(self):
         super().__init__()
-        self.train_steps = mp.Value('L', 0)
+
         
     @staticmethod
     def handle_result(result, optimize_jobs):
@@ -50,11 +50,13 @@ class Optimized(OffspringsPool):
             
         return inds, sum(train_steps)
     
-    def create_append_callback(self, optimize_jobs):
+    def create_append_callback(self, optimize_jobs, multiprocessor):
         def wrapper(result):
             inds, train_steps = self.handle_result(result, optimize_jobs= optimize_jobs)
             self.append(inds)
-            self.train_steps.value = self.train_steps.value + train_steps
+            multiprocessor.train_steps.value = multiprocessor.train_steps.value + train_steps
+            multiprocessor.in_queue.value = multiprocessor.in_queue.value - len(inds)
+            multiprocessor.processed.value = multiprocessor.processed.value + len(inds)
         
         return wrapper
     
