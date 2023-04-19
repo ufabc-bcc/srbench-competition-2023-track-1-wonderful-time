@@ -11,7 +11,7 @@ from ..components import data_pool
 class Task:
     def __init__(self, X: np.ndarray, y:np.ndarray, loss: Loss,
                  optimizer: GradOpimizer, metric: Metric, steps_per_gen: int, batch_size:int,
-                 shuffle: bool, nb_not_improve: int = None, test_size: float = 0.2):
+                 shuffle: bool, test_size: float = 0.2):
         assert len(X.shape) == 2
         self.terminal_set = [i for i in range(X.shape[1])]
         
@@ -26,7 +26,6 @@ class Task:
             'shuffle': shuffle,
         }
         self.steps_per_gen:int = steps_per_gen
-        self.nb_not_improve = nb_not_improve
         self.is_larger_better = metric.is_larger_better
         
     

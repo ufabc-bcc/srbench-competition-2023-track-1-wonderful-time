@@ -32,14 +32,24 @@ class SMP(GA):
             #append to new_born pool
             offsprings_pool.new_born.append(population.all())
         
-        #submit optimization jobs to multiprocessor
-        #optimized inds will be append to optimized pool
-        optimize_jobs = offsprings_pool.new_born.collect_optimize_jobs()
-        #create callback function to append offsprings when finish optimization
-        append_callback = offsprings_pool.optimized.create_append_callback(optimize_jobs=optimize_jobs)
         
-        self.multiprocessor.execute(optimize_jobs, append_callback, wait_for_result= generation == 0)
+        #check if produce new offsprings or finish remaining
+        if generation == -1: 
+            self.terminated = self.multiprocessor.terminated
+            
+                
+        else:
         
+            #submit optimization jobs to multiprocessor
+            #optimized inds will be append to optimized pool
+            optimize_jobs = offsprings_pool.new_born.collect_optimize_jobs()
+            #create callback function to append offsprings when finish optimization
+            append_callback = offsprings_pool.optimized.create_append_callback(optimize_jobs=optimize_jobs, multiprocessor= self.multiprocessor)
+            
+            self.multiprocessor.execute(optimize_jobs, append_callback, wait_for_result= generation == 0)
+        
+        
+
         #collect optimized offprings
         offsprings, num_offsprings = offsprings_pool.optimized.collect_optimized(population.num_sub_tasks)
         
@@ -76,10 +86,16 @@ class SMP(GA):
             #update process bar
             self.update_process_bar(population, 
                                     reverse=not self.is_larger_better,
-                                    train_steps= offsprings_pool.optimized.train_steps.value,)
+                                    train_steps= self.multiprocessor.train_steps.value,
+                                    in_queue= self.multiprocessor.in_queue.value,
+                                    processed= self.multiprocessor.processed.value,
+                                    )
+            
+            
         
         #update smp
         self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
+        
             
     def init_params(self, **kwargs):
         self.history_smp: list = []

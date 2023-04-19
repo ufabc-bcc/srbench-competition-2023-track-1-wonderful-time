@@ -14,6 +14,13 @@ class Multiprocessor:
     def __init__(self, num_workers:int = 1, chunksize: int = 10):
         self.num_workers= num_workers
         self.chunksize= chunksize
+        self.train_steps = mp.Value('L', 0)
+        self.in_queue= mp.Value('L', 0)
+        self.processed = mp.Value('L', 0)
+    
+    @property
+    def terminated(self):
+        return self.in_queue.value == 0
     
     @timed
     def __enter__(self):
@@ -22,7 +29,7 @@ class Multiprocessor:
     
     @timed
     def execute(self, jobs: List[Tuple[SubTask, List]], callback: Callable, wait_for_result: bool = False):
-        
+        self.in_queue.value = self.in_queue.value + len(jobs) 
         result = self.pool.map_async(execute_one_job, jobs, self.chunksize, callback=callback, error_callback= custom_error_callback)
         if wait_for_result:
             result.wait()

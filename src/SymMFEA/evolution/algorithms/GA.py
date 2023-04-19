@@ -42,6 +42,7 @@ class GA:
             **reproducer_config)
         self.selector: Selector = self.selector_class(**selector_config)
         self.final_solution = None
+        self.terminated: bool = False
 
     def update_process_bar(self, population: Population, reverse: bool, **kwargs):
         self.pbar.update(
@@ -116,7 +117,6 @@ class GA:
             metric: Metric,
             batch_size: int = 10,
             shuffle: bool = True,
-            nb_not_improve: int = None,
             steps_per_gen: int = 10,
             nb_generations: int = 100,
             nb_inds_each_task: int = 100,
@@ -148,7 +148,7 @@ class GA:
         self.nb_terminals = X.shape[1]
 
         #init multiprocessor
-        initWM((100000, max(tree_config.get('max_length'))))
+        initWM((1000000, max(tree_config.get('max_length'))))
         
         #init offsprings pool
         initOffspringsPool()
@@ -165,7 +165,7 @@ class GA:
                 nb_inds_tasks=nb_inds_each_task,
                 task=Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen,
                         batch_size=batch_size, test_size=test_size,
-                        shuffle=shuffle, nb_not_improve=nb_not_improve),
+                        shuffle=shuffle),
                 tree_config=tree_config, num_sub_tasks=self.num_sub_tasks,
                 offspring_size=offspring_size, multiprocessor= multiprocessor
             )
@@ -183,6 +183,10 @@ class GA:
             try:
                 for generation in self.pbar.pbar:
                     self.generation_step(population, generation)
+                else:
+                    #wait for remaining jobs
+                    while not self.terminated:
+                        self.generation_step(population, -1)
                     
                 # finetune solution
                 # self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True)
