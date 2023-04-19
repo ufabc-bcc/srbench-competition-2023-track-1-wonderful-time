@@ -7,6 +7,7 @@ from ..reproducer import SMP_Reproducer, battle_smp
 from ..selector import ElitismSelector
 import matplotlib.pyplot as plt
 from .. import offsprings_pool
+from ...utils.timer import timed
 import time
 class SMP(GA):
     
@@ -14,6 +15,11 @@ class SMP(GA):
     reproducer_class = SMP_Reproducer
     selector_class = ElitismSelector
     pass_down_params: list = ['nb_terminals', "smp", 'p_choose_father']
+    
+    @timed
+    def wait(self):
+        expected_inqueue = self.expected_generations_inqueue * self.offspring_size * sum(self.nb_inds_each_task)
+        time.sleep(max((self.multiprocessor.in_queue.value - expected_inqueue) / 1000, 0))
         
     def generation_step(self, population: Population, generation: int):
         
@@ -84,7 +90,8 @@ class SMP(GA):
             population.collect_best_info()
             
             
-            time.sleep(max((self.multiprocessor.in_queue.value - self.expected_inqueue) / 1000, 0))
+            self.wait()
+            
             #update process bar
             self.update_process_bar(population, 
                                     reverse=not self.is_larger_better,

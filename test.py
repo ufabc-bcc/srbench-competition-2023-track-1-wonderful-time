@@ -80,7 +80,7 @@ SMP_configs = {
 
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 30,
+    steps_per_gen= 50,
     nb_inds_each_task= 10,
     nb_generations= 500,
     batch_size= 2000,
@@ -90,9 +90,9 @@ model.fit(
     finetune_steps= 1000,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
-    num_workers= 50,
+    num_workers= 32,
     offspring_size= 5,
-    expected_inqueue= 5000,
+    expected_generations_inqueue= 15,
     **SMP_configs,
 )
 

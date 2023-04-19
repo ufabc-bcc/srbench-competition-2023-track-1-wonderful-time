@@ -128,7 +128,7 @@ class GA:
             finetune_decay_lr: float = 100,
             num_workers: int = 4,
             offspring_size: float = 1.0,
-            expected_inqueue: int = 5000,
+            expected_generations_inqueue: int = 5000,
             **params,
             ):
         '''
@@ -142,8 +142,8 @@ class GA:
         '''
 
         assert X.shape[0] == y.shape[0]
-
-        self.expected_inqueue= expected_inqueue
+        self.offspring_size= offspring_size
+        self.expected_generations_inqueue= expected_generations_inqueue
         self.nb_inds_min = nb_inds_min
         self.nb_generations = nb_generations
         self.nb_inds_each_task = nb_inds_each_task
