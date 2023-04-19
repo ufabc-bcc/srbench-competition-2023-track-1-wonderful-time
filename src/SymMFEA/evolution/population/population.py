@@ -116,7 +116,8 @@ class Population:
         # save params
         self.num_sub_tasks = num_sub_tasks
         
-        self.nb_inds_tasks = [nb_inds_tasks] * self.num_sub_tasks if isinstance(nb_inds_tasks, int) else nb_inds_tasks
+        self.nb_inds_tasks = nb_inds_tasks
+        
             
         self.ls_subPop: List[SubPopulation] = [
             SubPopulation(self.nb_inds_tasks[skf], skill_factor = skf,  task= task, tree_config = tree_config) for skf in range(self.num_sub_tasks)

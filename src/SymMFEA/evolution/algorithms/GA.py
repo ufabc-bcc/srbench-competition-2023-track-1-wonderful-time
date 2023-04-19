@@ -73,9 +73,10 @@ class GA:
         plt.savefig('Trees.png')
 
     def update_nb_inds_tasks(self, population: Population, generation: int):
+        #NOTE: Hardcode here
         population.update_nb_inds_tasks([int(
-            int(min((self.nb_inds_min - self.nb_inds_each_task)/(self.nb_generations - 1)
-                * (generation - 1) + self.nb_inds_each_task, self.nb_inds_each_task))
+            int(min((self.nb_inds_min - self.nb_inds_each_task[0])/(self.nb_generations - 1)
+                * (generation - 1) + self.nb_inds_each_task[0], self.nb_inds_each_task[0]))
         )] * self.num_sub_tasks)
 
     def generation_step(self, population: Population, generation: int):
@@ -103,6 +104,7 @@ class GA:
 
     def init_params(self, population: Population, **kwargs):
         self.num_sub_tasks: int = 1
+        
         self.is_larger_better = kwargs['is_larger_better']
 
         return {}
@@ -147,6 +149,7 @@ class GA:
         self.nb_inds_min = nb_inds_min
         self.nb_generations = nb_generations
         self.nb_inds_each_task = nb_inds_each_task
+        
         self.nb_terminals = X.shape[1]
 
         #init multiprocessor
@@ -164,7 +167,7 @@ class GA:
             
             # initialize population
             population = Population(
-                nb_inds_tasks=nb_inds_each_task,
+                nb_inds_tasks= self.nb_inds_each_task,
                 task=Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen,
                         batch_size=batch_size, test_size=test_size,
                         shuffle=shuffle),

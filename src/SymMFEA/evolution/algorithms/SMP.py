@@ -111,6 +111,7 @@ class SMP(GA):
         self.p_const_intra: float = kwargs['p_const_intra']
         self.delta_lr: int = kwargs['delta_lr']
         self.num_sub_tasks: int = kwargs['num_sub_task']
+        self.nb_inds_each_task = [self.nb_inds_each_task] * self.num_sub_tasks if isinstance(self.nb_inds_each_task, int) else self.nb_inds_tasks
         self.is_larger_better = kwargs['is_larger_better']
         
         # prob choose first parent
