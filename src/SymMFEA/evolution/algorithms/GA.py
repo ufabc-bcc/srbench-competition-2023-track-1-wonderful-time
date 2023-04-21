@@ -10,13 +10,10 @@ from ...utils import GAProgressBar, draw_tree
 import matplotlib.pyplot as plt
 from ...utils.timer import *
 from ...components.weight_manager import initWM
-from termcolor import colored
 from ...components.multiprocessor import Multiprocessor
 from ..offsprings_pool import initOffspringsPool
-from ..import offsprings_pool
 import traceback
 
-#NOTE: probably generation step outdated and GA is not working
 class GA:
     ranker_class = SingleObjectiveRanker
     reproducer_class = Reproducer
@@ -73,41 +70,12 @@ class GA:
         plt.savefig('Trees.png')
 
     def update_nb_inds_tasks(self, population: Population, generation: int):
-        #NOTE: Hardcode here
-        population.update_nb_inds_tasks([int(
-            int(min((self.nb_inds_min - self.nb_inds_each_task[0])/(self.nb_generations - 1)
-                * (generation - 1) + self.nb_inds_each_task[0], self.nb_inds_each_task[0]))
-        )] * self.num_sub_tasks)
-
-    def generation_step(self, population: Population, generation: int):
-
-        # update nb_inds_tasks
-        self.update_nb_inds_tasks(population=population, generation=generation)
-
-        # create new individuals
-        self.reproducer(population)
-
-        # train and get fitness from individuals
-        population.optimize()
-        population.collect_fitness_info()
-
-        # ranking
-        self.ranker(population)
-
-        # select best indivudals
-        self.selector(population)
-
-        # update info to display
-        population.collect_best_info()
+        nb = np.ceil(np.minimum(
+            (self.nb_inds_min - self.nb_inds_each_task) / (self.nb_generations - 1) * (generation - 1) + self.nb_inds_each_task, self.nb_inds_each_task
+        )).astype(np.int64)
         
-        self.update_process_bar(population, reverse=not self.is_larger_better)
+        population.update_nb_inds_tasks(nb)
 
-    def init_params(self, population: Population, **kwargs):
-        self.num_sub_tasks: int = 1
-        
-        self.is_larger_better = kwargs['is_larger_better']
-
-        return {}
 
     def finetune(self, ind: Individual):
         ind.finetune()
@@ -126,6 +94,7 @@ class GA:
             tree_config: dict = {},
             visualize: bool = False,
             test_size: float = 0.2,
+            data_sample: float = 0.8,
             finetune_steps: int = 5000,
             finetune_decay_lr: float = 100,
             num_workers: int = 4,
@@ -149,7 +118,7 @@ class GA:
         self.nb_inds_min = nb_inds_min
         self.nb_generations = nb_generations
         self.nb_inds_each_task = nb_inds_each_task
-        
+        self.data_sample = data_sample
         self.nb_terminals = X.shape[1]
 
         #init multiprocessor
@@ -172,7 +141,8 @@ class GA:
                         batch_size=batch_size, test_size=test_size,
                         shuffle=shuffle),
                 tree_config=tree_config, num_sub_tasks=self.num_sub_tasks,
-                offspring_size=offspring_size, multiprocessor= multiprocessor
+                offspring_size=offspring_size, multiprocessor= multiprocessor,
+                data_sample = data_sample
             )
 
 

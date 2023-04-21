@@ -8,6 +8,7 @@ from ..selector import ElitismSelector
 import matplotlib.pyplot as plt
 from .. import offsprings_pool
 from ...utils.timer import timed
+from ...utils import handle_number_of_list
 import time
 class SMP(GA):
     
@@ -100,10 +101,10 @@ class SMP(GA):
                                     processed= self.multiprocessor.processed.value,
                                     )
             
-            
         
-        #update smp
-        self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
+        if generation != -1 :    
+            #update smp
+            self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
         
             
     def init_params(self, **kwargs):
@@ -111,7 +112,11 @@ class SMP(GA):
         self.p_const_intra: float = kwargs['p_const_intra']
         self.delta_lr: int = kwargs['delta_lr']
         self.num_sub_tasks: int = kwargs['num_sub_task']
-        self.nb_inds_each_task = [self.nb_inds_each_task] * self.num_sub_tasks if isinstance(self.nb_inds_each_task, int) else self.nb_inds_tasks
+        
+        self.nb_inds_each_task = np.array(handle_number_of_list(self.nb_inds_each_task, self.num_sub_tasks))
+        self.data_sample = handle_number_of_list(self.data_sample, self.num_sub_tasks)
+        self.nb_inds_min = np.array(handle_number_of_list(self.nb_inds_min, self.num_sub_tasks))
+        
         self.is_larger_better = kwargs['is_larger_better']
         
         # prob choose first parent
