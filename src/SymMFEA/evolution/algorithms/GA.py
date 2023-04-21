@@ -142,7 +142,7 @@ class GA:
                         shuffle=shuffle),
                 tree_config=tree_config, num_sub_tasks=self.num_sub_tasks,
                 offspring_size=offspring_size, multiprocessor= multiprocessor,
-                data_sample = data_sample
+                data_sample = self.data_sample
             )
 
 

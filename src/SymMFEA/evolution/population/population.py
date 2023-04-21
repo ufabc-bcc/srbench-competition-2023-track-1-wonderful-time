@@ -16,6 +16,7 @@ class SubPopulation:
         
     def __init__(self,
                  num_inds: int,
+                 data_samples: float,
                  tree_config: dict = {},
                  skill_factor:int = None, 
                  task: Task = None):
@@ -23,7 +24,7 @@ class SubPopulation:
         self.skill_factor = skill_factor
         
         
-        self.task = SubTask(task)
+        self.task = SubTask(task, data_sample= data_samples)
         
         self.tree_factory = TreeFactory(task_idx = skill_factor, num_total_terminals= len(task.terminal_set), tree_config= tree_config)
         
@@ -33,9 +34,6 @@ class SubPopulation:
         self.objective: np.ndarray = None
         
         self.optimized_idx:int = 0
-        
-    # def update_optimized_idx(self):
-    #     self.optimized_idx = len(self.ls_inds)
                 
     def __len__(self): 
         return len(self.ls_inds)
@@ -114,12 +112,12 @@ class Population:
         '''
         # save params
         self.num_sub_tasks = num_sub_tasks
-        
+        self.data_sample = data_sample
         self.nb_inds_tasks = nb_inds_tasks
         
             
         self.ls_subPop: List[SubPopulation] = [
-            SubPopulation(self.nb_inds_tasks[skf], skill_factor = skf,  task= task, tree_config = tree_config) for skf in range(self.num_sub_tasks)
+            SubPopulation(self.nb_inds_tasks[skf], self.data_sample[skf], skill_factor = skf,  task= task, tree_config = tree_config) for skf in range(self.num_sub_tasks)
         ]
         self.offspring_size= offspring_size
         
