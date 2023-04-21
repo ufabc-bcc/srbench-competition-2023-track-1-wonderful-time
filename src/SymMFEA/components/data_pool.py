@@ -19,6 +19,7 @@ class DataView:
     def __init__(self, data_pool: DataPool, sample: float = 1):
         self.data_pool = data_pool
         self.index: np.ndarray = np.random.permutation(data_pool.y_train.shape[0])[:int(sample * data_pool.y_train.shape[0])]
+        self.val_index: np.ndarray = np.random.permutation(data_pool.y_val.shape[0])[:int(sample * data_pool.y_val.shape[0])]
     
     @property
     def len_train(self) -> int:
@@ -34,11 +35,11 @@ class DataView:
     
     @property
     def X_val(self) ->np.ndarray:
-        return self.data_pool.X_val 
+        return self.data_pool.X_val[self.val_index]
     
     @property
     def y_val(self) ->np.ndarray:
-        return self.data_pool.y_val 
+        return self.data_pool.y_val[self.val_index]
     
 #so far dataloader use for train only
 class TrainDataLoader:
