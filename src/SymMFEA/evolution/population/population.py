@@ -92,8 +92,6 @@ class SubPopulation:
         self.ls_inds = [self.ls_inds[idx] for idx in index_selected_inds]
         # self.update_optimized_idx()
         
-    # def collect_optimize_jobs(self):
-    #     return [(self.task, ind) for ind in self.ls_inds[self.optimized_idx:]]
             
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds])
@@ -107,8 +105,9 @@ class SubPopulation:
 # ==================================================================================
 
 class Population:
-    def __init__(self, nb_inds_tasks: List[int], task:Task, multiprocessor: Multiprocessor, num_sub_tasks: int = 1, 
-        tree_config:dict = {}, offspring_size:float = 1.0) -> None:
+    def __init__(self, nb_inds_tasks: List[int], task:Task,
+                 multiprocessor: Multiprocessor, num_sub_tasks: int = 1,
+                 data_sample:float = 0.8, tree_config:dict = {}, offspring_size:float = 1.0) -> None:
         '''
         A Population include:\n
         + `nb_inds_tasks`: number individual of tasks; nb_inds_tasks[i] = num individual of task i
@@ -155,34 +154,6 @@ class Population:
                 res += self.ls_subPop[idx].__getRandomItems__(size = nb_inds, replace= replace)
 
             return res
-        
-    # def collect_optimize_jobs(self):
-    #     optimize_jobs = []
-    #     for subpop in self: 
-    #         optimize_jobs.extend(subpop.collect_optimize_jobs())
-            
-    #     #shuffle because some jobs are shorter
-    #     random.shuffle(optimize_jobs)
-    #     return optimize_jobs
-        
-    # def optimize(self):
-    #     optimize_jobs = self.collect_optimize_jobs()
-
-    #     metrics, loss, train_steps = self.multiprocessor.execute(optimize_jobs)
-        
-    #     for metric, job in zip(metrics, optimize_jobs):
-    #         task, ind= job
-    #         ind.objective = [metric if task.is_larger_better else -metric]
-    #         ind.is_optimized = True
-        
-    #     self.train_steps += sum(train_steps)
-        
-    #     self.update_optimized_idx()
-    
-    # def update_optimized_idx(self):
-    #     for subpop in self:
-    #         subpop.update_optimized_idx()
-
         
     @timed
     def collect_fitness_info(self):

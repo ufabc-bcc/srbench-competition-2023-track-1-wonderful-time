@@ -4,7 +4,7 @@ from .visualize import draw_tree
 import multiprocessing as mp
 import numpy as np
 import ctypes
-from typing import Iterable
+from typing import Iterable, Union
 
 def create_shared_np(shape: Iterable[int], val= None, dtype= None):
     if isinstance(shape, int):
@@ -27,3 +27,8 @@ def create_shared_np(shape: Iterable[int], val= None, dtype= None):
         
     
     return array
+
+
+def handle_number_of_list(param: Union[int, float, list], size: int) -> list:
+    return param if isinstance(param, list) else [param] * size
+    

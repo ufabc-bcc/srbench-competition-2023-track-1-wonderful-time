@@ -16,10 +16,10 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 # np.seterr(all='raise')
 
-# ix = 3
-# Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
-# X, y = Z[:, :-1], Z[:, -1]
-X, y = load_diabetes(return_X_y= True)
+ix = 2
+Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
+X, y = Z[:, :-1], Z[:, -1]
+# X, y = load_diabetes(return_X_y= True)
 
 
 X = X.astype(np.float64)
@@ -31,10 +31,7 @@ print(X.shape)
 train_size = int(0.8 * X.shape[0])
 X_train, X_val = X[: train_size], X[train_size:]
 y_train, y_val = y[: train_size], y[train_size:]
-# tree_config = {
-#     'max_length': [100]* 2 + [60] * 3 + [30] * 5,
-#     'max_depth': [9] * 2 + [7] * 3 + [5] * 5,
-# }
+
 
 tree_config = {
     'max_length': [50]* 2 + [30] * 2 + [7] * 3,
@@ -81,16 +78,16 @@ SMP_configs = {
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 50,
-    nb_inds_each_task= 10,
+    nb_inds_each_task= [10] * 4+ [30] * 3,
+    data_sample = 0.8,
     nb_generations= 500,
     batch_size= 2000,
-    nb_not_improve= 3,
     test_size = 0.2,
     nb_inds_min= 10,
     finetune_steps= 1000,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
-    num_workers= 32,
+    num_workers= 24,
     offspring_size= 5,
     expected_generations_inqueue= 15,
     **SMP_configs,
