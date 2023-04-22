@@ -6,7 +6,7 @@ from ..task import Task
 from ..selector import ElitismSelector, Selector
 from ...components.trainer import Loss, GradOpimizer
 from ...components.metrics import Metric
-from ...utils import GAProgressBar, draw_tree
+from ...utils import GAProgressBar, draw_tree, CandidateFinetuneProgressBar
 import matplotlib.pyplot as plt
 from ...utils.timer import *
 from ...components.weight_manager import initWM
@@ -42,11 +42,11 @@ class GA:
         self.terminated: bool = False
 
     def update_process_bar(self, population: Population, reverse: bool, **kwargs):
-        self.pbar.update(
+        self.progress.update(
             [subPop.max_main_objective for subPop in population], reverse=reverse, **kwargs)
 
     def display_final_result(self, population: Population):
-        best_trees, _ = population.get_best_trees()
+        best_trees, _ = population.get_final_candidates()
         sqrt = np.sqrt(len(best_trees)).item()
         nb_columns = int(sqrt)
 
@@ -101,6 +101,7 @@ class GA:
             offspring_size: float = 1.0,
             expected_generations_inqueue: int = 5000,
             compact:bool = False,
+            moo:bool = False,
             **params,
             ):
         '''
@@ -121,6 +122,7 @@ class GA:
         self.nb_inds_each_task = nb_inds_each_task
         self.data_sample = data_sample
         self.nb_terminals = X.shape[1]
+        self.moo = moo or compact
 
         #init multiprocessor
         initWM((1000000, max(tree_config.get('max_length'))))
@@ -143,7 +145,7 @@ class GA:
                         shuffle=shuffle),
                 tree_config=tree_config, num_sub_tasks=self.num_sub_tasks,
                 offspring_size=offspring_size, multiprocessor= multiprocessor,
-                data_sample = self.data_sample
+                data_sample = self.data_sample, moo = moo
             )
 
 
@@ -153,19 +155,18 @@ class GA:
                 **{attr: getattr(self, attr) for attr in self.pass_down_params},
             )
 
-            self.pbar = GAProgressBar(
+            self.progress = GAProgressBar(
                 num_iters=nb_generations, metric_name=str(metric))
 
             try:
-                for generation in self.pbar.pbar:
+                for generation in self.progress.pbar:
                     self.generation_step(population, generation)
                 else:
                     #wait for remaining jobs
                     while not self.terminated:
                         self.generation_step(population, -1)
                     
-                # finetune solution
-                # self.final_solution.finetune(finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True)
+                
 
             except Exception as e:
                 print(traceback.format_exc())
@@ -176,8 +177,23 @@ class GA:
                     self.display_final_result(population)
 
             finally:
+                
+                candidates = population.get_final_candidates()
+                
+                
+                # finetune candidates
+                reverse = not metric.is_larger_better
+                progress = CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric))
+                for i in progress.pbar:
+                    candidates[i].finetune(
+                        finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True
+                    )
+                    progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
+                
+                self.final_solution = candidates[progress.best_idx]
+                
+                
                 Timer.display()
-                best_trees, self.final_solution = population.get_best_trees()
             
     def predict(self, X: np.ndarray):
         return self.final_solution(X)

@@ -42,11 +42,10 @@ class SubTask:
     def train(self, ind, steps = None):            
         return self.task.trainer.fit(ind, self.train_dataloader, steps= self.task.steps_per_gen if steps is None else steps, val_data = self.data)
         
-        
+    
+    @timed
     def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100, verbose = False):
-        
-        return 
-        self.flush_history(ind)
+         
         if finetune_steps < 1:
             return
         

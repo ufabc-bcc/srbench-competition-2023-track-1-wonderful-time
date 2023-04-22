@@ -5,8 +5,8 @@ import numpy as np
 
 
 class ProgressBar:
-    def __init__(self, num_iters: int, dsc: str = ' ', metric_name:str = 'Obj', **kwargs) -> None:
-        self.pbar = tqdm(range(num_iters), position= 0)
+    def __init__(self, num_iters: int, dsc: str = ' ', metric_name:str = 'Obj', leave= True, **kwargs) -> None:
+        self.pbar = tqdm(range(num_iters), position= 0, leave= leave)
         self.pbar.set_description(colored(dsc, 'red'))
         self.metric_name = metric_name
         
@@ -40,7 +40,7 @@ class FinetuneProgressBar(ProgressBar):
         '''
         metric_name: loss name, metric name
         '''
-        super().__init__(num_iters, dsc = 'Finetune', metric_name = metric_name, **kwargs)
+        super().__init__(num_iters, dsc = 'Finetune', metric_name = metric_name, leave=False, **kwargs)
         
     def update(self, loss: float, metric: float, best_metric: float, reverse = False):
         display_str = ''
@@ -50,3 +50,29 @@ class FinetuneProgressBar(ProgressBar):
             display_str += '{}: {:.2f}; '.format(m, val)
         
         self.pbar.set_postfix_str(colored(display_str, 'green'))
+        
+        
+class CandidateFinetuneProgressBar(ProgressBar):
+    def __init__(self, num_iters: int, metric_name: str = 'Obj', **kwargs) -> None:
+        super().__init__(num_iters, metric_name, dsc= 'Finetuning candidates', **kwargs)
+        self.curbest = None
+        self.best_idx = None
+        
+    def compare(self, metric:float, reverse:bool):
+        if not reverse:
+            return metric > self.curbest 
+        else:
+            return metric < self.curbest   
+        
+    
+    def update(self, metric: float, idx:int , reverse= False):
+        metric = -metric if reverse else metric
+        if self.compare(metric, reverse):
+            self.curbest= metric
+            self.best_idx = idx
+                    
+        display_str = 'Best {}: {:.2f}; '.format(self.metric_name, self.curbest)
+        
+        
+        self.pbar.set_postfix_str(colored(display_str, 'green'))
+    
