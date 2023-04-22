@@ -90,6 +90,7 @@ model.fit(
     num_workers= 24,
     offspring_size= 5,
     expected_generations_inqueue= 15,
+    compact= True,
     **SMP_configs,
 )
 

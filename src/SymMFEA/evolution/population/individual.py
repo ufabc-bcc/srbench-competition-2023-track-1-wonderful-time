@@ -41,3 +41,10 @@ class Individual:
     
     def finetune(self, finetune_steps: int, decay_lr: float, verbose = False):
         self.task.finetune(self, finetune_steps= finetune_steps, decay_lr = decay_lr, verbose = verbose)
+        
+    def set_objective(self, objective: np.ndarray, compact:bool = False):
+        
+        self.objective = [objective]
+        
+        if compact:
+            self.objective.extend([-self.genes.length, -self.genes.depth])
