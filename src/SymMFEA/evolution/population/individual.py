@@ -23,6 +23,10 @@ class Individual:
     @property
     def position(self):
         return self.genes.position
+    
+    @property
+    def main_objective(self):
+        return self.objective[0]
         
     def update_best_tree(self, metric):
         self.best_metric = metric

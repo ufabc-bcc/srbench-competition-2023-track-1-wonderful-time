@@ -16,7 +16,7 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 # np.seterr(all='raise')
 
-ix = 2
+ix = 1
 Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
 X, y = Z[:, :-1], Z[:, -1]
 # X, y = load_diabetes(return_X_y= True)
@@ -78,12 +78,12 @@ SMP_configs = {
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 50,
-    nb_inds_each_task= [10] * 4+ [30],
+    nb_inds_each_task= [15] * 4+ [30],
     data_sample = 0.6,
     nb_generations= 500,
     batch_size= 2000,
-    test_size = 0.2,
-    nb_inds_min= [6] * 4 + [15],
+    test_size = 0.33,
+    nb_inds_min= [10] * 4 + [15],
     finetune_steps= 1000,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
@@ -91,6 +91,7 @@ model.fit(
     offspring_size= 5,
     expected_generations_inqueue= 15,
     compact= True,
+    moo= True, 
     **SMP_configs,
 )
 

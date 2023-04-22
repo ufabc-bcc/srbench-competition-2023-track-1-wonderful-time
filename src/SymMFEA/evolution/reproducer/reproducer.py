@@ -190,7 +190,7 @@ class SMP_Reproducer(Reproducer):
                     
                     
                     #NOTE: hardcode first objective
-                    d = (o.objective[0] - parent_objective[0]) / (parent_objective[0] ** 2 + 1e-50)
+                    d = (o.main_objective - parent_objective[0]) / (parent_objective[0] ** 2 + 1e-50)
 
                     if o.parent_profile.get('born_way') == 'crossover':
                         Delta[skf][o.parent_profile.get('parent_skf')[i]] += max([d, 0])**2
