@@ -10,10 +10,7 @@ class DataPool:
         self.X_train, self.X_val, self.y_train, self.y_val = tuple([
             create_shared_np(mat.shape, mat) for mat in tmp
         ])
-        
-        # self.X_train, self.X_val, self.y_train, self.y_val = train_test_split(X, y, test_size=test_size, stratify= y if stratify else None)
-        
-    
+            
     
 class DataView:
     def __init__(self, data_pool: DataPool, sample: float = 1):

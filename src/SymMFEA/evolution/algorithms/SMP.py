@@ -1,7 +1,7 @@
 from .GA import GA
 import numpy as np
 import numpy as np
-from ..ranker import SingleObjectiveRanker
+from ..ranker import NonDominatedRanker
 from ..population import Population
 from ..reproducer import SMP_Reproducer, battle_smp
 from ..selector import ElitismSelector
@@ -12,7 +12,7 @@ from ...utils import handle_number_of_list
 import time
 class SMP(GA):
     
-    ranker_class = SingleObjectiveRanker
+    ranker_class = NonDominatedRanker
     reproducer_class = SMP_Reproducer
     selector_class = ElitismSelector
     pass_down_params: list = ['nb_terminals', "smp", 'p_choose_father']

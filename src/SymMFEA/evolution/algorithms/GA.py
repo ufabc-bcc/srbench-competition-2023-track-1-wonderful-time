@@ -100,6 +100,7 @@ class GA:
             num_workers: int = 4,
             offspring_size: float = 1.0,
             expected_generations_inqueue: int = 5000,
+            compact:bool = False,
             **params,
             ):
         '''
@@ -125,7 +126,7 @@ class GA:
         initWM((1000000, max(tree_config.get('max_length'))))
         
         #init offsprings pool
-        initOffspringsPool()
+        initOffspringsPool(compact= compact)
 
         self.init_params(**params, is_larger_better= metric.is_larger_better)
         

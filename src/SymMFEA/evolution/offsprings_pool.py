@@ -32,19 +32,19 @@ class NewBorn(OffspringsPool):
         
     
 class Optimized(OffspringsPool):
-    def __init__(self):
+    def __init__(self, compact= False):
         super().__init__()
+        self.compact= compact
 
         
-    @staticmethod
-    def handle_result(result, optimize_jobs):
+    def handle_result(self, result, optimize_jobs):
         inds = []
         metrics, loss, train_steps = [
             [rs[i] for rs in result] for i in range(3) 
         ]
         for metric, job in zip(metrics, optimize_jobs):
             task, ind= job
-            ind.objective = [metric if task.is_larger_better else -metric]
+            ind.set_objective(metric if task.is_larger_better else -metric, self.compact)
             ind.is_optimized = True
             inds.append(ind)
             
@@ -74,7 +74,7 @@ class Optimized(OffspringsPool):
         return offsprings, num
         
 
-def initOffspringsPool():
+def initOffspringsPool(compact= False):
     global new_born, optimized
     new_born = NewBorn()
-    optimized = Optimized()
+    optimized = Optimized(compact= compact)
