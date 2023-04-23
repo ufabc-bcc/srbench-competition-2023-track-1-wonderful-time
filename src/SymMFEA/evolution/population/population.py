@@ -169,9 +169,9 @@ class Population:
         '''
         if self.moo:
             trees = self.all()
-            dominated_idx, _, _, _ = fast_non_dominated_sorting([-tree.objective for tree in trees])
+            fronts, _, _, _ = fast_non_dominated_sorting([-np.array(tree.objective) for tree in trees])
             
-            candidates = [trees[i] for i in dominated_idx]
+            candidates = [trees[i] for i in fronts[0]]
         
         else:
             candidates = [subPop.ls_inds[subPop.best_idx] for subPop in self]

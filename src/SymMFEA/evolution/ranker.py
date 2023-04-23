@@ -9,11 +9,11 @@ def sort_scalar_fitness(ls_fcost):
 
 class Ranker:
     def __init__(self) -> None:
-        pass
+        ...
     
     @staticmethod
     def subpop_sort(subpop):
-        pass
+        ...
     
     @timed
     def __call__(self, population):

@@ -46,8 +46,8 @@ class GA:
             [subPop.max_main_objective for subPop in population], reverse=reverse, **kwargs)
 
     def display_final_result(self, population: Population):
-        best_trees, _ = population.get_final_candidates()
-        sqrt = np.sqrt(len(best_trees)).item()
+        candidates = population.get_final_candidates()
+        sqrt = np.sqrt(len(candidates)).item()
         nb_columns = int(sqrt)
 
         if sqrt == nb_columns:
@@ -62,9 +62,9 @@ class GA:
         for i in range(nb_rows):
             for j in range(nb_columns):
                 cur_tree = i * nb_columns + j
-                if cur_tree == len(best_trees):
+                if cur_tree == len(candidates):
                     break
-                draw_tree(best_trees[cur_tree].genes, axs[i, j])
+                draw_tree(candidates[cur_tree].genes, axs[i, j])
 
         plt.show()
         plt.savefig('Trees.png')
@@ -155,17 +155,23 @@ class GA:
                 **{attr: getattr(self, attr) for attr in self.pass_down_params},
             )
 
-            self.progress = GAProgressBar(
-                num_iters=nb_generations, metric_name=str(metric))
 
             try:
-                for generation in self.progress.pbar:
-                    self.generation_step(population, generation)
-                else:
-                    #wait for remaining jobs
-                    while not self.terminated:
-                        self.generation_step(population, -1)
-                    
+                with GAProgressBar(num_iters=nb_generations, metric_name=str(metric)) as (self.progress, pbar):
+                    for generation in pbar:
+                        self.generation_step(population, generation)
+                        
+                        
+                        if generation == nb_generations - 1:
+                            self.progress.set_waiting()
+                            
+                            #wait for remaining jobs
+                            while not self.terminated:
+                                self.generation_step(population, -1)
+                                
+                    else:
+                        self.progress.set_finished()
+                        
                 
 
             except Exception as e:
@@ -183,12 +189,13 @@ class GA:
                 
                 # finetune candidates
                 reverse = not metric.is_larger_better
-                progress = CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric))
-                for i in progress.pbar:
-                    candidates[i].finetune(
-                        finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, verbose = True
-                    )
-                    progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
+                
+                with CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric)) as (progress, pbar):
+                    for i in pbar:
+                        candidates[i].finetune(
+                            finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
+                        )
+                        progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
                 
                 self.final_solution = candidates[progress.best_idx]
                 

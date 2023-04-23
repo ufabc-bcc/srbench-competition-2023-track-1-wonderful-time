@@ -7,13 +7,13 @@ from ...utils.functional import numba_randomchoice_w_prob, softmax
 
 class Crossover:
     def __init__(self, *args, **kwargs):
-        pass
+        ...
 
     def __call__(self, pa: Individual, pb: Individual, skf_oa= None, skf_ob= None, *args, **kwargs) -> List[Individual]:
-        pass
+        ...
 
     def update_task_info(self, **kwargs):
-        pass
+        ...
     
     @staticmethod
     def update_parent_profile(child, parent: List[Individual]):
