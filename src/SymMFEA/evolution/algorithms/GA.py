@@ -168,9 +168,8 @@ class GA:
                             #wait for remaining jobs
                             while not self.terminated:
                                 self.generation_step(population, -1)
-                                
-                    else:
-                        self.progress.set_finished()
+                            
+                            self.progress.set_finished()
                         
                 
 
@@ -195,7 +194,13 @@ class GA:
                         candidates[i].finetune(
                             finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
                         )
+
+                        candidates[i].run_check(metric= metric)
                         progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
+                        
+                        if i == len(candidates) - 1:
+                            progress.set_finished()
+                        
                 
                 self.final_solution = candidates[progress.best_idx]
                 

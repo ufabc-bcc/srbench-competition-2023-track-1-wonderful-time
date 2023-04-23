@@ -18,7 +18,7 @@ import time
 # np.seterr(all='raise')
 
 #============= Load Data ======================
-ix = 1
+ix = 2
 Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
 X, y = Z[:, :-1], Z[:, -1]
 # X, y = load_diabetes(return_X_y= True)

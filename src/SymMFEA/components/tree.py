@@ -130,9 +130,9 @@ class Tree:
         for i, node in enumerate(self.nodes):
             node.compile(self)
         
-        self.update()
+        self.update_best_tree()
       
-    def update(self):
+    def update_best_tree(self):
         
         weight_manager.WM.best_weight[self.position] = weight_manager.WM.weight[self.position]
         weight_manager.WM.best_bias[self.position] = weight_manager.WM.bias[self.position]

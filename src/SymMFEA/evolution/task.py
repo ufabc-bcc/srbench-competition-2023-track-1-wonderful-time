@@ -43,6 +43,9 @@ class SubTask:
         return self.task.trainer.fit(ind, self.train_dataloader, steps= self.task.steps_per_gen if steps is None else steps, val_data = self.data)
         
     
+    def eval(self, ind):
+        return ind(self.data.y_val)
+    
     @timed
     def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100):
         '''
@@ -52,7 +55,7 @@ class SubTask:
         if finetune_steps < 1:
             return
         
-        ind.is_optimized = False
+        ind.flush()
         self.train_dataloader.unlock()
         self.data.unlock()
         
@@ -64,14 +67,8 @@ class SubTask:
             metric_name= [str(self.task.trainer.loss), str(self.task.trainer.metric)]
         ) as (progress, pbar):
         
-            for step in pbar:
-                metric, loss, _, profile = self.task.trainer.fit(ind, data = self.train_dataloader, steps = 1, val_data = self.data)
-                
-                ind.optimizer_profile = profile 
-                
-                progress.update(loss= loss, metric = metric, best_metric = ind.best_metric, reverse = not self.task.trainer.metric.is_larger_better)
+            self.task.trainer.fit(ind, data = self.train_dataloader, val_data = self.data, finetuner= (progress, pbar))
             
-        ind.rollback_best()
-        
-        # assert self.eval(ind, bypass_check= True) == ind.best_metric, self.eval(ind, bypass_check= True) - ind.best_metric
+                
+                        
         self.task.trainer.update_lr(lr)

@@ -20,7 +20,7 @@ class Ranker:
         for subpop in population:
             idx = self.subpop_sort(subpop)
             subpop.ls_inds = [subpop.ls_inds[i] for i in idx]
-
+        
 class SingleObjectiveRanker(Ranker):
     @staticmethod
     def subpop_sort(subpop):
