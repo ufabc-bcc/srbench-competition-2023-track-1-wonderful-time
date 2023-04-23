@@ -2,14 +2,13 @@
 from typing import List
 from ..utils.timer import timed
 from ..utils import create_shared_np
-import multiprocessing as mp
 import ctypes
 import numpy as np
-MAX_SIZE = 1000000
+POOL_SIZE = 50000
 class OffspringsPool:
     def __init__(self):
-        self.pool= np.empty(MAX_SIZE, dtype = object)
-        self.ready_to_collect = create_shared_np(MAX_SIZE, val=0, dtype= ctypes.c_bool)
+        self.pool= np.empty(POOL_SIZE, dtype = object)
+        self.ready_to_collect = create_shared_np(POOL_SIZE, val=0, dtype= ctypes.c_bool)
             
     @timed
     def collect(self):
@@ -20,7 +19,7 @@ class OffspringsPool:
     
     @timed
     def append(self, inds: list):
-        idx = [ind.position for ind in inds]
+        idx = [ind.position % POOL_SIZE for ind in inds]
         self.pool[idx] = inds
         self.ready_to_collect[idx] = 1 
         
@@ -39,13 +38,14 @@ class Optimized(OffspringsPool):
         
     def handle_result(self, result, optimize_jobs):
         inds = []
-        metrics, loss, train_steps = [
-            [rs[i] for rs in result] for i in range(3) 
+        metrics, loss, train_steps, profiles = [
+            [rs[i] for rs in result] for i in range(4) 
         ]
-        for metric, job in zip(metrics, optimize_jobs):
+        for metric, job, profile in zip(metrics, optimize_jobs, profiles):
             task, ind= job
             ind.set_objective(metric if task.is_larger_better else -metric, self.compact)
             ind.is_optimized = True
+            ind.optimizer_profile = profile
             inds.append(ind)
             
         return inds, sum(train_steps)
