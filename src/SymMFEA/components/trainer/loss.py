@@ -8,13 +8,13 @@ loss_jit = nb.njit([nb.types.Tuple((nb.float64[:], nb.float64))(nb.float64[:], n
 
 class Loss:
     def __init__(self):
-        pass
+        ...
     
     def __str__(self) -> str:
-        pass
+        ...
     
     def __call__(self, y: np.ndarray, y_hat: np.ndarray): 
-        pass
+        ...
 
 @loss_jit
 def mse(y: np.ndarray, y_hat: np.ndarray):
@@ -24,7 +24,7 @@ def mse(y: np.ndarray, y_hat: np.ndarray):
 
 class MSE(Loss):
     def __init__(self):
-        pass
+        ...
     
     
     def __str__(self) -> str:

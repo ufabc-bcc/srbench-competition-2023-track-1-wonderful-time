@@ -24,7 +24,7 @@ class Metric:
         self.func = metric_jit(func) if is_numba else func
         
     def __str__(self):
-        pass
+        ...
     
     def __call__(self, y: np.ndarray, y_hat: np.ndarray)-> float: 
         return self.func(y, y_hat)

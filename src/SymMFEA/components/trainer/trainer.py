@@ -37,7 +37,7 @@ class Trainer:
                 break
         
         
-        return ind.best_metric, np.mean(step_loss), step + 1 
+        return ind.best_metric, np.mean(step_loss), step + 1, ind.optimizer_profile 
         
     def update_learning_state(self, ind, metric: float):
         if ind.best_metric is not None: 

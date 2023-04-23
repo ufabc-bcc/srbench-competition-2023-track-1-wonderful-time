@@ -10,7 +10,15 @@ class DataPool:
         self.X_train, self.X_val, self.y_train, self.y_val = tuple([
             create_shared_np(mat.shape, mat) for mat in tmp
         ])
-            
+        
+    @property
+    def train_size(self):
+        return self.X_train.shape[0]
+    
+    @property
+    def val_size(self):
+        return self.X_val.shape[0]
+    
     
 class DataView:
     def __init__(self, data_pool: DataPool, sample: float = 1):
@@ -38,6 +46,10 @@ class DataView:
     def y_val(self) ->np.ndarray:
         return self.data_pool.y_val[self.val_index]
     
+    def unlock(self):
+        self.index = np.arange(self.data_pool.train_size)
+        self.val_index = np.arange(self.data_pool.val_size)
+    
 #so far dataloader use for train only
 class TrainDataLoader:
     def __init__(self, data_view:DataView, batch_size:int = 10, shuffle: bool = True) -> None:
@@ -50,6 +62,10 @@ class TrainDataLoader:
             self.shuffle_view()
         else:
             self.index = np.arange(self.data_view.len_train)
+            
+            
+    def unlock(self):
+        self.data_view.unlock()
         
     @property
     def hasNext(self):

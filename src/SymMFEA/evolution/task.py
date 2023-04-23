@@ -44,25 +44,32 @@ class SubTask:
         
     
     @timed
-    def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100, verbose = False):
+    def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100):
+        '''
+        unlock_view: use all data
+        '''
          
         if finetune_steps < 1:
             return
         
+        ind.is_optimized = False
+        self.train_dataloader.unlock()
+        self.data.unlock()
+        
         lr= self.task.trainer.optimizer.lr 
         self.task.trainer.update_lr(self.task.trainer.optimizer.lr / decay_lr)
         
-        pbar = FinetuneProgressBar(
+        with FinetuneProgressBar(
             num_iters= finetune_steps,
-            metric_name= [str(self.task.trainer.loss), str(self.task.metric)]
-        ) if verbose else range(finetune_steps)
+            metric_name= [str(self.task.trainer.loss), str(self.task.trainer.metric)]
+        ) as (progress, pbar):
         
-        for step in pbar.pbar if verbose else pbar:
-            metric, loss = self.task.trainer.fit(ind, self.train_dataloader, 1)
-            self.update_learning_state(ind, metric)
-            
-            if verbose:
-                pbar.update(loss= loss, metric = metric, best_metric = ind.best_metric, reverse = not self.task.metric.is_larger_better)
+            for step in pbar:
+                metric, loss, _, profile = self.task.trainer.fit(ind, data = self.train_dataloader, steps = 1, val_data = self.data)
+                
+                ind.optimizer_profile = profile 
+                
+                progress.update(loss= loss, metric = metric, best_metric = ind.best_metric, reverse = not self.task.trainer.metric.is_larger_better)
             
         ind.rollback_best()
         

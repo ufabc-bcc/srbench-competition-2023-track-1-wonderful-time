@@ -43,8 +43,8 @@ class Individual:
         for k, v in profile.items():
             self.parent_profile[k] = v
     
-    def finetune(self, finetune_steps: int, decay_lr: float, verbose = False):
-        self.task.finetune(self, finetune_steps= finetune_steps, decay_lr = decay_lr, verbose = verbose)
+    def finetune(self, finetune_steps: int, decay_lr: float):
+        self.task.finetune(self, finetune_steps= finetune_steps, decay_lr = decay_lr)
         
     def set_objective(self, objective: np.ndarray, compact:bool = False):
         

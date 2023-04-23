@@ -9,7 +9,7 @@ class Selector():
         self.select_optimizing_inds = select_optimizing_inds
         
     def __call__(self, population:Population,*args, **kwds) -> List[int]:
-        pass
+        ...
     
 class ElitismSelector(Selector):
     def __init__(self, random_percent = 0, *args, **kwds) -> None:

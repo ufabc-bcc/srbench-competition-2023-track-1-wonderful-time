@@ -8,7 +8,7 @@ def execute_one_job(args: Tuple[SubTask, List]):
     return task.task.trainer.fit(ind, task.train_dataloader, steps= task.task.steps_per_gen, val_data = task.data)
 
 def custom_error_callback(error):
-    raise ValueError(f'Got an error: {error}')
+    raise ValueError(f'Got an error from Multiprocessor: {error}')
 
 class Multiprocessor:
     def __init__(self, num_workers:int = 1, chunksize: int = 10):

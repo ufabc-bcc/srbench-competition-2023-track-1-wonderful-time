@@ -51,7 +51,7 @@ class Node:
         self.n_samples: int = 0
     
     def __call__(self, X, update_stats: bool= False):
-        pass
+        ...
     
     def update_stats(self, X):
         '''
