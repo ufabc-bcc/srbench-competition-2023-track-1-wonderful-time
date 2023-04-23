@@ -2,6 +2,8 @@ import numpy as np
 from ...components.tree import Tree
 from typing import List
 from ..task import SubTask
+from ...components.metrics import Metric
+
 class Individual:
     '''
     a Individual include:\n
@@ -19,7 +21,12 @@ class Individual:
         self.parent_profile: dict= dict()
         self.optimizer_profile: dict= dict()
         self.is_optimized = False
-        
+    
+    def flush(self):
+        self.is_optimized = False
+        self.best_metric = None
+        self.nb_consecutive_not_improve = 0
+    
     @property
     def position(self):
         return self.genes.position
@@ -30,7 +37,7 @@ class Individual:
         
     def update_best_tree(self, metric):
         self.best_metric = metric
-        self.genes.update()
+        self.genes.update_best_tree()
     
     def rollback_best(self):
         self.genes.rollback_best()
@@ -51,4 +58,11 @@ class Individual:
         self.objective = [objective]
         
         if compact:
-            self.objective.extend([-self.genes.length, -self.genes.depth])
+            self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3)])
+        
+        
+    def run_check(self, metric: Metric):
+        return
+        met = metric(self(self.task.data.X_val), self.task.data.y_val)
+                     
+        assert met == self.best_metric, (met, self.best_metric)

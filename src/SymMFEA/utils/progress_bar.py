@@ -6,7 +6,7 @@ import numpy as np
 
 class ProgressBar:
     def __init__(self, num_iters: int, dsc: str = ' ', metric_name:str = 'Obj', leave= True, position = 0, **kwargs) -> None:
-        self.pbar = tqdm(range(num_iters), leave= leave, position= position)
+        self.pbar = tqdm(range(num_iters), leave= leave, position= position, colour='blue')
         self.pbar.set_description(colored(dsc, 'red'))
         self.metric_name = metric_name
         
@@ -19,7 +19,11 @@ class ProgressBar:
     def __exit__(self, *args, **kwargs):
         
         self.pbar.__exit__(*args, **kwargs)
+        
     
+    def set_finished(self):
+        self.pbar.colour= 'green'
+        self.pbar.refresh()
         
         
 class GAProgressBar(ProgressBar):
@@ -31,7 +35,7 @@ class GAProgressBar(ProgressBar):
         
         objectives = objectives if not reverse else [-o for o in objectives]
         
-        display_str = colored(f'Train steps: {train_steps}, In queue: {in_queue}, Processed: {processed};', 'red')
+        display_str = colored('Train steps: {:,}, In queue: {:,}, Processed: {:,};'.format(train_steps, in_queue, processed), 'red')
         
         
         display_str += f' {self.metric_name}: '
@@ -45,10 +49,13 @@ class GAProgressBar(ProgressBar):
         self.pbar.set_postfix_str(display_str)
         
     def set_waiting(self):
-        self.pbar.set_description('Waiting for individuals in queue')
+        self.pbar.set_description(colored('Waiting for individuals in queue', 'red'))
     
     def set_finished(self):
-        self.pbar.set_description('GA finished')
+        super().set_finished()
+        self.pbar.set_description(colored('GA finished', 'red'))
+        self.pbar.refresh()
+        
         
 class FinetuneProgressBar(ProgressBar):
     def __init__(self, num_iters: int, metric_name: list = ['Obj'], **kwargs) -> None:
@@ -69,7 +76,7 @@ class FinetuneProgressBar(ProgressBar):
         
 class CandidateFinetuneProgressBar(ProgressBar):
     def __init__(self, num_iters: int, metric_name: str = 'Obj', **kwargs) -> None:
-        super().__init__(num_iters, metric_name= metric_name, dsc= 'Finetuning candidates', leave= True, **kwargs)
+        super().__init__(num_iters, metric_name= metric_name, dsc= 'Finetuning candidates', **kwargs)
         self.curbest = 0
         self.best_idx = None
         

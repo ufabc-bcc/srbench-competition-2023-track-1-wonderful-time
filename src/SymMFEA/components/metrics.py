@@ -26,6 +26,13 @@ class Metric:
     def __str__(self):
         ...
     
+    @classmethod
+    def is_better(cls, m1, m2):
+        '''
+        return if m1 better than m2
+        '''
+        return ~(cls.is_larger_better ^ (m1 > m2))
+    
     def __call__(self, y: np.ndarray, y_hat: np.ndarray)-> float: 
         return self.func(y, y_hat)
 

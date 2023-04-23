@@ -90,7 +90,7 @@ class SMP(GA):
             #update info to display
             population.collect_best_info()
             
-            
+            #prevent evolve to fast without optimization
             self.wait()
             
             #update process bar
