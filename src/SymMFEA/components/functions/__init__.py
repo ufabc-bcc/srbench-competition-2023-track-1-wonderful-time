@@ -19,7 +19,7 @@ FUNCTION_SET = {
         Tanh,
         Log,
         Relu,
-        BatchNorm,
+        # BatchNorm,
     ],
     2: [
         Prod,
