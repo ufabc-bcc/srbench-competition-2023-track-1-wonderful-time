@@ -18,7 +18,7 @@ class Task:
         #init datapool
         initDataPool(X, y, test_size= test_size)
         self.data_pool = data_pool.data_pool
-        # self.data_pool = DataPool(X, y, test_size= test_size)
+        self.data = DataView(self.data_pool)
         
         self.trainer = Trainer(loss= loss, optimizer=optimizer, metric= metric)
         self.train_dataloader_cfg = {
@@ -67,8 +67,10 @@ class SubTask:
             metric_name= [str(self.task.trainer.loss), str(self.task.trainer.metric)]
         ) as (progress, pbar):
         
-            self.task.trainer.fit(ind, data = self.train_dataloader, val_data = self.data, finetuner= (progress, pbar))
+            result = self.task.trainer.fit(ind, data = self.train_dataloader, val_data = self.data, finetuner= (progress, pbar))
             
                 
                         
         self.task.trainer.update_lr(lr)
+        
+        return result
