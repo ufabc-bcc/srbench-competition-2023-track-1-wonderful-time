@@ -18,7 +18,7 @@ import time
 # np.seterr(all='raise')
 
 #============= Load Data ======================
-ix = 1
+ix = 2
 Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
 X, y = Z[:, :-1], Z[:, -1]
 # X, y = load_diabetes(return_X_y= True)
@@ -90,16 +90,16 @@ model.fit(
     steps_per_gen= 50,
     nb_inds_each_task= [15] * 4+ [30],
     data_sample = 0.5,
-    nb_generations= 10,
+    nb_generations= 500,
     batch_size= 2000,
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15],
-    finetune_steps= 1000,
+    finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 24,
     offspring_size= 5,
-    expected_generations_inqueue= 5,
+    expected_generations_inqueue= 15,
     compact= True,
     moo= True, 
     **SMP_configs,

@@ -16,7 +16,8 @@ class TreeMerger:
         
     @timed
     def __call__(self, inds: List[Individual], val_data: DataView, metric: Metric):
-        ys = np.stack([ind(val_data.X_train) for ind in inds]).T
+        y_trains = np.stack([ind(val_data.X_train) for ind in inds]).T
+        y_vals = np.stack([ind(val_data.X_val) for ind in inds]).T
         
         #Grid search
         coefs = []
@@ -27,16 +28,16 @@ class TreeMerger:
         
                 model = Lasso(alpha = alpha, positive= True)
                 
-                model.fit(ys, val_data.y_train)
+                model.fit(y_trains, val_data.y_train)
                 
-                coef = self.model.coef_ 
+                coef = model.coef_ 
                 
                 is_selected = coef > prune_threshold
                 coef = np.where(is_selected, coef, 0)
                 
                 coefs.append(coef)
 
-                y_hat = ys @ coef
+                y_hat = y_vals @ coef
                 
                 met = metric(val_data.y_val, y_hat)
                 
@@ -47,7 +48,7 @@ class TreeMerger:
         fronts, _, _, _ = fast_non_dominated_sorting(objs)
         
         best_met = 0 
-        for idx in fronts: 
+        for idx in fronts[0]: 
             met = objs[idx][0]
             if met > best_met:
                 best_met = met
@@ -64,7 +65,7 @@ class TreeMerger:
         selected_weights = []
         
         for ind, c, w in zip(inds, select_idx, coef):
-            weight = '{:2.f} '.format(w)
+            weight = '{:.2f} '.format(w)
             if c:
                 selected_inds.append(ind)
                 selected_weights.append(w)
@@ -83,13 +84,13 @@ class TreeMerger:
         
         nodes = []
         
-        for ind, w in (selected_inds, selected_weights):
+        for ind, w in zip(selected_inds, selected_weights):
             ind.scale(w)
             
             nodes.extend(ind.genes.nodes)
         
         #add root
-        root = Sum(arity= len( selected_inds))
+        root = Sum(arity= len(selected_inds))
         root.W = 1
         root.bias = 0
         nodes.append(root)

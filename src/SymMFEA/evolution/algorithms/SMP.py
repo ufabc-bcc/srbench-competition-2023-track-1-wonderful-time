@@ -81,11 +81,10 @@ class SMP(GA):
             
             population.collect_fitness_info()
             
-            #ranking
-            self.ranker(population)
-
-            
+        
             if generation != -1:
+                #ranking
+                self.ranker(population)
                 #select best indivudals
                 self.selector(population)
             

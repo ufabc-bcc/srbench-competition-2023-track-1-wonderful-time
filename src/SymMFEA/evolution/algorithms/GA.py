@@ -201,8 +201,11 @@ class GA:
                     if i == len(candidates) - 1:
                         progress.set_finished()
                     
-            
-            self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric)
+            best_tree = candidates[progress.best_idx].genes
+            if len(candidates) == 1:
+                self.final_solution = best_tree
+            else:
+                self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric) 
             
             
             Timer.display()
