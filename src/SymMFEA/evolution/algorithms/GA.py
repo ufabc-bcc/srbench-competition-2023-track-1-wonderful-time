@@ -102,6 +102,7 @@ class GA:
             expected_generations_inqueue: int = 5000,
             compact:bool = False,
             moo:bool = False,
+            max_tree:int= 500000,
             **params,
             ):
         '''
@@ -125,7 +126,7 @@ class GA:
         self.moo = moo or compact
 
         #init multiprocessor
-        initWM((1000000, max(tree_config.get('max_length'))))
+        initWM((max_tree, max(tree_config.get('max_length'))))
         
         #init offsprings pool
         initOffspringsPool(compact= compact)
@@ -156,56 +157,46 @@ class GA:
             )
 
 
-            try:
-                with GAProgressBar(num_iters=nb_generations, metric_name=str(metric)) as (self.progress, pbar):
-                    for generation in pbar:
-                        self.generation_step(population, generation)
+            with GAProgressBar(num_iters=nb_generations, metric_name=str(metric)) as (self.progress, pbar):
+                for generation in pbar:
+                    self.generation_step(population, generation)
+                    
+                    
+                    if generation == nb_generations - 1:
+                        self.progress.set_waiting()
                         
+                        #wait for remaining jobs
+                        while not self.terminated:
+                            self.generation_step(population, -1)
                         
-                        if generation == nb_generations - 1:
-                            self.progress.set_waiting()
-                            
-                            #wait for remaining jobs
-                            while not self.terminated:
-                                self.generation_step(population, -1)
-                            
-                            self.progress.set_finished()
-                        
-                
 
-            except Exception as e:
-                print(traceback.format_exc())
-                raise e
+            if visualize:
+                self.display_final_result(population)
+
             
-            else:
-                if visualize:
-                    self.display_final_result(population)
+            candidates = population.get_final_candidates()
+            
+            
+            # finetune candidates
+            reverse = not metric.is_larger_better
+            
+            with CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric)) as (progress, pbar):
+                for i in pbar:
+                    candidates[i].finetune(
+                        finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
+                    )
 
-            finally:
-                
-                candidates = population.get_final_candidates()
-                
-                
-                # finetune candidates
-                reverse = not metric.is_larger_better
-                
-                with CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric)) as (progress, pbar):
-                    for i in pbar:
-                        candidates[i].finetune(
-                            finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
-                        )
-
-                        candidates[i].run_check(metric= metric)
-                        progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
-                        
-                        if i == len(candidates) - 1:
-                            progress.set_finished()
-                        
-                
-                self.final_solution = candidates[progress.best_idx]
-                
-                
-                Timer.display()
+                    candidates[i].run_check(metric= metric)
+                    progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
+                    
+                    if i == len(candidates) - 1:
+                        progress.set_finished()
+                    
+            
+            self.final_solution = candidates[progress.best_idx]
+            
+            
+            Timer.display()
             
     def predict(self, X: np.ndarray):
         return self.final_solution(X)

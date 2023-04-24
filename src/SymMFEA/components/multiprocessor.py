@@ -2,7 +2,7 @@ import multiprocessing as mp
 from typing import List, Tuple, Callable
 from ..evolution.task import SubTask
 from ..utils.timer import timed
-
+import os
 def execute_one_job(args: Tuple[SubTask, List]):
     task, ind= args
     return task.task.trainer.fit(ind, task.train_dataloader, steps= task.task.steps_per_gen, val_data = task.data)
@@ -30,9 +30,14 @@ class Multiprocessor:
     @timed
     def execute(self, jobs: List[Tuple[SubTask, List]], callback: Callable, wait_for_result: bool = False):
         self.in_queue.value = self.in_queue.value + len(jobs) 
-        result = self.pool.map_async(execute_one_job, jobs, self.chunksize, callback=callback, error_callback= custom_error_callback)
-        if wait_for_result:
-            result.wait()
+        
+        #remove concurrent to debu
+        if os.environ['DEBUG']:
+            result = [execute_one_job(j) for j in jobs]
+        else:
+            result = self.pool.map_async(execute_one_job, jobs, self.chunksize, callback=callback, error_callback= custom_error_callback)
+            if wait_for_result:
+                result.wait()
     
     def __exit__(self, *args, **kwargs):
         self.pool.close()
