@@ -39,7 +39,7 @@ class GA:
             **reproducer_config)
         self.selector: Selector = self.selector_class(**selector_config)
         self.final_solution = None
-        self.terminated: bool = False
+        
 
     def update_process_bar(self, population: Population, reverse: bool, **kwargs):
         self.progress.update(
@@ -124,6 +124,7 @@ class GA:
         self.data_sample = data_sample
         self.nb_terminals = X.shape[1]
         self.moo = moo or compact
+        self.terminated: bool = False
 
         #init multiprocessor
         initWM((max_tree, max(tree_config.get('max_length'))))
@@ -168,6 +169,8 @@ class GA:
                         #wait for remaining jobs
                         while not self.terminated:
                             self.generation_step(population, -1)
+                    
+                        self.progress.set_finished()
                         
 
             if visualize:
