@@ -11,14 +11,15 @@ import matplotlib.pyplot as plt
 from ...utils.timer import *
 from ...components.weight_manager import initWM
 from ...components.multiprocessor import Multiprocessor
-from ..offsprings_pool import initOffspringsPool
-import traceback
-
+from ..offspring_pool import initOffspringsPool
+from .. import offspring_pool
+from ...components.tree_merger import TreeMerger
 class GA:
     ranker_class = SingleObjectiveRanker
     reproducer_class = Reproducer
     selector_class = ElitismSelector
     pass_down_params: list = ['nb_terminals']
+    tree_merger_class = TreeMerger
 
     def __init__(self, seed: float = None,
                  reproducer_config: dict = {},
@@ -38,6 +39,7 @@ class GA:
         self.reproducer: Reproducer = self.reproducer_class(
             **reproducer_config)
         self.selector: Selector = self.selector_class(**selector_config)
+        self.tree_merger: TreeMerger = self.tree_merger_class()
         self.final_solution = None
         
 
@@ -103,6 +105,7 @@ class GA:
             compact:bool = False,
             moo:bool = False,
             max_tree:int= 500000,
+            tree_merger: bool = True,
             **params,
             ):
         '''
@@ -138,13 +141,14 @@ class GA:
 
         with Multiprocessor(num_workers= num_workers) as multiprocessor:
             self.multiprocessor = multiprocessor
+            self.main_task = Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen,
+                        batch_size=batch_size, test_size=test_size,
+                        shuffle=shuffle)
             
             # initialize population
             population = Population(
                 nb_inds_tasks= self.nb_inds_each_task,
-                task=Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen,
-                        batch_size=batch_size, test_size=test_size,
-                        shuffle=shuffle),
+                task= self.main_task,
                 tree_config=tree_config, num_sub_tasks=self.num_sub_tasks,
                 offspring_size=offspring_size, multiprocessor= multiprocessor,
                 data_sample = self.data_sample, moo = moo
@@ -185,9 +189,11 @@ class GA:
             
             with CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric)) as (progress, pbar):
                 for i in pbar:
-                    candidates[i].finetune(
+                    finetune_result = candidates[i].finetune(
                         finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
                     )
+                    #NOTE: not so pretty code
+                    offspring_pool.optimized.handle_result([finetune_result], optimize_jobs= [(candidates[i].task, candidates[i])])
 
                     candidates[i].run_check(metric= metric)
                     progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
@@ -196,7 +202,7 @@ class GA:
                         progress.set_finished()
                     
             
-            self.final_solution = candidates[progress.best_idx]
+            self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric)
             
             
             Timer.display()

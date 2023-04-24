@@ -6,7 +6,7 @@ from ..population import Population
 from ..reproducer import SMP_Reproducer, battle_smp
 from ..selector import ElitismSelector
 import matplotlib.pyplot as plt
-from .. import offsprings_pool
+from .. import offspring_pool
 from ...utils.timer import timed
 from ...utils import handle_number_of_list
 import time
@@ -34,10 +34,10 @@ class SMP(GA):
             #so far new_born is not necessary because reproducer is not concurrent
             
             #append to new_born pool
-            offsprings_pool.new_born.append(offsprings)
+            offspring_pool.new_born.append(offsprings)
         else:
             #append to new_born pool
-            offsprings_pool.new_born.append(population.all())
+            offspring_pool.new_born.append(population.all())
         
         
         #check if produce new offsprings or finish remaining
@@ -49,16 +49,16 @@ class SMP(GA):
         
             #submit optimization jobs to multiprocessor
             #optimized inds will be append to optimized pool
-            optimize_jobs = offsprings_pool.new_born.collect_optimize_jobs()
+            optimize_jobs = offspring_pool.new_born.collect_optimize_jobs()
             #create callback function to append offsprings when finish optimization
-            append_callback = offsprings_pool.optimized.create_append_callback(optimize_jobs=optimize_jobs, multiprocessor= self.multiprocessor)
+            append_callback = offspring_pool.optimized.create_append_callback(optimize_jobs=optimize_jobs, multiprocessor= self.multiprocessor)
             
             self.multiprocessor.execute(optimize_jobs, append_callback, wait_for_result= generation == 0)
         
         
 
         #collect optimized offprings
-        offsprings, num_offsprings = offsprings_pool.optimized.collect_optimized(population.num_sub_tasks)
+        offsprings, num_offsprings = offspring_pool.optimized.collect_optimized(population.num_sub_tasks)
         
         
         #if there are optimized offsprings
@@ -83,9 +83,11 @@ class SMP(GA):
             
             #ranking
             self.ranker(population)
-        
-            #select best indivudals
-            self.selector(population)
+
+            
+            if generation != -1:
+                #select best indivudals
+                self.selector(population)
             
             #update info to display
             population.collect_best_info()

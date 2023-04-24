@@ -26,6 +26,7 @@ class Individual:
         self.is_optimized = False
         self.best_metric = None
         self.nb_consecutive_not_improve = 0
+        self.objective = None
     
     @property
     def position(self):
@@ -51,7 +52,7 @@ class Individual:
             self.parent_profile[k] = v
     
     def finetune(self, finetune_steps: int, decay_lr: float):
-        self.task.finetune(self, finetune_steps= finetune_steps, decay_lr = decay_lr)
+        return self.task.finetune(self, finetune_steps= finetune_steps, decay_lr = decay_lr)
         
     def set_objective(self, objective: np.ndarray, compact:bool = False):
         
@@ -66,3 +67,6 @@ class Individual:
             met = metric(self.task.data.y_val, self(self.task.data.X_val))
                         
             assert abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-3, (met, self.best_metric) 
+            
+    def scale(self, scale_factor: float):
+        self.genes.scale(scale_factor= scale_factor)

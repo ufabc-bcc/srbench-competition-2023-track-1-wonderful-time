@@ -131,6 +131,10 @@ class Tree:
             node.compile(self)
         
         self.update_best_tree()
+        
+    def scale(self, scale_factor:float):
+        weight_manager.WM.weight[self.position][self.length - 1] = weight_manager.WM.weight[self.position][self.length - 1] * scale_factor
+        weight_manager.WM.bias[self.position][self.length - 1] = weight_manager.WM.bias[self.position][self.length - 1] * scale_factor
       
     def update_best_tree(self):
         

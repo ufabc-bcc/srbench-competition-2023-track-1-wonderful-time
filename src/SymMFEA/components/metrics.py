@@ -27,10 +27,13 @@ class Metric:
         ...
     
     @classmethod
-    def is_better(cls, m1, m2):
+    def is_better(cls, m1:float, m2: float):
         '''
         return if m1 better than m2
         '''
+        if m2 is None:
+            return True
+        
         return ~(cls.is_larger_better ^ (m1 > m2))
     
     def __call__(self, y: np.ndarray, y_hat: np.ndarray)-> float: 

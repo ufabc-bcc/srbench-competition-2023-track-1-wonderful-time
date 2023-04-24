@@ -8,8 +8,7 @@ from typing import List
 from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
 from ..task import Task, SubTask
-import random
-from .. import offsprings_pool
+
 
         
 class SubPopulation:

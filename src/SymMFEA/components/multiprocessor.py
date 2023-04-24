@@ -31,8 +31,8 @@ class Multiprocessor:
     def execute(self, jobs: List[Tuple[SubTask, List]], callback: Callable, wait_for_result: bool = False):
         self.in_queue.value = self.in_queue.value + len(jobs) 
         
-        #remove concurrent to debu
-        if os.environ['DEBUG']:
+        #remove concurrent to debug
+        if os.environ['DEBUG'] and False:
             result = [execute_one_job(j) for j in jobs]
         else:
             result = self.pool.map_async(execute_one_job, jobs, self.chunksize, callback=callback, error_callback= custom_error_callback)
