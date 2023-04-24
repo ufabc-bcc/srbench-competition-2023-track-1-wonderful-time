@@ -90,7 +90,7 @@ model.fit(
     steps_per_gen= 50,
     nb_inds_each_task= [15] * 4+ [30],
     data_sample = 0.6,
-    nb_generations= 500,
+    nb_generations= 100,
     batch_size= 2000,
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15],

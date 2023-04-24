@@ -3,7 +3,7 @@ from ...components.tree import Tree
 from typing import List
 from ..task import SubTask
 from ...components.metrics import Metric
-
+import os
 class Individual:
     '''
     a Individual include:\n
@@ -62,7 +62,7 @@ class Individual:
         
         
     def run_check(self, metric: Metric):
-        return
-        met = metric(self(self.task.data.X_val), self.task.data.y_val)
-                     
-        assert met == self.best_metric, (met, self.best_metric)
+        if os.environ['DEBUG']:
+            met = metric(self.task.data.y_val, self(self.task.data.X_val))
+                        
+            assert abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-3, (met, self.best_metric) 

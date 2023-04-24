@@ -2,10 +2,11 @@
 import numpy as np
 import numba as nb
 from sklearn.metrics import r2_score
+from ..utils.timer import timed
 
-metric_jit = nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
+metric_jit = timed(nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
                       nb.float64(nb.float64[:], nb.float64),
-                      ])
+                      ]))
 
 def mse(y: np.ndarray, y_hat: np.ndarray):
     diff =  y - y_hat
@@ -73,4 +74,4 @@ class R2(Metric):
         return 'R2'
     
     def __init__(self):
-        super().__init__(r2_score, is_numba= False)
+        super().__init__(timed(r2_score), is_numba= False)
