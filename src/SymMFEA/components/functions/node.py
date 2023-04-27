@@ -64,8 +64,12 @@ class Node:
         assert node.compiled, 'make sure to compile node before copy'
         
         new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class(arity= node.arity, index= node.index)
-        new_node.value = node.tree.W[node.id]
-        new_node.bias = node.tree.bias[node.id] 
+        
+        if node.tree is not None:
+            new_node.value = node.tree.W[node.id]
+            new_node.bias = node.tree.bias[node.id] 
+            
+            
         return new_node
     
     def __str__(self) -> str:
@@ -88,7 +92,7 @@ class Node:
     def is_leaf(self) -> bool:
         return self.arity == 0
 
-    def compile(self, tree):
+    def compile(self, tree= None):
         self.tree = tree
         self.compiled = True
         

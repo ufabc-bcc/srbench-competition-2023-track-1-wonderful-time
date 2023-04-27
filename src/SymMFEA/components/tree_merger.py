@@ -9,6 +9,8 @@ import numpy as np
 from ..utils.timer import timed
 from ..components.metrics import Metric
 from pygmo import fast_non_dominated_sorting
+from ..utils.functional import normalize_norm1
+import warnings
 
 class TreeMerger:
     def __init__(self):
@@ -16,6 +18,8 @@ class TreeMerger:
         
     @timed
     def __call__(self, inds: List[Individual], val_data: DataView, metric: Metric):
+        warnings.filterwarnings("ignore")
+
         y_trains = np.stack([ind(val_data.X_train) for ind in inds]).T
         y_vals = np.stack([ind(val_data.X_val) for ind in inds]).T
         
@@ -23,17 +27,18 @@ class TreeMerger:
         coefs = []
         objs = []
         
-        for alpha in [1,2,3,4]:
-            for prune_threshold in [1e-2, 1e-1, 2e-1, 5e-1]:
+        for alpha in [0,1e-12,1e-6,1e-4]:
+            
         
-                model = Lasso(alpha = alpha, positive= True)
-                
-                model.fit(y_trains, val_data.y_train)
-                
-                coef = model.coef_ 
-                
-                is_selected = coef > prune_threshold
-                coef = np.where(is_selected, coef, 0)
+            model = Lasso(tol=0, alpha = alpha, fit_intercept=False, positive= True)
+            
+            model.fit(y_trains, val_data.y_train)
+            
+            coef_ = model.coef_ 
+            
+            for prune_threshold in [1e-3, 1e-2, 1e-1, 2e-1]:
+                is_selected = coef_ > prune_threshold
+                coef = normalize_norm1(np.where(is_selected, coef_, 0))
                 
                 coefs.append(coef)
 
@@ -49,7 +54,7 @@ class TreeMerger:
         
         best_met = 0 
         for idx in fronts[0]: 
-            met = objs[idx][0]
+            met = - objs[idx][0]
             if met > best_met:
                 best_met = met
                 best_coef = coefs[idx]
@@ -64,7 +69,7 @@ class TreeMerger:
         selected_inds: List[Individual] = []
         selected_weights = []
         
-        for ind, c, w in zip(inds, select_idx, coef):
+        for ind, c, w in zip(inds, select_idx, best_coef):
             weight = '{:.2f} '.format(w)
             if c:
                 selected_inds.append(ind)
@@ -75,9 +80,9 @@ class TreeMerger:
                 display_str += colored(weight, 'red')
                 
         
-        
-        print(display_str)
-        
+        print('=' * 50 + 'Tree Merger'+'='*50)
+        print(display_str + f'; {str(metric)}:' + colored(' {:.2f}'.format(best_met), 'green'))
+        print('=' * 112)
         
         
         #merge into one tree
@@ -93,11 +98,12 @@ class TreeMerger:
         root = Sum(arity= len(selected_inds))
         root.W = 1
         root.bias = 0
+        root.compile()
         nodes.append(root)
         
-        merged_tree =  Tree(nodes, deepcopy= True)
+        merged_tree =  Tree(nodes, deepcopy= True, compile= False)
         
-        assert abs(abs(metric(val_data.y_val, Tree(val_data.X_val))) - abs(best_met)) < 1e-5
+        assert abs(abs(metric(val_data.y_val, merged_tree(val_data.X_val))) - abs(best_met)) < 1e-5, (metric(val_data.y_val, merged_tree(val_data.X_val)), best_met)
         
         print('After merge: {:.2f}, length: {}'.format(str(metric), merged_tree. length))
         return merged_tree

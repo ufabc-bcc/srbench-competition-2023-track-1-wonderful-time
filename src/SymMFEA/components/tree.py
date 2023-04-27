@@ -9,7 +9,7 @@ import math
 
 
 class Tree: 
-    def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False) -> None:
+    def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True) -> None:
         self.position = next(weight_manager.WM)
         if deepcopy:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
@@ -17,7 +17,8 @@ class Tree:
             self.nodes = nodes
                 
         self.updateNodes()
-        self.compile(init_weight= init_weight)
+        if compile:
+            self.compile(init_weight= init_weight)
 
     def __str__(self) -> str:
         s = ''
