@@ -63,7 +63,7 @@ class Individual:
         
         
     def run_check(self, metric: Metric):
-        if os.environ['DEBUG']:
+        if os.environ.get('DEBUG'):
             met = metric(self.task.data.y_val, self(self.task.data.X_val))
                         
             assert abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-3, (met, self.best_metric) 

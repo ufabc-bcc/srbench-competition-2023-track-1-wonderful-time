@@ -47,13 +47,14 @@ class GAProgressBar(ProgressBar):
             display_str +=  text
             
         self.pbar.set_postfix_str(display_str)
+        self.pbar.refresh()
         
     def set_waiting(self):
         self.pbar.set_description(colored('Waiting for individuals in queue', 'red'))
     
     def set_finished(self):
         super().set_finished()
-        self.pbar.set_description(colored('GA finished', 'red'))
+        self.pbar.set_description(colored('GA finished', 'green'))
         self.pbar.refresh()
         
         
@@ -72,6 +73,7 @@ class FinetuneProgressBar(ProgressBar):
             display_str += '{}: {:.2f}; '.format(m, val)
         
         self.pbar.set_postfix_str(colored(display_str, 'green'))
+        self.pbar.refresh()
         
         
 class CandidateFinetuneProgressBar(ProgressBar):
@@ -97,4 +99,5 @@ class CandidateFinetuneProgressBar(ProgressBar):
         
         
         self.pbar.set_postfix_str(colored(display_str, 'green'))
+        self.pbar.refresh()
     
