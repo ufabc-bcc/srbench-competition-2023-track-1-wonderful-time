@@ -10,7 +10,7 @@ class Constant(Node):
     def __str__(self) -> str:
         return 'null' if self.null else '1'
     
-    def __call__(self, X, update_stats= False):
+    def __call__(self, X):
         #make shape consistent
         out = np.ones(X.shape[0], dtype = np.float64)
         return out        
