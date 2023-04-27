@@ -25,16 +25,8 @@ class ElitismSelector(Selector):
 
             # on top
             N_elitism = ceil(N_i* (1 - self.random_percent))
-            idx_selected_inds = np.arange(N_elitism)
+            idx_selected_inds = np.arange(N_elitism).tolist()
                 
-            idx_selected_inds = idx_selected_inds.tolist()
-            
-            #random
-            remain_idx = np.where(subpop.scalar_fitness < 1/N_elitism)[0].tolist()
-            idx_random = np.random.choice(remain_idx, size= (N_i - N_elitism, )).tolist()
-
-            idx_selected_inds += idx_random
-
             subpop.select(idx_selected_inds)
 
             ls_idx_selected.append(idx_selected_inds)

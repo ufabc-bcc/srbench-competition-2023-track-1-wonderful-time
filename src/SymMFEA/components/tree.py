@@ -17,8 +17,12 @@ class Tree:
             self.nodes = nodes
                 
         self.updateNodes()
+        self.compiled:bool = compile
         if compile:
             self.compile(init_weight= init_weight)
+        else:
+            self._W = np.array([node.value for node in self.nodes])
+            self._bias = np.array([node.bias for node in self.nodes])
 
     def __str__(self) -> str:
         s = ''
@@ -29,22 +33,26 @@ class Tree:
     
     @property
     def W(self):
-        
-        return weight_manager.WM.weight[self.position][:len(self.nodes)]
+        if self.compiled:
+            return weight_manager.WM.weight[self.position][:len(self.nodes)]
+        else:
+            return self._W
     
     @property
     def bias(self):
-        
-        return weight_manager.WM.bias[self.position][:len(self.nodes)]
+        if self.compiled:
+            return weight_manager.WM.bias[self.position][:len(self.nodes)]
+        else:
+            return self._bias
     
     @property
     def dW(self):
-        
+        assert self.compiled
         return weight_manager.WM.dW[self.position][:len(self.nodes)]
     
     @property
     def dB(self):
-        
+        assert self.compiled
         return weight_manager.WM.dB[self.position][:len(self.nodes)]
         
     @property
@@ -132,6 +140,7 @@ class Tree:
             node.compile(self)
         
         self.update_best_tree()
+        
         
     def scale(self, scale_factor:float):
         weight_manager.WM.weight[self.position][self.length - 1] = weight_manager.WM.weight[self.position][self.length - 1] * scale_factor

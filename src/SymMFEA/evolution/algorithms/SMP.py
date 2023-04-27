@@ -69,15 +69,8 @@ class SMP(GA):
                 self.reproducer.update_smp(population, offsprings)
                 #add offsprings to population
                 
-                for subpop, offspring in zip(population, offsprings):
-                    subpop.ls_inds.extend(offspring)
-            
-            
-            else:
-                #assign optimized individual to population for first generation
-                for subpop, offspring in zip(population, offsprings):
-                    subpop.ls_inds = offspring
-            
+            for subpop, offspring in zip(population, offsprings):
+                subpop.ls_inds.extend(offspring)
             
             population.collect_fitness_info()
             
