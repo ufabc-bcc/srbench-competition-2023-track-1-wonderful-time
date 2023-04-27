@@ -63,7 +63,7 @@ class Tree:
     def depth(self):
         return self.nodes[-1].depth
     
-    def __call__(self, X: np.ndarray, update_stats= False) -> np.ndarray:
+    def __call__(self, X: np.ndarray) -> np.ndarray:
         r'''
         X: matrix with first axis is batch axis
         y: output
@@ -76,11 +76,11 @@ class Tree:
         
         for i, node in enumerate(self.nodes):
             if node.is_leaf:
-                stack[top] = node(X, update_stats= update_stats) * W[i] + bias[i]
+                stack[top] = node(X) * W[i] + bias[i]
                 top += 1
             
             else:
-                val = node(stack[top - node.arity : top], update_stats= update_stats) * W[i] + bias[i]
+                val = node(stack[top - node.arity : top]) * W[i] + bias[i]
                 top -= node.arity
                 stack[top] = val
                 top += 1

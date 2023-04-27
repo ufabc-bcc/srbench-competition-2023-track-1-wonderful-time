@@ -14,12 +14,11 @@ class Tanh(Node):
     def __str__(self) -> str:
         return 'tanh'
     
-    def __call__(self, X, update_stats: bool= False):
+    def __call__(self, X):
         out = tanh(X)
         
         self.dW = out
         self.dX = np.expand_dims(1 - out ** 2, axis = 0)
         assert self.dX.ndim == 2, self.dX.ndim
-        if update_stats:
-            self.update_stats(out)
+
         return out
