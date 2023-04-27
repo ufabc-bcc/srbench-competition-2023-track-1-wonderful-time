@@ -36,7 +36,8 @@ class TreeMerger:
             
             coef_ = model.coef_ 
             
-            for prune_threshold in [1e-3, 1e-2, 1e-1, 2e-1]:
+            for p in [1e-3, 1e-2, 1e-1, 2e-1]:
+                prune_threshold = max(p, 0.5 / len(inds))
                 is_selected = coef_ > prune_threshold
                 coef = normalize_norm1(np.where(is_selected, coef_, 0))
                 
@@ -80,32 +81,37 @@ class TreeMerger:
                 display_str += colored(weight, 'red')
                 
         
-        print('=' * 50 + 'Tree Merger'+'='*50)
+        print('=' * 50 + colored('Tree Merger', 'red') +'='*50)
         print(display_str + f'; {str(metric)}:' + colored(' {:.2f}'.format(best_met), 'green'))
-        print('=' * 112)
+        print('=' * 111)
         
         
         #merge into one tree
         
-        nodes = []
-        
-        for ind, w in zip(selected_inds, selected_weights):
-            ind.scale(w)
+        if len(selected_inds) == 1:
+            merged_tree= selected_inds[0]
+        else:
+            nodes = []                                                              
             
-            nodes.extend(ind.genes.nodes)
-        
-        #add root
-        root = Sum(arity= len(selected_inds))
-        root.W = 1
-        root.bias = 0
-        root.compile()
-        nodes.append(root)
-        
-        merged_tree =  Tree(nodes, deepcopy= True, compile= False)
-        
-        assert abs(abs(metric(val_data.y_val, merged_tree(val_data.X_val))) - abs(best_met)) < 1e-5, (metric(val_data.y_val, merged_tree(val_data.X_val)), best_met)
-        
-        print('After merge: {:.2f}, length: {}'.format(str(metric), merged_tree. length))
+            for ind, w in zip(selected_inds, selected_weights):
+                ind.scale(w)
+                
+                nodes.extend(ind.genes.nodes)
+            
+            #add root
+            root = Sum(arity= len(selected_inds))
+            root.W = 1
+            root.bias = 0
+            root.compile()
+            nodes.append(root)
+            
+            merged_tree =  Tree(nodes, deepcopy= True, compile= False)
+            
+            met = metric(val_data.y_val, merged_tree(val_data.X_val))
+            
+            assert abs((met - best_met) / (best_met + 1e-12)) < 1e-5, (met, best_met)
+            
+            print('After merge: {:.2f}, length: {}'.format(met, merged_tree. length))
         return merged_tree
             
         

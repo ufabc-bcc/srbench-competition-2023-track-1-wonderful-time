@@ -50,7 +50,7 @@ class GAProgressBar(ProgressBar):
         self.pbar.refresh()
         
     def set_waiting(self):
-        self.pbar.set_description(colored('Waiting for individuals in queue', 'red'))
+        self.pbar.set_description(colored('Waiting for queue', 'red'))
     
     def set_finished(self):
         super().set_finished()

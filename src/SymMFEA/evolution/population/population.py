@@ -65,21 +65,6 @@ class SubPopulation:
     def __getBestIndividual__(self):
         return self.ls_inds[int(np.argmin(self.factorial_rank))]   
 
-
-    @staticmethod
-    @numba_v2v_int_wrapper
-    def _sort_rank(ls_fcost):
-        return np.argsort(np.argsort(ls_fcost)) + 1
-
-    def update_rank(self):
-        '''
-        Update `factorial_rank` and `scalar_fitness`
-        '''
-        if len(self.ls_inds):
-            self.factorial_rank = self.__class__._sort_rank(np.array([ind.objective for ind in self.ls_inds]))
-        else:
-            self.factorial_rank = np.array([])
-        self.scalar_fitness = 1/self.factorial_rank
         
     def append(self, offsprings: List[Individual]):
         self.ls_inds.extend(offsprings)
