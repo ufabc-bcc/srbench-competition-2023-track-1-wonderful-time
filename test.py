@@ -90,7 +90,7 @@ model.fit(
     steps_per_gen= 50,
     nb_inds_each_task= [15] * 4+ [30],
     data_sample = 0.5,
-    nb_generations= 500,
+    nb_generations= 100,
     batch_size= 2000,
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15],
@@ -98,10 +98,13 @@ model.fit(
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 24,
-    offspring_size= 15,
-    expected_generations_inqueue= 2,
+    offspring_size= 10,
+    expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
+    trainer_config= {
+        'early_stopping': 3
+    },
     **SMP_configs,
 )
 

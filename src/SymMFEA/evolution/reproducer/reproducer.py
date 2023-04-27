@@ -186,10 +186,7 @@ class SMP_Reproducer(Reproducer):
                 num_parents = o.parent_profile.get('num_parents')
                 for i in range(num_parents):
                     parent_objective = o.parent_profile.get('parent_objective')[i]
-                    
-                    
-                    
-                    #NOTE: hardcode first objective
+                                        
                     d = (o.main_objective - parent_objective[0]) / (parent_objective[0] ** 2 + 1e-50)
 
                     if o.parent_profile.get('born_way') == 'crossover':

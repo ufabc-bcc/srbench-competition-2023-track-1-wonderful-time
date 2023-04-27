@@ -11,7 +11,7 @@ from ..components import data_pool
 class Task:
     def __init__(self, X: np.ndarray, y:np.ndarray, loss: Loss,
                  optimizer: GradOpimizer, metric: Metric, steps_per_gen: int, batch_size:int,
-                 shuffle: bool, test_size: float = 0.2):
+                 shuffle: bool, test_size: float = 0.2, trainer_config:dict = {}):
         assert len(X.shape) == 2
         self.terminal_set = [i for i in range(X.shape[1])]
         
@@ -20,7 +20,7 @@ class Task:
         self.data_pool = data_pool.data_pool
         self.data = DataView(self.data_pool)
         
-        self.trainer = Trainer(loss= loss, optimizer=optimizer, metric= metric)
+        self.trainer = Trainer(loss= loss, optimizer=optimizer, metric= metric, **trainer_config)
         self.train_dataloader_cfg = {
             'batch_size': batch_size,
             'shuffle': shuffle,

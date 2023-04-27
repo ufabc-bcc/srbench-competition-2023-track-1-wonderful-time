@@ -106,6 +106,7 @@ class GA:
             moo:bool = False,
             max_tree:int= 500000,
             tree_merger: bool = True,
+            trainer_config:dict= {},
             **params,
             ):
         '''
@@ -143,7 +144,7 @@ class GA:
             self.multiprocessor = multiprocessor
             self.main_task = Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen,
                         batch_size=batch_size, test_size=test_size,
-                        shuffle=shuffle)
+                        shuffle=shuffle, trainer_config= trainer_config)
             
             # initialize population
             population = Population(
@@ -202,7 +203,7 @@ class GA:
                         progress.set_finished()
                     
             best_tree = candidates[progress.best_idx].genes
-            if len(candidates) == 1:
+            if len(candidates) == 1 or (not tree_merger):
                 self.final_solution = best_tree
             else:
                 self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric) 

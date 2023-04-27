@@ -8,15 +8,16 @@ from tqdm.asyncio import tqdm_asyncio
 
 
 class Trainer:
-    def __init__(self, optimizer: GradOpimizer, loss: Loss, metric: Metric, *args, **kwargs):
+    def __init__(self, optimizer: GradOpimizer, loss: Loss, metric: Metric, early_stopping:int = 2, *args, **kwargs):
         self.optimizer = optimizer
         self.loss = loss
         self.metric = metric
+        self.early_stopping = early_stopping
         
     def update_lr(self, lr):
         self.optimizer.update_lr(lr)
         
-    def fit(self, ind, data: TrainDataLoader, val_data: DataView, steps: int = 10, early_stopping:int = 2, finetuner: Tuple[FinetuneProgressBar, tqdm_asyncio]= None):
+    def fit(self, ind, data: TrainDataLoader, val_data: DataView, steps: int = 10, finetuner: Tuple[FinetuneProgressBar, tqdm_asyncio]= None):
         if steps == 0:
             return 0
         
@@ -47,7 +48,7 @@ class Trainer:
             if progress is not None: 
                 progress.update(loss= loss, metric = metric, best_metric = ind.best_metric, reverse = not self.metric.is_larger_better)
             
-            elif ind.nb_consecutive_not_improve == early_stopping:
+            elif ind.nb_consecutive_not_improve == self.early_stopping:
                 break
         
         ind.rollback_best()
