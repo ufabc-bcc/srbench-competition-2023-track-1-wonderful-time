@@ -37,7 +37,7 @@ class Timer:
         
         display_str = '\n' + '=' * 100 + '\n'
         display_str += colored('Module', 'green') + (max_len * ' ')
-        display_str += colored('  Run Time', 'green') + (11) * ' '
+        display_str += colored('  Run Time', 'green') + (7) * ' '
         display_str += colored('Percentage', 'green')
         
         
