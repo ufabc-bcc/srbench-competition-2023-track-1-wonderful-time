@@ -17,7 +17,7 @@ def zip_inputs(*ls: List[list]) -> list:
     
     for i in range(len(ls)):
         if not isinstance(ls[i], list):
-            ls[i] = [l] * common_lens
+            ls[i] = [ls[i]] * common_lens
     
     if len(ls) > 1:
         return [
