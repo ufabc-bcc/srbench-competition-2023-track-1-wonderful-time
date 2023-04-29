@@ -1,3 +1,5 @@
+from typing import List
+from sympy import Expr, sqrt
 from .node import Node
 import numpy as np
 from ...utils.functional import numba_operator_wrapper
@@ -27,3 +29,6 @@ class AQ(Node):
         assert self.dX.ndim == 2, self.dX.ndim
 
         return out
+    
+    def expression(self, X: List[Expr]) -> Expr:
+        return X[0] / sqrt(X[1] ** 2 + 1)
