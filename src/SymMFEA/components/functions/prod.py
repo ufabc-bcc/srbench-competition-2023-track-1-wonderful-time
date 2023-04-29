@@ -1,6 +1,8 @@
+from sympy import Expr, Product
 from .node import Node
 import numpy as np
 from ...utils.functional import numba_operator_wrapper
+from typing import List
 
 @numba_operator_wrapper
 def prod(operands): 
@@ -22,3 +24,7 @@ class Prod(Node):
         assert self.dX.ndim == 2, self.dX.ndim
 
         return out
+    
+    @property
+    def expression(self, X: List[Expr]) -> Expr:
+        return Product(*X)

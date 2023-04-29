@@ -1,9 +1,11 @@
+from sympy import Expr, log
 from .node import Node
 import numpy as np
 from ...utils.functional import numba_operator_with_grad_wrapper
+from typing import List
 
 @numba_operator_with_grad_wrapper
-def log(x):
+def nblog(x):
     x = np.ravel(x)
     margin = np.abs(x)
     margin = np.where(margin > 1, 1 + np.log(margin), margin)
@@ -23,10 +25,14 @@ class Log(Node):
         return 'log'
     
     def __call__(self, X):
-        out, self.dX = log(X)
+        out, self.dX = nblog(X)
         
         self.dW = out
         
         assert self.dX.ndim == 2, self.dX.ndim
 
         return out
+    
+    @property
+    def expression(self, X: List[Expr]) -> Expr:
+        return log(*X) 

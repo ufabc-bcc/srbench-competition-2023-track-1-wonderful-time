@@ -1,5 +1,6 @@
+from sympy import Expr, Symbol
 from .node import Node
-import numpy as np
+from typing import List
 
 class Operand(Node):
     def __init__(self, index: int = 0, value:float = 1, bias = 0, **kwargs):      
@@ -19,3 +20,7 @@ class Operand(Node):
         self.dW = out
 
         return out
+    
+    @property
+    def expression(self, X: List[Expr]) -> Expr:
+        return Symbol(f"x{self.index}", real= True)

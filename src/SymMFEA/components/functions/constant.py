@@ -1,5 +1,7 @@
+from sympy import Expr, Float
 from .node import Node
 import numpy as np
+from typing import List
 
 class Constant(Node):
     def __init__(self, null = False,**kwargs):
@@ -9,6 +11,10 @@ class Constant(Node):
     
     def __str__(self) -> str:
         return 'null' if self.null else '1'
+    
+    @property
+    def expression(self, X: List[Expr]) -> Expr:
+        return Float(1)
     
     def __call__(self, X):
         #make shape consistent

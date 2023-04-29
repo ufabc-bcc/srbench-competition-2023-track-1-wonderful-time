@@ -1,3 +1,5 @@
+from typing import List
+from sympy import Expr, Add
 from .node import Node
 import numpy as np
 from ...utils.functional import numba_operator_wrapper
@@ -22,3 +24,7 @@ class Sum(Node):
         assert self.dX.ndim == 2, self.dX.ndim
 
         return out
+    
+    @property
+    def expression(self, X: List[Expr]) -> Expr:
+        return Add(*X)
