@@ -1,5 +1,5 @@
 from typing import List
-from sympy import Expr
+from sympy import Expr, sign as Sign, Piecewise, exp as Exp
 from .node import Node
 import numpy as np
 from ...utils.functional import numba_operator_with_grad_wrapper, numba_v2v_float_wrapper
@@ -28,7 +28,7 @@ class Valve(Node):
         super().__init__(arity = 2)
     
     def __str__(self) -> str:
-        return '_ \_'
+        return 'valve'
     
     def __call__(self, operands):
         out, self.dX =  valve(operands)
@@ -40,6 +40,8 @@ class Valve(Node):
 
         return out
     
-    @property
     def expression(self, X: List[Expr]) -> Expr:
-        return super().expression
+        x0 = X[0]
+        z = Exp(-Sign(x0) * x0)
+        switch = Piecewise((z, x0 < 0), (1, True)) / (1 + z)
+        return switch * X[1]
