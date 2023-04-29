@@ -19,11 +19,6 @@ class Node:
                  arity: int = 1,   
                  index: int = -1,              
                  **kwargs):
-        r'''
-        parent: index of parent node
-        level: length of the path to the root node, not including the node itself
-        value for constants or weighting factor for variables
-        '''
         self.index = index
         self.id:int
         self.depth:int
