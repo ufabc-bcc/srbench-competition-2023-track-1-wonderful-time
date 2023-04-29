@@ -25,8 +25,8 @@ class Tree:
             self.position = next(weight_manager.WM)
             self.compile(init_weight= init_weight)
         else:
-            self._W = np.array([node.value for node in self.nodes])
-            self._bias = np.array([node.bias for node in self.nodes])
+            self._W = np.array([node.value for node in self.nodes], dtype= np.float64)
+            self._bias = np.array([node.bias for node in self.nodes], dtype= np.float64)
 
     def __str__(self) -> str:
         s = ''
@@ -190,8 +190,10 @@ class Tree:
         
         
     def scale(self, scale_factor:float):
-        weight_manager.WM.weight[self.position][self.length - 1] = weight_manager.WM.weight[self.position][self.length - 1] * scale_factor
-        weight_manager.WM.bias[self.position][self.length - 1] = weight_manager.WM.bias[self.position][self.length - 1] * scale_factor
+        self.W[self.length - 1] = self.W[self.length - 1] * scale_factor
+        self.bias[self.length - 1] = self.bias[self.length - 1] * scale_factor
+
+            
       
     def update_best_tree(self):
         

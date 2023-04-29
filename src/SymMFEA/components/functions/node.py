@@ -36,10 +36,6 @@ class Node:
         self.tree = None
         self.compiled: bool = False
         
-        #tracking mean and var
-        self.mean: float = 0.0
-        self.var: float  = 0.0
-        self.n_samples: int = 0
     
     def __call__(self, X):
         ...

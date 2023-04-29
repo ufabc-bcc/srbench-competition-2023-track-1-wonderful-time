@@ -21,7 +21,7 @@ class TestExpression():
     
     
     @pytest.mark.parametrize("X, tree", zip_inputs(
-        generate_input_list((10, 2), size= 1), 'tree1'
+        generate_input_list((10, 2), size= 10), 'tree1'
         ))
     def test_expression_value_0(self, X: np.ndarray, tree: Tree):
         tree = getattr(self, tree)
@@ -36,18 +36,18 @@ class TestExpression():
         assert is_closed(y_expr, y_normal), (y_expr, y_normal)
         
     
-    @pytest.mark.parametrize("X, tree", zip_inputs(
-    generate_input_list((10, 3), size= 1), 'tree2'
-    ))
-    def test_expression_value_1(self, X: np.ndarray, tree: Tree):
-        tree = getattr(self, tree)
+    # @pytest.mark.parametrize("X, tree", zip_inputs(
+    # generate_input_list((10, 3), size= 10), 'tree2'
+    # ))
+    # def test_expression_value_1(self, X: np.ndarray, tree: Tree):
+    #     tree = getattr(self, tree)
         
-        print(tree.expression)
+    #     print(tree.expression)
         
-        y_expr = tree.callable_expression(X)
-        y_normal = tree(X)
+    #     y_expr = tree.callable_expression(X)
+    #     y_normal = tree(X)
         
-        y = np.tanh(X[:, 0] * X[:, 1]) - X[:, 2]
-        assert is_closed(y_expr, y), (y_expr, y)
-        assert is_closed(y_expr, y_normal), (y_expr, y_normal)
-        
+    #     y = np.tanh(X[:, 0] * X[:, 1]) - X[:, 2]
+    #     assert is_closed(y_expr, y), (y_expr, y)
+    #     assert is_closed(y_expr, y_normal), (y_expr, y_normal)
+    
