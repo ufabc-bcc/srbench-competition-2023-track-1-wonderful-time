@@ -34,7 +34,7 @@ class TestExpression():
     @pytest.mark.parametrize("X, tree", zip_inputs(
         generate_input_list((10, 2), size= 10), 'tree1'
         ))
-    def test_expression_value_0(self, X: np.ndarray, tree: Tree):
+    def test_expression_sum(self, X: np.ndarray, tree: Tree):
         tree = getattr(self, tree)
         
         print(tree.expression)
@@ -81,7 +81,7 @@ class TestExpression():
     @pytest.mark.parametrize("X, tree", zip_inputs(
     generate_input_list((10, 3), size= 10), 'tree2'
     ))
-    def test_expression_value_1(self, X: np.ndarray, tree: Tree):
+    def test_expression_nested(self, X: np.ndarray, tree: Tree):
         tree = getattr(self, tree)
         
         print(tree.expression)
