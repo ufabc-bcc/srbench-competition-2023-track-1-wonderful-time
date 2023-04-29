@@ -83,7 +83,7 @@ class TreeMerger:
         
         print('=' * 50 + colored('Tree Merger', 'red') +'='*50)
         print(display_str + f'; {str(metric)}:' + colored(' {:.2f}'.format(best_met), 'green'))
-        print('=' * 111)
+        
         
         
         #merge into one tree
@@ -111,7 +111,8 @@ class TreeMerger:
             
             assert abs((met - best_met) / (best_met + 1e-12)) < 1e-5, (met, best_met)
             
-            print(colored('After merge: {:.2f}, length: {}'.format(met, merged_tree. length), 'red'))
+            print(colored('After merge: {:.2f}, length: {}'.format(met, merged_tree. length), 'green'))
+            print('=' * 111)
         return merged_tree
             
         
