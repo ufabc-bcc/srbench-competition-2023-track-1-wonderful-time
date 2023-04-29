@@ -35,6 +35,6 @@ class Log(Node):
     
     def expression(self, X: List[Expr]) -> Expr:
         margin = Abs(*X)
-        _log = Piecewise((1 + log(margin), margin > 1), (margin, margin <= 1))
+        _log = Piecewise((1 + log(margin), margin > 1), (margin, True))
         sign = Sign(*X)
         return _log * sign

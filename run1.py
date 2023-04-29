@@ -55,7 +55,7 @@ lnr_time = time.time() - gbr_time - xgb_time - s
 tree_config = {
     'max_length': [50]* 2 + [30] * 2 + [7] ,
     'max_depth': [9] * 2 + [7] * 2 + [3],
-    'num_columns': [0.7] * 7 + [0.4],
+    'num_columns': [1] + [0.7] * 6 + [0.4],
 }
 
 crossover = SubTreeCrossover()
@@ -90,7 +90,7 @@ model.fit(
     steps_per_gen= 50,
     nb_inds_each_task= [15] * 4+ [30],
     data_sample = 0.5,
-    nb_generations= 100,
+    nb_generations= 200,
     batch_size= 2000,
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15],
@@ -98,7 +98,7 @@ model.fit(
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 24,
-    offspring_size= 10,
+    offspring_size= 5,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
