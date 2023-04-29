@@ -106,6 +106,7 @@ class GA:
             moo:bool = False,
             max_tree:int= 500000,
             tree_merger: bool = True,
+            min_candidates: int = None,
             trainer_config:dict= {},
             **params,
             ):
@@ -129,6 +130,7 @@ class GA:
         self.nb_terminals = X.shape[1]
         self.moo = moo or compact
         self.terminated: bool = False
+        
 
         #init multiprocessor
         initWM((max_tree, max(tree_config.get('max_length'))))
@@ -182,7 +184,8 @@ class GA:
                 self.display_final_result(population)
 
             
-            candidates = population.get_final_candidates()
+            min_candidates = min_candidates if min_candidates is not None else len(population.ls_subPop)
+            candidates = population.get_final_candidates(min_candidates=min_candidates)
             
             
             # finetune candidates

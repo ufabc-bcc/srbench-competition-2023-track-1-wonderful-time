@@ -147,7 +147,7 @@ class Population:
         for subpop in self.ls_subPop:
             subpop.collect_best_info()
     
-    def get_final_candidates(self):
+    def get_final_candidates(self, min_candidates: int):
         '''
         get first front if MOO
         '''
@@ -155,7 +155,12 @@ class Population:
             trees = self.all()
             fronts, _, _, _ = fast_non_dominated_sorting([-np.array(tree.objective) for tree in trees])
             
-            candidates = [trees[i] for i in fronts[0]]
+            f = 0
+            candidates = []
+            while len(candidates < min_candidates):
+                nb_to_take = min_candidates - len(candidates)
+                candidates.extend([trees[i] for i in fronts[f][:nb_to_take]])
+                f+=1
         
         else:
             candidates = [subPop.ls_inds[subPop.best_idx] for subPop in self]
