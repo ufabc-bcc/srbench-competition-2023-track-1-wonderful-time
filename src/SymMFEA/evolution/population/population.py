@@ -160,7 +160,7 @@ class Population:
             min_candidates = max(min_candidates, len(fronts[0]))
             f = 0
             candidates = []
-            while len(candidates < min_candidates):
+            while len(candidates)  < min_candidates:
                 nb_to_take = min_candidates - len(candidates)
                 candidates.extend([trees[i] for i in fronts[f][:nb_to_take]])
                 f+=1
