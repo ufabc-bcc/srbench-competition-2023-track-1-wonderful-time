@@ -1,3 +1,5 @@
+from typing import List
+from sympy import Expr, Piecewise, Float
 from .node import Node
 import numpy as np
 from ...utils.functional import numba_operator_wrapper
@@ -24,6 +26,9 @@ class Relu(Node):
 
         return out
     
+    def expression(self, X: List[Expr]) -> Expr:
+        x = X[0]
+        return Piecewise((x, x > 0), (True, 0))
     
     
     
