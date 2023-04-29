@@ -3,7 +3,7 @@ from .individual import Individual
 from ...utils.functional import numba_v2v_int_wrapper
 import numpy as np
 from ...components.multiprocessor import Multiprocessor
-from pygmo import sort_population_mo as mo_sort
+from pygmo import fast_non_dominated_sorting
 from typing import List
 from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
@@ -153,9 +153,17 @@ class Population:
         '''
         if self.moo:
             trees = self.all()
-            idx = mo_sort([-np.array(tree.objective) for tree in trees])
             
-            candidates = [trees[i] for i in idx[:min_candidates]]
+            fronts, _, _, _ = fast_non_dominated_sorting([-np.array(tree.objective) for tree in trees])
+            
+            
+            min_candidates = max(min_candidates, len(fronts[0]))
+            f = 0
+            candidates = []
+            while len(candidates < min_candidates):
+                nb_to_take = min_candidates - len(candidates)
+                candidates.extend([trees[i] for i in fronts[f][:nb_to_take]])
+                f+=1
                 
         
         else:
