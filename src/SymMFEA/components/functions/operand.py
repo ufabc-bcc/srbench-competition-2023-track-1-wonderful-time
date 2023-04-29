@@ -21,6 +21,6 @@ class Operand(Node):
 
         return out
     
-    @property
-    def expression(self, X: List[Expr]) -> Expr:
+    
+    def expression(self, X: List[Expr]= None) -> Expr:
         return Symbol(f"x{self.index}", real= True)

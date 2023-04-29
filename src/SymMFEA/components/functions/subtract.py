@@ -34,6 +34,6 @@ class Subtract(Node):
 
         return out 
     
-    @property
+    
     def expression(self, X: List[Expr]) -> Expr:
         return X[0] - Add(*X[1:])

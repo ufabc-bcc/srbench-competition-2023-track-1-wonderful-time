@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 from .primitive import Primitive
 from .functions import Node, Operand, Constant
 import numpy as np
@@ -6,12 +6,12 @@ from ..utils.timer import *
 from ..utils.functional import numba_randomchoice
 from ..components import weight_manager
 import math
-from sympy import Expr, Float
+from sympy import Expr, Float, lambdify
 
 
 class Tree: 
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True) -> None:
-        self.position = next(weight_manager.WM)
+        
         if deepcopy:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
@@ -20,6 +20,7 @@ class Tree:
         self.updateNodes()
         self.compiled:bool = compile
         if compile:
+            self.position = next(weight_manager.WM)
             self.compile(init_weight= init_weight)
         else:
             self._W = np.array([node.value for node in self.nodes])
@@ -92,7 +93,7 @@ class Tree:
     @property
     def expression(self) -> Expr:
 
-        stack: List[Expr] = [] * self.length
+        stack: List[Expr] = [None] * self.length
         top = 0
         W = self.W 
         bias = self.bias 
@@ -109,7 +110,29 @@ class Tree:
                 top += 1
         
         assert top == 1
-        return stack[0]
+        return stack[0].simplify()
+    
+    @property
+    def callable_expression(self) -> Callable:
+        vars = [f"x{i}" for i in range(self.largest_terminal)]
+        print(vars)
+        
+        f = lambdify(vars, self.expression, 'numpy')
+        
+        def infer(X):
+            nonlocal f 
+            return f(*[X[:, i] for i in range(X.shape[1])])
+        return infer
+            
+    
+    @property
+    def largest_terminal(self) -> int:
+        rs = 0
+        for node in self.nodes:
+            if isinstance(node, Operand):
+                rs = max(rs, node.index)
+
+        return rs + 1
     
     def updateNodes(self):
         for i, node in enumerate(self.nodes):

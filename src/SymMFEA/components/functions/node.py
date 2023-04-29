@@ -49,7 +49,7 @@ class Node:
     def __call__(self, X):
         ...
     
-    @property
+    
     def expression(self, X: List[Expr]) -> Expr:
         ...
         

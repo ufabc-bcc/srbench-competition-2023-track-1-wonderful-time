@@ -25,6 +25,5 @@ class Tanh(Node):
 
         return out
     
-    @property
     def expression(self, X: List[Expr]) -> Expr:
         return tanh(*X)
