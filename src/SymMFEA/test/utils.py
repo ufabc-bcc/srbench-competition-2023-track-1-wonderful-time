@@ -3,8 +3,8 @@ import numpy as np
 from typing import Tuple, List
 def generate_input_list(shape: Tuple[int], size= 10):
     return [ 
-         np.random.rand(*shape) for _ in range(size)
-         ]
+         np.random.rand(*shape) for _ in range(size) * np.random.choice([-1, 1])
+         ] 
 
 def is_closed(x1: np.ndarray, x2: np.ndarray):
     return np.allclose(x1, x2, rtol= 1e-5, atol= 1e-5)
