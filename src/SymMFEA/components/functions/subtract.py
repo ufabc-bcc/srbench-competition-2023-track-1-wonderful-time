@@ -1,5 +1,7 @@
+from sympy import Expr, Add
 from .node import Node
 import numpy as np
+from typing import List
 from ...utils.functional import numba_operator_wrapper
 
 @numba_operator_wrapper
@@ -31,4 +33,7 @@ class Subtract(Node):
         assert self.dX.ndim == 2, self.dX.ndim
 
         return out 
-        
+    
+    @property
+    def expression(self, X: List[Expr]) -> Expr:
+        return X[0] - Add(*X[1:])

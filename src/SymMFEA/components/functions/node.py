@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List
 import numpy as np
 import numba as nb
+from sympy import Expr
 
 @nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]))
 def matrix_vec_prod(m, v):
@@ -48,6 +49,9 @@ class Node:
     def __call__(self, X):
         ...
     
+    @property
+    def expression(self, X: List[Expr]) -> Expr:
+        ...
         
     @staticmethod
     def deepcopy(node: Node, new_class = None):

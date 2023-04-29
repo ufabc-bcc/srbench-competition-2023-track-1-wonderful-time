@@ -6,6 +6,7 @@ from ..utils.timer import *
 from ..utils.functional import numba_randomchoice
 from ..components import weight_manager
 import math
+from sympy import Expr, Float
 
 
 class Tree: 
@@ -81,6 +82,28 @@ class Tree:
             
             else:
                 val = node(stack[top - node.arity : top]) * W[i] + bias[i]
+                top -= node.arity
+                stack[top] = val
+                top += 1
+        
+        assert top == 1
+        return stack[0]
+    
+    @property
+    def expression(self) -> Expr:
+
+        stack: List[Expr] = [] * self.length
+        top = 0
+        W = self.W 
+        bias = self.bias 
+        
+        for i, node in enumerate(self.nodes):
+            if node.is_leaf:
+                stack[top] = node.expression() * Float(W[i]) + Float(bias[i])
+                top += 1
+            
+            else:
+                val = node.expression(stack[top - node.arity : top]) * Float(W[i]) + Float(bias[i])
                 top -= node.arity
                 stack[top] = val
                 top += 1
