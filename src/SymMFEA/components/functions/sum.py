@@ -25,6 +25,6 @@ class Sum(Node):
 
         return out
     
-    @property
+    
     def expression(self, X: List[Expr]) -> Expr:
         return Add(*X)

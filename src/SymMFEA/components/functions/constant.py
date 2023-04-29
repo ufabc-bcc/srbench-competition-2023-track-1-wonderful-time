@@ -12,8 +12,7 @@ class Constant(Node):
     def __str__(self) -> str:
         return 'null' if self.null else '1'
     
-    @property
-    def expression(self, X: List[Expr]) -> Expr:
+    def expression(self, X: List[Expr]= None) -> Expr:
         return Float(1)
     
     def __call__(self, X):

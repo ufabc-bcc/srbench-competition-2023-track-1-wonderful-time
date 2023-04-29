@@ -33,6 +33,5 @@ class Log(Node):
 
         return out
     
-    @property
     def expression(self, X: List[Expr]) -> Expr:
         return log(*X) 
