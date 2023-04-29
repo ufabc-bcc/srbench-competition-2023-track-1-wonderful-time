@@ -1,4 +1,4 @@
-from sympy import Expr, log
+from sympy import Expr, log, Abs, sign as Sign, Piecewise
 from .node import Node
 import numpy as np
 from ...utils.functional import numba_operator_with_grad_wrapper
@@ -34,4 +34,7 @@ class Log(Node):
         return out
     
     def expression(self, X: List[Expr]) -> Expr:
-        return log(*X) 
+        margin = Abs(*X)
+        _log = Piecewise((1 + log(margin), margin > 1), (margin, margin <= 1))
+        sign = Sign(*X)
+        return _log * sign

@@ -1,1 +1,1 @@
-pytest src/SymMFEA/test/
+pytest -rs src/SymMFEA/test/
