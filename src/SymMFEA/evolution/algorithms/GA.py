@@ -48,7 +48,7 @@ class GA:
             [subPop.max_main_objective for subPop in population], reverse=reverse, **kwargs)
 
     def display_final_result(self, population: Population):
-        candidates = population.get_final_candidates()
+        candidates = population.get_final_candidates(self.min_candidates)
         sqrt = np.sqrt(len(candidates)).item()
         nb_columns = int(sqrt)
 
@@ -70,6 +70,15 @@ class GA:
 
         plt.show()
         plt.savefig('Trees.png')
+        
+        fig, axs = plt.subplots(1, 1, figsize=(
+            40, 20), squeeze=False)
+        
+        draw_tree(self.final_solution, axs[0, 0])
+        plt.show()
+        plt.savefig('Final_solution.png')
+        
+        
 
     def update_nb_inds_tasks(self, population: Population, generation: int):
         nb = np.ceil(np.minimum(
@@ -180,12 +189,10 @@ class GA:
                         self.progress.set_finished()
                         
 
-            if visualize:
-                self.display_final_result(population)
-
             
-            min_candidates = min_candidates if min_candidates is not None else len(population.ls_subPop)
-            candidates = population.get_final_candidates(min_candidates=min_candidates)
+            
+            self.min_candidates = min_candidates if min_candidates is not None else len(population.ls_subPop)
+            candidates = population.get_final_candidates(min_candidates=self.min_candidates)
             
             
             # finetune candidates
@@ -213,6 +220,11 @@ class GA:
             
             
             Timer.display()
+            
+            if visualize:
+                self.display_final_result(population)
+
+            
             
     def predict(self, X: np.ndarray):
         return self.final_solution(X)
