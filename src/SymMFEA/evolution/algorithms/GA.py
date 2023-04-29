@@ -86,6 +86,11 @@ class GA:
         )).astype(np.int64)
         
         population.update_nb_inds_tasks(nb)
+        
+    def save_solution(self, save_path:str = None):
+        save_path = save_path if save_path is not None else 'solution'
+        with open(save_path, 'w+') as f:
+            f.write(str(self.final_solution.expression))
 
 
     def finetune(self, ind: Individual):
@@ -117,6 +122,7 @@ class GA:
             tree_merger: bool = True,
             min_candidates: int = None,
             trainer_config:dict= {},
+            save_path: str= None,
             **params,
             ):
         '''
@@ -220,6 +226,8 @@ class GA:
             
             
             Timer.display()
+            
+            self.save_solution(save_path= save_path)
             
             if visualize:
                 self.display_final_result(population)
