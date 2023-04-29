@@ -197,40 +197,40 @@ class GA:
 
             
             
-            self.min_candidates = min_candidates if min_candidates is not None else len(population.ls_subPop)
-            candidates = population.get_final_candidates(min_candidates=self.min_candidates)
-            
-            
-            # finetune candidates
-            reverse = not metric.is_larger_better
-            
-            with CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric)) as (progress, pbar):
-                for i in pbar:
-                    finetune_result = candidates[i].finetune(
-                        finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
-                    )
-                    #NOTE: not so pretty code
-                    offspring_pool.optimized.handle_result([finetune_result], optimize_jobs= [(candidates[i].task, candidates[i])])
+        self.min_candidates = min_candidates if min_candidates is not None else len(population.ls_subPop)
+        candidates = population.get_final_candidates(min_candidates=self.min_candidates)
+        
+        
+        # finetune candidates
+        reverse = not metric.is_larger_better
+        
+        with CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric)) as (progress, pbar):
+            for i in pbar:
+                finetune_result = candidates[i].finetune(
+                    finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
+                )
+                #NOTE: not so pretty code
+                offspring_pool.optimized.handle_result([finetune_result], optimize_jobs= [(candidates[i].task, candidates[i])])
 
-                    candidates[i].run_check(metric= metric)
-                    progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
-                    
-                    if i == len(candidates) - 1:
-                        progress.set_finished()
-                    
-            best_tree = candidates[progress.best_idx].genes
-            if len(candidates) == 1 or (not tree_merger):
-                self.final_solution = best_tree
-            else:
-                self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric) 
-            
-            
-            Timer.display()
-            
-            self.save_solution(save_path= save_path)
-            
-            if visualize:
-                self.display_final_result(population)
+                candidates[i].run_check(metric= metric)
+                progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
+                
+                if i == len(candidates) - 1:
+                    progress.set_finished()
+                
+        best_tree = candidates[progress.best_idx].genes
+        if len(candidates) == 1 or (not tree_merger):
+            self.final_solution = best_tree
+        else:
+            self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric) 
+        
+        
+        Timer.display()
+        
+        self.save_solution(save_path= save_path)
+        
+        if visualize:
+            self.display_final_result(population)
 
             
             
