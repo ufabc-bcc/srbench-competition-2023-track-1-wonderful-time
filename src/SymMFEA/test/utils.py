@@ -3,7 +3,7 @@ import numpy as np
 from typing import Tuple, List
 def generate_input_list(shape: Tuple[int], size= 10):
     return [ 
-         np.random.rand(*shape) for _ in range(size) * np.random.choice([-1, 1])
+         np.random.rand(*shape) for _ in range(size) * np.random.choice([-1, 1]) * np.random.randint(1, 5)
          ] 
 
 def is_closed(x1: np.ndarray, x2: np.ndarray):
