@@ -49,6 +49,12 @@ class TestExpression():
     ]
     tree_prod = Tree(nodes=nodes_prod, compile = False)   
     
+    #valve(x0, x1)
+    nodes_valve = [
+        Operand(0), Operand(1), Valve()
+    ]
+    tree_valve = Tree(nodes=nodes_valve, compile = False)   
+    
     @pytest.mark.parametrize("X, tree", zip_inputs(
         generate_input_list((10, 2), size= 10), 'tree_sum'
         ))
@@ -145,7 +151,26 @@ class TestExpression():
         y = X[:, 0] * X[:, 1]
         
         assert is_closed(y_expr, y), (y_expr, y)
-        assert is_closed(y_expr, y_normal), (y_expr, y_normal)    
+        assert is_closed(y_expr, y_normal), (y_expr, y_normal)   
+        
+    @pytest.mark.parametrize("X, tree", zip_inputs(
+    generate_input_list((10, 2), size= 10), 'tree_valve'
+    ))
+    def test_expression_valve(self, X: np.ndarray, tree: Tree):
+        tree = getattr(self, tree)
+        
+        print(tree.expression)
+
+        y_expr = tree.callable_expression(X)
+        y_normal = tree(X)
+        
+        x0 = X[:, 0]
+        z = np.exp(np.sign(-x0) * x0)
+        z = np.where(x0 < 0, z, 1) / (1 + z)
+        y = z * X[:, 1]
+        
+        assert is_closed(y_expr, y), (y_expr, y)
+        assert is_closed(y_expr, y_normal), (y_expr, y_normal)  
 
     
     @pytest.mark.parametrize("X, tree", zip_inputs(
