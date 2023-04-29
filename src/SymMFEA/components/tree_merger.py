@@ -89,7 +89,7 @@ class TreeMerger:
         #merge into one tree
         
         if len(selected_inds) == 1:
-            merged_tree= selected_inds[0]
+            merged_tree= selected_inds[0].genes
         else:
             nodes = []                                                              
             
