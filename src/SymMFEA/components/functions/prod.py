@@ -1,4 +1,4 @@
-from sympy import Expr, Product
+from sympy import Expr
 from .node import Node
 import numpy as np
 from ...utils.functional import numba_operator_wrapper
@@ -26,4 +26,4 @@ class Prod(Node):
         return out
     
     def expression(self, X: List[Expr]) -> Expr:
-        return Product(*X)
+        return X[0] * X[1]
