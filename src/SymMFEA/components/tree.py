@@ -11,7 +11,9 @@ from sympy import Expr, Float, lambdify
 
 class Tree: 
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True) -> None:
-        
+        '''
+        compile: copy weight from nodes to weight_manager
+        '''
         if deepcopy:
             self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
@@ -115,7 +117,6 @@ class Tree:
     @property
     def callable_expression(self) -> Callable:
         vars = [f"x{i}" for i in range(self.largest_terminal)]
-        print(vars)
         
         f = lambdify(vars, self.expression, 'numpy')
         
