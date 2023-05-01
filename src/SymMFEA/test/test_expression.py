@@ -121,9 +121,9 @@ class TestExpression():
         
         x = X[:, 0]
         margin = np.abs(x)
-        _log = np.where(margin > 1, 1 + np.log(margin), margin)
+        _log = np.log(margin + 1)
         sign = np.sign(x)
-        y = margin * sign
+        y = _log * sign
         
         assert is_closed(y_expr, y), (y_expr, y)
         assert is_closed(y_expr, y_normal), (y_expr, y_normal)
