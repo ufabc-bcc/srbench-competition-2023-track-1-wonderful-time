@@ -9,8 +9,8 @@ from ..utils import count_nodes
 from ..components import weight_manager
 import math
 from sympy import Expr, Float, lambdify
+import os
 
-a = Expr()
 class Tree: 
     simplifications = [
         ('expand', lambda tree: []),
@@ -33,6 +33,9 @@ class Tree:
         else:
             self._W = np.array([node.value for node in self.nodes], dtype= np.float64)
             self._bias = np.array([node.bias for node in self.nodes], dtype= np.float64)
+            
+        self.cached_expression: Expr = None
+        self.cached_callable_expression: Callable = None
 
     def __str__(self) -> str:
         s = ''
@@ -100,6 +103,9 @@ class Tree:
     
     @property
     def expression(self) -> Expr:
+        if self.cached_expression is not None:
+            return self.cached_expression
+        
         print('\n' + ('=' * 100))
         
         
@@ -146,10 +152,14 @@ class Tree:
         
         print('Number of nodes: Before: ' + colored('{:,}'.format(first_length), 'red') + ' After: ' + colored('{:,}'.format(count_nodes(expr)), 'green'))
         print('=' * 100)
+        self.cached_expression = expr
         return expr
     
     @property
     def callable_expression(self) -> Callable:
+        if self.cached_callable_expression is not None:
+            return self.cached_callable_expression
+        
         vars = [f"x{i}" for i in range(self.largest_terminal)]
         
         f = lambdify(vars, self.expression, 'numpy')
@@ -232,6 +242,11 @@ class Tree:
         self.bias[self.length - 1] = self.bias[self.length - 1] * scale_factor
 
             
+    def run_check_expression(self, data):
+        if os.environ.get('DEBUG'):
+            X = data
+                        
+            assert np.isclose(self(X), self.callable_expression(X))
       
     def update_best_tree(self):
         

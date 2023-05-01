@@ -224,6 +224,7 @@ class GA:
         else:
             self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric) 
         
+        self.final_solution.run_check_expression(data = self.main_task.data)
         
         Timer.display()
         

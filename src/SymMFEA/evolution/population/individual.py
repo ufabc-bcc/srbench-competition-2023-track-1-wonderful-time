@@ -68,5 +68,7 @@ class Individual:
                         
             assert abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-3, (met, self.best_metric) 
             
+
+            
     def scale(self, scale_factor: float):
         self.genes.scale(scale_factor= scale_factor)
