@@ -17,7 +17,7 @@ FUNCTION_SET = {
     ],
     1: [
         Tanh,
-        Log,
+        # Log,
         Relu,
     ],
     2: [
