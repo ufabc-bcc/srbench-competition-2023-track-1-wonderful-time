@@ -28,7 +28,7 @@ class Relu(Node):
     
     def expression(self, X: List[Expr]) -> Expr:
         x = X[0]
-        return Piecewise((x, x > 0), (True, 0))
+        return Piecewise((x, x > 0), (0, True))
     
     
     

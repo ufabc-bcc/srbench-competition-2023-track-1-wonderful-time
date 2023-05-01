@@ -10,6 +10,9 @@ from sympy import Expr, Float, lambdify
 
 
 class Tree: 
+    simplifications = [
+        'expand'
+    ]
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True) -> None:
         '''
         compile: copy weight from nodes to weight_manager
@@ -102,7 +105,7 @@ class Tree:
         
         for i, node in enumerate(self.nodes):
             if node.is_leaf:
-                stack[top] = node.expression() * Float(W[i]) + Float(bias[i])
+                stack[top] = (node.expression() * Float(W[i]) + Float(bias[i]))
                 top += 1
             
             else:
@@ -112,7 +115,11 @@ class Tree:
                 top += 1
         
         assert top == 1
-        return stack[0].simplify()
+        expr = stack[0]
+        for simplify in self.simplifications:
+            expr = getattr(expr, simplify)
+        
+        return expr
     
     @property
     def callable_expression(self) -> Callable:
