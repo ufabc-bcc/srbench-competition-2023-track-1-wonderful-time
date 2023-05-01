@@ -112,7 +112,8 @@ class TreeMerger:
             assert abs((met - best_met) / (best_met + 1e-12)) < 1e-5, (met, best_met)
             
             print(colored('After merge: {:.2f}, length: {}'.format(met, merged_tree. length), 'green'))
-            print('=' * 111)
+            
+        print('=' * 111)
         return merged_tree
             
         
