@@ -4,6 +4,8 @@ from .functions import Node, Operand, Constant
 import numpy as np
 from ..utils.timer import *
 from ..utils.functional import numba_randomchoice
+from ..utils.progress_bar import SimplificationProgresBar
+from ..utils import count_nodes
 from ..components import weight_manager
 import math
 from sympy import Expr, Float, lambdify
@@ -11,7 +13,7 @@ from sympy import Expr, Float, lambdify
 
 class Tree: 
     simplifications = [
-        'expand'
+        'factor', 'collect'
     ]
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True) -> None:
         '''
@@ -116,8 +118,16 @@ class Tree:
         
         assert top == 1
         expr = stack[0]
-        for simplify in self.simplifications:
-            expr = getattr(expr, simplify)
+        
+        with SimplificationProgresBar(simplification_list= self.simplifications) as (progress_bar, progress):
+            progress_bar.update(count_nodes(expr))
+            for simplify in progress:
+                progress_bar.update_what_iam_doing(simplify)
+                expr: Expr = getattr(expr, simplify)()
+                progress_bar.update(count_nodes(expr))
+                
+                if simplify == self.simplifications[-1]:
+                    progress_bar.set_finished()
         
         return expr
     

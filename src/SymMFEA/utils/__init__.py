@@ -5,6 +5,7 @@ import multiprocessing as mp
 import numpy as np
 import ctypes
 from typing import Iterable, Union
+from sympy import Expr
 
 def create_shared_np(shape: Iterable[int], val= None, dtype= None):
     if isinstance(shape, int):
@@ -31,4 +32,18 @@ def create_shared_np(shape: Iterable[int], val= None, dtype= None):
 
 def handle_number_of_list(param: Union[int, float, list], size: int) -> list:
     return param if isinstance(param, list) else [param] * size
-    
+
+
+def count_nodes(expr: Expr):
+    '''
+    Counts the nodes of a sympy expression.
+
+    Parameters
+    ----------
+    expr : sympy
+                sympy expression as created by SymExpr class.
+    '''
+    count = 0
+    for arg in expr.args:
+        count += count_nodes(arg)
+    return count + 1
