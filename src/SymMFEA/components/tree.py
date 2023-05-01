@@ -244,9 +244,9 @@ class Tree:
             
     def run_check_expression(self, data):
         if os.environ.get('DEBUG'):
-            X = data
+            X = data.X_val
                         
-            assert np.isclose(self(X), self.callable_expression(X))
+            assert np.allclose(self(X), self.callable_expression(X))
       
     def update_best_tree(self):
         
