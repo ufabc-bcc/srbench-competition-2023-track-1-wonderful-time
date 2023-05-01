@@ -10,10 +10,11 @@ from ..components import weight_manager
 import math
 from sympy import Expr, Float, lambdify
 
-
+a = Expr()
 class Tree: 
     simplifications = [
-        'factor', 'collect'
+        ('expand', lambda tree: []),
+        ('collect', lambda tree: [{'syms': tree.ls_terminals}]),
     ]
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True) -> None:
         '''
@@ -99,36 +100,52 @@ class Tree:
     
     @property
     def expression(self) -> Expr:
-
-        stack: List[Expr] = [None] * self.length
-        top = 0
-        W = self.W 
-        bias = self.bias 
+        print('\n' + ('=' * 100))
         
-        for i, node in enumerate(self.nodes):
-            if node.is_leaf:
-                stack[top] = (node.expression() * Float(W[i]) + Float(bias[i]))
-                top += 1
-            
-            else:
-                val = node.expression(stack[top - node.arity : top]) * Float(W[i]) + Float(bias[i])
-                top -= node.arity
-                stack[top] = val
-                top += 1
-        
-        assert top == 1
-        expr = stack[0]
         
         with SimplificationProgresBar(simplification_list= self.simplifications) as (progress_bar, progress):
-            progress_bar.update(count_nodes(expr))
-            for simplify in progress:
-                progress_bar.update_what_iam_doing(simplify)
-                expr: Expr = getattr(expr, simplify)()
-                progress_bar.update(count_nodes(expr))
+            stack: List[Expr] = [None] * self.length
+            top = 0
+            W = self.W 
+            bias = self.bias 
+            
+            for i, node in enumerate(self.nodes):
+                if node.is_leaf:
+                    stack[top] = (node.expression() * Float(W[i]) + Float(bias[i]))
+                    top += 1
                 
-                if simplify == self.simplifications[-1]:
+                else:
+                    val = node.expression(stack[top - node.arity : top]) * Float(W[i]) + Float(bias[i])
+                    top -= node.arity
+                    stack[top] = val
+                    top += 1
+            
+            assert top == 1
+            expr = stack[0]
+            first_length = count_nodes(expr)
+            
+            
+        
+        
+        
+            progress_bar.update(count_nodes(expr))
+            for (simplify, get_args_funcs) in progress:
+                args = get_args_funcs(self)
+                for kwargs in args:
+                    
+                    progress_bar.update_what_iam_doing(simplify)
+                    attempt: Expr = getattr(expr, simplify)(**kwargs)
+                    
+                    if count_nodes(attempt) < count_nodes(expr):
+                        expr = attempt
+                    
+                    progress_bar.update(count_nodes(expr))
+                
+                if simplify == self.simplifications[-1][0]:
                     progress_bar.set_finished()
         
+        print('Number of nodes: Before: ' + colored('{:,}'.format(first_length), 'red') + ' After: ' + colored('{:,}'.format(count_nodes(expr)), 'green'))
+        print('=' * 100)
         return expr
     
     @property
@@ -151,6 +168,10 @@ class Tree:
                 rs = max(rs, node.index)
 
         return rs + 1
+    
+    @property
+    def ls_terminals(self) -> list:
+        return list(set([node.index for node in self.nodes if isinstance(node, Operand)]))
     
     def updateNodes(self):
         for i, node in enumerate(self.nodes):
