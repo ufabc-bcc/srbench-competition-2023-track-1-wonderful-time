@@ -50,6 +50,14 @@ class TreeMerger:
                 length = sum([ind.genes.length for i, ind in enumerate(inds) if is_selected[i]])
                 objs.append([-met if metric.is_larger_better else met, length])
                 
+        for i in range(len(inds)):
+            coef = np.zeros(len(inds), dtype= np.float64)
+            coef[i] = 1
+            
+            coefs.append(coef)
+            
+            objs.append([-inds[i].best_metric, inds[i].genes.length])
+        
         
         fronts, _, _, _ = fast_non_dominated_sorting(objs)
         
