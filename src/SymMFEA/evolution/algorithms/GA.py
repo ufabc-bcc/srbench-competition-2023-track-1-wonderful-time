@@ -89,7 +89,7 @@ class GA:
         
     def save_solution(self, save_path:str = None):
         save_path = save_path if save_path is not None else 'solution'
-        with open(save_path, 'w+') as f:
+        with open(save_path, 'w') as f:
             f.write(str(self.final_solution.expression))
 
 

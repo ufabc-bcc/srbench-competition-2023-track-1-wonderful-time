@@ -1,14 +1,18 @@
 from tqdm.auto import tqdm
-from typing import List
+from typing import List, Union, Iterable
 from termcolor import colored
 import numpy as np
 
 
 class ProgressBar:
-    def __init__(self, num_iters: int, dsc: str = ' ', metric_name:str = 'Obj', leave= True, position = 0, **kwargs) -> None:
-        self.pbar = tqdm(range(num_iters), leave= leave, position= position, colour='blue')
+    def __init__(self, num_iters: Union[int, Iterable], dsc: str = ' ', metric_name:str = 'Obj', leave= True, position = 0, **kwargs) -> None:
+        iterable = range(num_iters) if isinstance(num_iters, int) else num_iters
+        self.pbar = tqdm(iterable, leave= leave, position= position, colour='blue')
         self.pbar.set_description(colored(dsc, 'red'))
         self.metric_name = metric_name
+        
+    def update_what_iam_doing(self, **kwargs):
+        ...
         
     def update(self, **kwargs):
         ...
@@ -100,4 +104,22 @@ class CandidateFinetuneProgressBar(ProgressBar):
         
         self.pbar.set_postfix_str(colored(display_str, 'green'))
         self.pbar.refresh()
+        
+class SimplificationProgresBar(ProgressBar):
+    def __init__(self, simplification_list, **kwargs) -> None:
+        
+        super().__init__(num_iters = simplification_list, dsc = 'Simplifying expression', metric_name= 'Number of nodes',**kwargs)
     
+    
+    def update_what_iam_doing(self, symplification,  **kwargs):
+        self.pbar.set_description(colored(f'Doing symplification: {symplification}', 'red'))
+    
+    def update(self, number_of_nodes):
+        display_str = 'Current nb of nodes: {:,}; '.format(number_of_nodes)
+        self.pbar.set_postfix_str(colored(display_str, 'green'))
+        self.pbar.refresh()
+        
+    def set_finished(self):
+        super().set_finished()
+        self.pbar.set_description(colored('Symplification finished', 'green'))
+        self.pbar.refresh()
