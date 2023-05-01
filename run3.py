@@ -53,9 +53,9 @@ lnr_time = time.time() - gbr_time - xgb_time - s
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [50]* 2 + [30] * 2 + [7] ,
-    'max_depth': [9] * 2 + [7] * 2 + [3],
-    'num_columns': [1] + [0.7] * 6 + [0.4],
+    'max_length': [50]* 2 + [30] * 2 + [7] * 3,
+    'max_depth': [9] * 2 + [7] * 2 + [3] * 3,
+    'num_columns': [1] + [0.7] * 6 + [0.4] * 3,
 }
 
 crossover = SubTreeCrossover()
@@ -72,8 +72,6 @@ model = SMP(
     reproducer_config={
         'crossover': crossover,
         'mutation': mutation,
-        'crossover_size': 0.5,
-        'mutation_size': 1,
     },
     selector_config={
         # 'select_optimizing_inds': 0.5
@@ -82,24 +80,24 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
-    'num_sub_task': 5,
+    'num_sub_task': 7,
 }
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 50,
-    nb_inds_each_task= [15] * 4+ [30],
+    steps_per_gen= 20,
+    nb_inds_each_task= [15] * 4+ [30] * 3,
     data_sample = 0.5,
-    nb_generations= 200,
+    nb_generations= 500,
     batch_size= 2000,
     test_size = 0.33,
-    nb_inds_min= [10] * 4 + [15],
+    nb_inds_min= [10] * 4 + [15] * 3,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 24,
     offspring_size= 5,
-    expected_generations_inqueue= 5,
+    expected_generations_inqueue= 15,
     compact= True,
     moo= True, 
     trainer_config= {

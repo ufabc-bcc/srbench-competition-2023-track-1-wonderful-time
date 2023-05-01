@@ -8,11 +8,11 @@ from typing import List
 def nblog(x):
     x = np.ravel(x)
     margin = np.abs(x)
-    margin = np.where(margin > 1, 1 + np.log(margin), margin)
+    margin = np.log(margin + 1)
     sign = np.sign(x)
     
-    dX = np.where(margin > 1, 1 / margin, 1)
-    return sign * margin,  np.expand_dims(dX * sign, axis = 0)
+    dX = sign / (margin + 1)
+    return sign * margin,  np.expand_dims(dX, axis = 0)
 
 
 
@@ -35,6 +35,7 @@ class Log(Node):
     
     def expression(self, X: List[Expr]) -> Expr:
         margin = Abs(*X)
-        _log = Piecewise((1 + log(margin), margin > 1), (margin, True))
+        
+        _log = log(margin + 1)
         sign = Sign(*X)
         return _log * sign
