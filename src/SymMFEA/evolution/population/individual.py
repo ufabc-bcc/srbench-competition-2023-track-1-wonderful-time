@@ -27,6 +27,9 @@ class Individual:
         self.best_metric = None
         self.nb_consecutive_not_improve = 0
         self.objective = None
+        
+    def flush_stats(self):
+        self.genes.flush_stats()
     
     @property
     def position(self):

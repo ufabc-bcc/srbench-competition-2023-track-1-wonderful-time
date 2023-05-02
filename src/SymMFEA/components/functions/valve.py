@@ -30,13 +30,16 @@ class Valve(Node):
     def __str__(self) -> str:
         return 'valve'
     
-    def __call__(self, operands):
+    def __call__(self, operands, update_stats= False):
         out, self.dX =  valve(operands)
         
         
         self.dW = out
         self.dX = self.value * self.dX
         assert self.dX.ndim == 2, self.dX.ndim
+        
+        if update_stats:
+            self.update_stats(out)
 
         return out
     

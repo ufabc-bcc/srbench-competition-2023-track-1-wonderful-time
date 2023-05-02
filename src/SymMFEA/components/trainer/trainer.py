@@ -52,6 +52,10 @@ class Trainer:
                 break
         
         ind.rollback_best()
+        #update stats
+        ind.flush_stats()
+        
+        
         ind.run_check(self.metric)
         return ind.best_metric, np.mean(step_loss), step + 1, ind.optimizer_profile 
         
