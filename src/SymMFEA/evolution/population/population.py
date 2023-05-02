@@ -8,7 +8,7 @@ from typing import List
 from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
 from ..task import Task, SubTask
-
+from ...components.column_sampler import ColumnSampler
 
         
 class SubPopulation:
@@ -16,6 +16,7 @@ class SubPopulation:
     def __init__(self,
                  num_inds: int,
                  data_samples: float,
+                 column_sampler: ColumnSampler,
                  tree_config: dict = {},
                  skill_factor:int = None, 
                  task: Task = None):
@@ -25,7 +26,7 @@ class SubPopulation:
         
         self.task = SubTask(task, data_sample= data_samples)
         
-        self.tree_factory = TreeFactory(task_idx = skill_factor, num_total_terminals= len(task.terminal_set), tree_config= tree_config)
+        self.tree_factory = TreeFactory(task_idx = skill_factor, num_total_terminals= len(task.terminal_set), tree_config= tree_config, column_sampler= column_sampler)
         
         self.ls_inds = [Individual(self.tree_factory.create_tree(), task = self.task, skill_factor = skill_factor) for _ in range(num_inds)]
         
@@ -99,9 +100,13 @@ class Population:
         self.data_sample = data_sample
         self.nb_inds_tasks = nb_inds_tasks
         self.moo= moo
-            
+        
+        
+        self.column_sampler = ColumnSampler()
+        self.column_sampler.fit(task.data.X_train)
+        
         self.ls_subPop: List[SubPopulation] = [
-            SubPopulation(self.nb_inds_tasks[skf], self.data_sample[skf], skill_factor = skf,  task= task, tree_config = tree_config) for skf in range(self.num_sub_tasks)
+            SubPopulation(self.nb_inds_tasks[skf], self.data_sample[skf], skill_factor = skf,  task= task, tree_config = tree_config, column_sampler= self.column_sampler) for skf in range(self.num_sub_tasks)
         ]
         self.offspring_size= offspring_size
         

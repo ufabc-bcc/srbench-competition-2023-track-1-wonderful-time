@@ -155,7 +155,7 @@ class GA:
 
         self.init_params(**params, is_larger_better= metric.is_larger_better)
         
-        
+        #create column sampler
 
         with Multiprocessor(num_workers= num_workers) as multiprocessor:
             self.multiprocessor = multiprocessor
