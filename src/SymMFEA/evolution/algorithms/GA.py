@@ -148,7 +148,9 @@ class GA:
         
 
         #init multiprocessor
-        initWM((max_tree, max(tree_config.get('max_length'))))
+        max_tree_legnth = tree_config.get('max_length')
+        max_tree_legnth = max_tree_legnth if isinstance(max_tree_legnth, float) else max(max_tree_legnth)
+        initWM((max_tree, max_tree_legnth))
         
         #init offsprings pool
         initOffspringsPool(compact= compact)
