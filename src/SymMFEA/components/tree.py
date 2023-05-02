@@ -9,6 +9,7 @@ from ..utils import count_nodes
 from ..components import weight_manager
 import math
 from sympy import Expr, Float, lambdify
+from ..components.column_sampler import ColumnSampler
 import os
 
 class Tree: 
@@ -260,31 +261,21 @@ class Tree:
         weight_manager.WM.bias[self.position] = weight_manager.WM.best_bias[self.position]
 
 class TreeFactory:
-    def __init__(self, task_idx:int, num_total_terminals: int,  tree_config: dict, *args, **kwargs):
+    def __init__(self, task_idx:int, num_total_terminals: float, tree_config: dict, column_sampler: ColumnSampler, *args, **kwargs):
         self.task_idx = task_idx
         for attr in tree_config.keys():
             setattr(self, attr, self.handle_params(tree_config, attr))
             
         self.num_total_terminals: int= num_total_terminals
         
-        
-        
-        if not hasattr(self, 'terminal_set'):
-            self.terminal_set: list= [i for i in range(self.num_total_terminals)] 
-        else:
-            if isinstance(self.terminal_set, float):
-                self.terminal_set: list= numba_randomchoice(np.arange(self.num_total_terminals), size= math.ceil(self.terminal_set * self.num_total_terminals), replace= False).tolist()
-            else:
-                self.terminal_set = self.terminal_set
+        self.terminal_set: list= column_sampler.sample(size= self.num_columns)
+
                 
         self.max_depth: int
         self.max_length: int
         
     
-    def handle_params(self, tree_config, attr):
-        
-        #handle terminal set
-        
+    def handle_params(self, tree_config, attr):        
         if type(tree_config[attr]) == list: 
             return tree_config[attr][self.task_idx]
         

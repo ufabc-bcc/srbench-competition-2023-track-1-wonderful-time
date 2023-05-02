@@ -29,7 +29,7 @@ def log_normalize(x):
 
 
 @nb.njit
-def numba_randomchoice_w_prob( prob):
+def numba_randomchoice_w_prob(prob):
     assert np.abs(np.sum(prob) - 1.0) < 1e-9
     rd = np.random.rand()
     res = 0
