@@ -103,8 +103,9 @@ class SMP(GA):
             
     def init_params(self, **kwargs):
         self.history_smp: list = []
-        self.p_const_intra: float = kwargs['p_const_intra']
-        self.delta_lr: int = kwargs['delta_lr']
+        self.p_const_intra: float = kwargs.get('p_const_intra', 0)
+        self.min_mutation_rate: float = kwargs.get('min_mutation_rate', 0.1)
+        self.delta_lr: int = kwargs.get('delta_lr', 0.1)
         self.num_sub_tasks: int = kwargs['num_sub_task']
         
         self.nb_inds_each_task = np.array(handle_number_of_list(self.nb_inds_each_task, self.num_sub_tasks))
@@ -124,7 +125,7 @@ class SMP(GA):
         
         
         # Initialize memory smp
-        self.smp = [SMPManager(idx_host= i, nb_tasks= self.num_sub_tasks, lr = self.delta_lr, p_const_intra= self.p_const_intra) for i in range(self.num_sub_tasks)]
+        self.smp = [SMPManager(idx_host= i, nb_tasks= self.num_sub_tasks, lr = self.delta_lr, p_const_intra= self.p_const_intra, min_mutation_rate= self.min_mutation_rate) for i in range(self.num_sub_tasks)]
 
         #save history
         self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
