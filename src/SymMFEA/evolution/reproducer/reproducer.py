@@ -56,23 +56,25 @@ class Reproducer:
         self.mutation.update_task_info(**kwargs)
         
         
-class battle_smp:
-    def __init__(self, idx_host: int, nb_tasks: int, lr, p_const_intra) -> None:
+class SMPManager:
+    def __init__(self, idx_host: int, nb_tasks: int, lr, p_const_intra: float, min_mutation_rate: float) -> None:
         assert idx_host < nb_tasks
         self.idx_host = idx_host
         self.nb_tasks = nb_tasks
 
         #value const for intra
         self.p_const_intra = p_const_intra
+        self.min_mutation_rate = min_mutation_rate
         self.lower_p = 0.1/(self.nb_tasks + 1)
 
         # smp without const_val of host
-        self.sum_not_host = 1 - 0.1 - p_const_intra
+        self.sum_not_host = 1 - 0.1 - p_const_intra - min_mutation_rate
         self.SMP_not_host: np.ndarray = ((np.zeros((nb_tasks + 1, )) + self.sum_not_host)/(nb_tasks + 1))
         self.SMP_not_host[self.idx_host] += self.sum_not_host - np.sum(self.SMP_not_host)
 
         smp_return : np.ndarray = np.copy(self.SMP_not_host)
         smp_return[self.idx_host] += self.p_const_intra
+        smp_return[-1] += self.min_mutation_rate
         smp_return += self.lower_p
 
         self.SMP_include_host = smp_return
@@ -97,6 +99,7 @@ class battle_smp:
             
             smp_return : np.ndarray = np.copy(self.SMP_not_host)
             smp_return[self.idx_host] += self.p_const_intra
+            smp_return[-1] += self.min_mutation_rate
             smp_return += self.lower_p
             self.SMP_include_host = smp_return
 
@@ -105,7 +108,7 @@ class battle_smp:
 class SMP_Reproducer(Reproducer):
     def __init__(self, crossover: Crossover, mutation: Mutation, **params):
         super().__init__(crossover, mutation, **params)
-        self.smp: battle_smp
+        self.smp: SMPManager
         
     
     def select_mutation_parent(self, population: Population, skf: int):

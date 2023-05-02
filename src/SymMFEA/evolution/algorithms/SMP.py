@@ -3,7 +3,7 @@ import numpy as np
 import numpy as np
 from ..ranker import NonDominatedRanker
 from ..population import Population
-from ..reproducer import SMP_Reproducer, battle_smp
+from ..reproducer import SMP_Reproducer, SMPManager
 from ..selector import ElitismSelector
 import matplotlib.pyplot as plt
 from .. import offspring_pool
@@ -124,7 +124,7 @@ class SMP(GA):
         
         
         # Initialize memory smp
-        self.smp = [battle_smp(idx_host= i, nb_tasks= self.num_sub_tasks, lr = self.delta_lr, p_const_intra= self.p_const_intra) for i in range(self.num_sub_tasks)]
+        self.smp = [SMPManager(idx_host= i, nb_tasks= self.num_sub_tasks, lr = self.delta_lr, p_const_intra= self.p_const_intra) for i in range(self.num_sub_tasks)]
 
         #save history
         self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])

@@ -25,7 +25,6 @@ X, y = Z[:, :-1], Z[:, -1]
 
 
 X = X.astype(np.float64)
-X = np.delete(X, [8,5,12,14,3], axis = 1)
 
 y = y.astype(np.float64) 
 
@@ -69,7 +68,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = ADAM(1e-2, weight_decay= 1e-5)
+optimizer = ADAM(1e-3, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -83,6 +82,7 @@ SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
     'num_sub_task': 7,
+    'min_mutattion_rate': 0.1,
 }
 #===================================== Fit ==========================
 model.fit(
@@ -103,7 +103,7 @@ model.fit(
     compact= True,
     moo= True, 
     trainer_config= {
-        'early_stopping': 3
+        'early_stopping': 10
     },
     **SMP_configs,
 )
