@@ -1,5 +1,4 @@
 from .sum import Sum
-from .subtract import Subtract
 from .operand import Operand
 from .node import Node
 from .tanh import Tanh
@@ -27,7 +26,6 @@ FUNCTION_SET = {
     ],
     -1:[
         Sum,
-        Subtract, 
     ]
 }
 
