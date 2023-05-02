@@ -8,6 +8,7 @@ from .aq import AQ
 from .constant import Constant
 from .log import Log
 from .valve import Valve
+from .batchnorm import BatchNorm
 
 FUNCTION_SET = {
     0 : [
@@ -18,6 +19,7 @@ FUNCTION_SET = {
         Tanh,
         Log,
         Relu,
+        BatchNorm,
     ],
     2: [
         Prod,

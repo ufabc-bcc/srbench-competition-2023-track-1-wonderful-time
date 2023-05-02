@@ -13,9 +13,9 @@ class TestExpression():
     ]
     tree1 = Tree(nodes=nodes1, compile = False)
     
-    #tanh(x0 * x1) - x2    
+    #tanh(x0 * x1) + x2    
     nodes2 = [
-        Operand(0), Operand(1), Prod(), Tanh(), Operand(2), Subtract(arity= 2)
+        Operand(0), Operand(1), Prod(), Tanh(), Operand(2), Sum(arity= 2)
     ]
     tree2 = Tree(nodes=nodes2, compile = False)
     
@@ -46,7 +46,7 @@ class TestExpression():
         tree = getattr(self, tree)
                 
         y_normal = tree(X)
-        y = np.tanh(X[:, 0] * X[:, 1]) - X[:, 2]
+        y = np.tanh(X[:, 0] * X[:, 1]) + X[:, 2]
         
         tree.scale(scale)
         y_scale = tree(X)
