@@ -45,6 +45,10 @@ class Tree:
             
         return s
     
+    def flush_stats(self):
+        for node in self.nodes:
+            node.flush_stats()
+    
     @property
     def W(self):
         if self.compiled:
