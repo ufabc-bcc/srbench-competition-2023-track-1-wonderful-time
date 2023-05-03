@@ -102,6 +102,7 @@ model.fit(
     expected_generations_inqueue= 15,
     compact= True,
     moo= True, 
+    max_tree= 5000000,
     trainer_config= {
         'early_stopping': 10
     },

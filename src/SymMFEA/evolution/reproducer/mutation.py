@@ -108,8 +108,23 @@ class GrowTreeMutation(Mutation):
 
 
 class PruneMutation(Mutation):
-    def __init__(self, threshold= 1e-3, *args, **kwargs):
+    def __init__(self, atol = 1e-10, rtol= 1e-5, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.atol = atol
+        self.rtol = rtol
+        
+    def __call__(self, parent: Individual):
+        child_nodes = []
+        for node in parent.genes.nodes:
+            if isinstance(node, Operand):
+                child_nodes.append(Operand(index = random.randint(0, self.num_total_terminals - 1)))
+            
+            else:
+                child_nodes.append(Node.deepcopy(node))
+                
+        child = Individual(Tree(child_nodes), task= parent.task, skill_factor= parent.skill_factor)
+        self.update_parent_profile(child, parent)
+        return [child]
         
 
         
