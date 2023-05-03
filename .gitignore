@@ -8,3 +8,5 @@ dist
 
 solution
 *.csv
+
+.ipynb_checkpoints
