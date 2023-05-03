@@ -19,7 +19,7 @@ class AQ(Node):
     def __str__(self) -> str:
         return '/'
     
-    def __call__(self, operands: np.ndarray, update_stats= False):
+    def __call__(self, operands: np.ndarray, update_stats= False, **kwargs):
         out =  aq(operands)
         self.dW = out
         self.dX = np.empty((2, operands.shape[1]), dtype = np.float64)

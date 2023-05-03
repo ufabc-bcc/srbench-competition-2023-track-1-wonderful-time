@@ -16,7 +16,7 @@ class Relu(Node):
     def __str__(self) -> str:
         return 'relu'
     
-    def __call__(self, operands: np.ndarray, update_stats= False):
+    def __call__(self, operands: np.ndarray, update_stats= False, **kwargs):
         out = relu(operands)
         
         #calculate d

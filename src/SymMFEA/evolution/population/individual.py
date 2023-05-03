@@ -46,8 +46,8 @@ class Individual:
     def rollback_best(self):
         self.genes.rollback_best()
 
-    def __call__(self, X: np.ndarray, update_stats= False):
-        return self.genes(X, update_stats= update_stats)
+    def __call__(self, X: np.ndarray, update_stats= False, training= False):
+        return self.genes(X, update_stats= update_stats, training= training)
     
     
     def update_parent_profile(self, **profile):
@@ -65,15 +65,15 @@ class Individual:
             self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3)])
         
         
-    def run_check(self, metric: Metric, raise_error= True):
-        met = metric(self.task.data.y_val, self(self.task.data.X_val))
-        
-        rs = abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-15
-        
-        if raise_error:
+    def run_check(self, metric: Metric):
+        if os.environ.get('DEBUG'):
+            met = metric(self.task.data.y_val, self(self.task.data.X_val))
+            
+            rs = abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-15
+            
+            
             assert rs, (met, self.best_metric) 
-        else:
-            return rs
+            
             
 
             

@@ -1,14 +1,8 @@
 from typing import List
 from sympy import Expr
-from .node import Node	
+from .node import Node, update_node_stats
 import numpy as np	
 import numba as nb	
-
-@nb.njit(nb.types.Tuple((nb.float64[:], nb.float64[:, :]))(nb.float64[:, :], nb.float64, nb.float64))	
-def batchnorm(x, mean, var):	
-    x = np.ravel(x)	
-    scale = 1 / (np.sqrt(var) + 1e-12)
-    return (x - mean) * scale, np.full((1, x.shape[0]), scale.item())	
 
 @nb.njit(nb.types.Tuple((nb.float64[:], nb.float64[:, :]))(nb.float64[:, :]))	
 def batchnorm_training(x):	
@@ -21,32 +15,38 @@ def batchnorm_training(x):
 
 
 class BatchNorm(Node):	
+    '''
+    value is scale (1 / std) and bias is -mean / std
+    '''
     is_nonlinear = True	
     def __init__(self, **kwargs):	
         super().__init__(arity = 1)	
-        self.inp_mean = 0
-        self.inp_var = 0
+        #do not update value via gradient descent
+        self.dW = 0
+        self.inp_mean = 0.0 
+        self.inp_var = 0.0
 
     def __str__(self) -> str:	
         return 'BN'	
     
-    def update_stats(self, inp: np.ndarray, out: np.ndarray):
-        super().update_stats(out)
-        super().update_inp_stats(inp)
-        
 
-    def __call__(self, X, update_stats= False):	
-        if abs(self.inp_mean) <1e-15 and abs(self.inp_var) < 1e-15:
+    def __call__(self, X, update_stats= False, training= False):	
+        if training:
             out, self.dX = batchnorm_training(X)
+            
+            #update stats
+            self.inp_mean, self.inp_var, _= update_node_stats(self.inp_mean, self.inp_var, self.n_samples, np.ravel(X))
+            
+            self.update_value_hard(1 / (np.sqrt(self.inp_var) + 1e-12))
+            self.update_bias_hard(- self.inp_mean / np.sqrt(self.inp_var + 1e-12))
+            
+            assert self.dX.ndim == 2, self.dX.ndim	
         else:
-            out, self.dX = batchnorm(X, self.inp_mean, self.inp_var)	
+            out = np.ravel(X)
 
-        self.dW = out	
-
-        assert self.dX.ndim == 2, self.dX.ndim	
         if update_stats:	
-            self.update_stats(X[0], out)	
+            self.update_stats(out)	
         return out
     
     def expression(self, X: List[Expr]) -> Expr:
-        return (X[0] - self.inp_mean) / (np.sqrt(self.inp_var) + 1e-12)
+        return X[0]

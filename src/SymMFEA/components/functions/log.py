@@ -24,7 +24,7 @@ class Log(Node):
     def __str__(self) -> str:
         return 'log'
     
-    def __call__(self, X, update_stats= False):
+    def __call__(self, X, update_stats= False, **kwargs):
         out, self.dX = nblog(X)
         
         self.dW = out

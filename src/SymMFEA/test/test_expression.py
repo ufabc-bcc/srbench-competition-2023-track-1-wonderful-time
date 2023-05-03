@@ -30,8 +30,8 @@ class TestExpression():
     nodes_bn = [
         Operand(0), BatchNorm()
     ]
-    nodes_bn[-1].inp_mean = 0.5
-    nodes_bn[1].inp_var = 2
+    nodes_bn[-1].bias = -0.5 / np.sqrt(2)
+    nodes_bn[1].value = 1 / np.sqrt(2)
     tree_bn = Tree(nodes=nodes_bn, compile = False)
     
     #log(x0)    

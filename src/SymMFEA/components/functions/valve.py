@@ -30,7 +30,7 @@ class Valve(Node):
     def __str__(self) -> str:
         return 'valve'
     
-    def __call__(self, operands, update_stats= False):
+    def __call__(self, operands, update_stats= False, **kwargs):
         out, self.dX =  valve(operands)
         
         
