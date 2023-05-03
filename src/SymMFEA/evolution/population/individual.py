@@ -46,8 +46,8 @@ class Individual:
     def rollback_best(self):
         self.genes.rollback_best()
 
-    def __call__(self, X: np.ndarray):
-        return self.genes(X)
+    def __call__(self, X: np.ndarray, update_stats= False):
+        return self.genes(X, update_stats= update_stats)
     
     
     def update_parent_profile(self, **profile):

@@ -44,6 +44,7 @@ class Node:
         self.compiled: bool = False
         self.mean: float= 0
         self.var: float= 0
+        self.n_samples:int = 0
         
     
     def __call__(self, X, update_stats: bool= False):
@@ -56,6 +57,7 @@ class Node:
     def flush_stats(self):
         self.mean = 0
         self.var = 0
+        self.n_samples = 0
         
     @staticmethod
     def deepcopy(node: Node, new_class = None):

@@ -54,6 +54,7 @@ class Trainer:
         ind.rollback_best()
         #update stats
         ind.flush_stats()
+        ind(X, update_stats= True)
         
         
         ind.run_check(self.metric)
