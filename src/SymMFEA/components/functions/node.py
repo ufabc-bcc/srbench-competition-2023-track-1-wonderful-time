@@ -44,6 +44,8 @@ class Node:
         self.compiled: bool = False
         self.mean: float= 0
         self.var: float= 0
+        self.inp_mean: float= 0
+        self.inp_var: float= 0
         self.n_samples:int = 0
         
     
@@ -60,12 +62,16 @@ class Node:
         self.n_samples = 0
         
     @staticmethod
-    def deepcopy(node: Node, new_class = None):
+    def deepcopy(node: Node, new_class = None, copy_batchnorm= False):
         assert node.compiled, 'make sure to compile node before copy'
         
         new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class(arity= node.arity, index= node.index)
         new_node.mean = node.mean
         new_node.var = node.var
+        
+        if copy_batchnorm:
+            new_node.inp_mean = node.inp_mean
+            new_node.inp_var = node.inp_var
         
         if node.tree is not None:
             new_node.value = node.tree.W[node.id]
@@ -93,7 +99,13 @@ class Node:
         X: 1d array	
         '''	
         self.mean, self.var, self.n_samples = update_stats(self.mean, self.var, self.n_samples, X)
-        
+    
+    def update_inp_stats(self, X):	
+        '''	
+        need to update_stats first
+        X: 1d array	
+        '''	
+        self.inp_mean, self.inp_var, _ = update_stats(self.inp_mean, self.inp_var, self.n_samples, X)
         
     @property
     def is_leaf(self) -> bool:
