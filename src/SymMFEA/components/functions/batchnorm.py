@@ -10,6 +10,14 @@ def batchnorm(x, mean, var):
     scale = 1 / (np.sqrt(var) + 1e-12)
     return (x - mean) * scale, np.full((1, x.shape[0]), scale.item())	
 
+@nb.njit(nb.types.Tuple((nb.float64[:], nb.float64[:, :]))(nb.float64[:, :]))	
+def batchnorm_training(x):	
+    x = np.ravel(x)	
+    mean = np.mean(x)
+    std = np.std(x)
+    scale = 1 / (std + 1e-12)
+    return (x - mean) * scale, np.full((1, x.shape[0]), scale.item())	
+
 
 
 class BatchNorm(Node):	
@@ -21,7 +29,10 @@ class BatchNorm(Node):
         return 'BN'	
 
     def __call__(self, X, update_stats= False):	
-        out, self.dX = batchnorm(X, self.mean, self.var)	
+        if abs(self.mean) <1e-15 and abs(self.var) < 1e-15:
+            out, self.dX = batchnorm_training(X)
+        else:
+            out, self.dX = batchnorm(X, self.mean, self.var)	
 
         self.dW = out	
 

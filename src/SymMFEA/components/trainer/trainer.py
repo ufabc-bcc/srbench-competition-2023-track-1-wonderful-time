@@ -54,6 +54,9 @@ class Trainer:
         ind.rollback_best()
         #update stats
         ind.flush_stats()
+        
+        #update stats twice for batchnorm
+        ind(X, update_stats= True)
         ind(X, update_stats= True)
         
         
