@@ -49,6 +49,8 @@ class Individual:
     def __call__(self, X: np.ndarray, update_stats= False, training= False, check_stats= False):
         return self.genes(X, update_stats= update_stats, training= training, check_stats = check_stats)
     
+    def update_stats(self):
+        self(self.task.data.X_train, update_stats= True)
     
     def update_parent_profile(self, **profile):
         for k, v in profile.items():
@@ -76,7 +78,7 @@ class Individual:
     
     def run_check_stats(self):
         if os.environ.get('DEBUG'):
-            self(self.task.data.X_val, check_stats= True)
+            self(self.task.data.X_train, check_stats= True)
              
             
     def scale(self, scale_factor: float):

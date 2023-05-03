@@ -104,10 +104,12 @@ class Tree:
                 top += 1
                 
             if check_stats:
-                mean = np.mean(stack[top])
-                var = np.var(stack[top])
-                assert abs(mean - node.mean) / (abs(node.mean) + 1e-12) < 1e-3
-                assert abs(var - node.var) / (abs(node.var) + 1e-12) < 1e-3
+                if not isinstance(node, Constant):
+                    raw = (stack[top - 1] - bias[i]) / W[i]
+                    mean = np.mean(raw)
+                    var = np.var(raw)
+                    assert abs(mean - node.mean) / (abs(node.mean) + 1e-12) < 1e-3
+                    assert abs(var - node.var) / (abs(node.var) + 1e-12) < 1e-3
         
         assert top == 1
         return stack[0]

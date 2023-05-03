@@ -12,7 +12,6 @@ class WeightManager:
         self.best_bias = create_shared_np(shape)
         self.dW = create_shared_np(shape)
         self.dB = create_shared_np(shape)
-        
     
     def __next__(self):
         tmp = self.index
