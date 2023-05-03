@@ -16,7 +16,7 @@ class Tanh(Node):
     def __str__(self) -> str:
         return 'tanh'
     
-    def __call__(self, X, update_stats= False):
+    def __call__(self, X, update_stats= False, **kwargs):
         out = nbtanh(X)
         
         self.dW = out

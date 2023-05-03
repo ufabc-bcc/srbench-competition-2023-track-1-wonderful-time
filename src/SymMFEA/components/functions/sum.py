@@ -17,7 +17,7 @@ class Sum(Node):
     def __str__(self) -> str:
         return '+'
     
-    def __call__(self, operands: np.ndarray, update_stats= False):
+    def __call__(self, operands: np.ndarray, update_stats= False, **kwargs):
         out =  nbsum(operands)
         self.dW = out
         self.dX = np.full((operands.shape[0], operands.shape[1]), self.value, dtype= np.float64)

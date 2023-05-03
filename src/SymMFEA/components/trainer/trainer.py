@@ -34,7 +34,7 @@ class Trainer:
             step_loss = []
             while data.hasNext:
                 X, y = next(data)
-                y_hat = ind(X)
+                y_hat = ind(X, training= True)
                 dY, loss = self.loss(y, y_hat)
                 self.optimizer.backprop(ind.genes, dY, profile= profile)
                 step_loss.append(loss)
@@ -56,14 +56,8 @@ class Trainer:
         ind.flush_stats()
         ind(X, update_stats= True)
         
-        
-        n_test = 0
-        while not ind.run_check(self.metric, raise_error = False):
-            #update stats multiple time because of batchnorm
-            ind(X, update_stats= True)
-            n_test += 1
-            if n_test > ind.genes.depth:
-                raise ValueError('Rollback false!!!!!!!!')
+        #check if rollback successfully
+        ind.run_check(self.metric)
         
         
         

@@ -113,7 +113,7 @@ class TreeMerger:
             root.compile()
             nodes.append(root)
             
-            merged_tree =  Tree(nodes, deepcopy= True, compile= False, copy_batchnorm= True)
+            merged_tree =  Tree(nodes, deepcopy= True, compile= False)
             
             met = metric(val_data.y_val, merged_tree(val_data.X_val))
             

@@ -17,12 +17,12 @@ class Tree:
         ('expand', lambda tree: []),
         ('collect', lambda tree: [{'syms': tree.ls_terminals}]),
     ]
-    def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True, copy_batchnorm= False) -> None:
+    def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True):
         '''
         compile: copy weight from nodes to weight_manager
         '''
         if deepcopy:
-            self.nodes: List[Node] = [Node.deepcopy(n, copy_batchnorm= copy_batchnorm) for n in nodes]
+            self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
         else:
             self.nodes = nodes
                 
@@ -81,7 +81,7 @@ class Tree:
     def depth(self):
         return self.nodes[-1].depth
     
-    def __call__(self, X: np.ndarray, update_stats= False) -> np.ndarray:
+    def __call__(self, X: np.ndarray, update_stats= False, training= False) -> np.ndarray:
         r'''
         X: matrix with first axis is batch axis
         y: output
@@ -94,11 +94,11 @@ class Tree:
         
         for i, node in enumerate(self.nodes):
             if node.is_leaf:
-                stack[top] = node(X, update_stats= update_stats) * W[i] + bias[i]
+                stack[top] = node(X, update_stats= update_stats, training= training) * W[i] + bias[i]
                 top += 1
             
             else:
-                val = node(stack[top - node.arity : top], update_stats= update_stats) * W[i] + bias[i]
+                val = node(stack[top - node.arity : top], update_stats= update_stats, training= training) * W[i] + bias[i]
                 top -= node.arity
                 stack[top] = val
                 top += 1
@@ -161,11 +161,11 @@ class Tree:
         return expr
     
     @property
-    def callable_expression(self) -> Callable:
-        if self.cached_callable_expression is not None:
+    def callable_expression(self, nvars:int = None) -> Callable:
+        if self.cached_callable_expression is not None and (nvars is None):
             return self.cached_callable_expression
         
-        vars = [f"x{i}" for i in range(self.largest_terminal)]
+        vars = [f"x{i}" for i in range(self.largest_terminal if nvars is None else nvars)]
         
         f = lambdify(vars, self.expression, 'numpy')
         
@@ -251,7 +251,7 @@ class Tree:
         if os.environ.get('DEBUG'):
             X = data.X_val
                         
-            assert np.allclose(self(X), self.callable_expression(X))
+            assert np.allclose(self(X), self.callable_expression(X, nvars = X.shape[1]))
       
     def update_best_tree(self):
         
