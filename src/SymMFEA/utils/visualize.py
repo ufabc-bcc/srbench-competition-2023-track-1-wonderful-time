@@ -67,7 +67,7 @@ def draw_tree(tree, ax = None):
                 children.append(stack.pop())
             while len(children):
                 idx = children.pop()
-                G.add_edge(i, idx, weight = tree.nodes[idx].value, bias = tree.nodes[idx].bias)
+                G.add_edge(i, idx, weight = tree.nodes[idx].value, bias = tree.nodes[idx].bias, mean = tree.nodes[idx].mean, var = tree.nodes[idx].var)
         
         stack.append(i)
     G.add_edge(len(tree.nodes), len(tree.nodes) - 1, weight = tree.nodes[len(tree.nodes) - 1].value, bias = tree.nodes[len(tree.nodes) - 1].bias)
@@ -121,6 +121,12 @@ def draw_tree(tree, ax = None):
     
     for e, w in nx.get_edge_attributes(G,'bias').items():
         edge_weight[e] = {'edge_weight': edge_weight[e]['edge_weight'] +  ', {:.2f}'.format(w)}
+        
+    for e, w in nx.get_edge_attributes(G,'mean').items():
+        edge_weight[e] = {'edge_weight': edge_weight[e]['edge_weight'] +  ', {:.2f}'.format(w)}
+
+    for e, w in nx.get_edge_attributes(G,'var').items():
+        edge_weight[e] = {'edge_weight': edge_weight[e]['edge_weight'] +  ', {:.2f}'.format(w)}    
     
     nx.set_edge_attributes(G, edge_weight)
     nx.set_node_attributes(G, node_attr)
