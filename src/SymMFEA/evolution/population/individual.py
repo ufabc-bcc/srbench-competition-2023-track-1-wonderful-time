@@ -46,8 +46,8 @@ class Individual:
     def rollback_best(self):
         self.genes.rollback_best()
 
-    def __call__(self, X: np.ndarray, update_stats= False, training= False):
-        return self.genes(X, update_stats= update_stats, training= training)
+    def __call__(self, X: np.ndarray, update_stats= False, training= False, check_stats= False):
+        return self.genes(X, update_stats= update_stats, training= training, check_stats = check_stats)
     
     
     def update_parent_profile(self, **profile):
@@ -73,9 +73,11 @@ class Individual:
             
             
             assert rs, (met, self.best_metric) 
-            
-            
-
+    
+    def run_check_stats(self):
+        if os.environ.get('DEBUG'):
+            self(self.task.data.X_val, check_stats= True)
+             
             
     def scale(self, scale_factor: float):
         self.genes.scale(scale_factor= scale_factor)

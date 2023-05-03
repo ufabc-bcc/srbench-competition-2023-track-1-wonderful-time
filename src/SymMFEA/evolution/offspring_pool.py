@@ -1,5 +1,4 @@
 
-from typing import List
 from ..utils.timer import timed
 from ..utils import create_shared_np
 import ctypes
@@ -68,6 +67,7 @@ class Optimized(OffspringsPool):
             
             
             for ind in opt:
+                ind.run_check_stats()
                 offsprings[ind.skill_factor].append(ind)
         else:
             offsprings = []
