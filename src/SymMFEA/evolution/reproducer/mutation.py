@@ -107,23 +107,10 @@ class GrowTreeMutation(Mutation):
 
 
 
-#NOTE: Numerically unstable
-class NodeMutation(Mutation):
-    def __init__(self, *args, **kwargs):
-        self.num_total_terminals: int 
-    
-    def __call__(self, parent: Individual):
-        node = parent.genes.nodes[random.randint(0, parent.genes.length - 1)]
+class PruneMutation(Mutation):
+    def __init__(self, threshold= 1e-3, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
-        funcion_set = FUNCTION_SET if node.is_nonlinear else LINEAR_FUNCTION_SET
-        
-        candidates = funcion_set[node.arity]
-        new_node = Node.deepcopy(node, new_class= candidates[random.randint(0, len(candidates) - 1)])
-        
-        child =Individual(Tree(parent.genes.nodes[:node.id] + [new_node] + parent.genes.nodes[node.id + 1 : ]), task= parent.task, deepcopy = True, skill_factor= parent.skill_factor)
-        self.update_parent_profile(child, parent)
-        
-        return [child]
 
         
 class MutationList(Mutation):

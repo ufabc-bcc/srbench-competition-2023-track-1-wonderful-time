@@ -72,7 +72,7 @@ class TestExpression():
         
         print(tree.expression)
         
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         y = X[:,0] + X[:, 1]
         
@@ -88,7 +88,7 @@ class TestExpression():
         
         print(tree.expression)
         
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         y = np.tanh(X[:,0])
         
@@ -103,7 +103,7 @@ class TestExpression():
         
         print(tree.expression)
         
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         y = (X[:, 0] - 0.5) / (np.sqrt(2) + 1e-12)
         
@@ -118,7 +118,7 @@ class TestExpression():
         
         print(tree.expression)
         
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         
         x = X[:, 0]
@@ -138,7 +138,7 @@ class TestExpression():
         
         print(tree.expression)
         
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         
         y = np.maximum(X[:, 0], 0)
@@ -154,7 +154,7 @@ class TestExpression():
         
         print(tree.expression)
 
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         y = X[:, 0] * X[:, 1]
         
@@ -169,7 +169,7 @@ class TestExpression():
         
         print(tree.expression)
 
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         y = X[:, 0] / np.sqrt(X[:, 1] ** 2 + 1)
         
@@ -184,7 +184,7 @@ class TestExpression():
         
         print(tree.expression)
 
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         
         x0 = X[:, 0]
@@ -204,7 +204,7 @@ class TestExpression():
         
         print(tree.expression)
         
-        y_expr = tree.callable_expression(X)
+        y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         
         y = np.tanh(X[:, 0] * X[:, 1]) + X[:, 2]

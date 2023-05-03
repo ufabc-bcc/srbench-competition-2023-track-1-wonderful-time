@@ -81,7 +81,7 @@ class Tree:
     def depth(self):
         return self.nodes[-1].depth
     
-    def __call__(self, X: np.ndarray, update_stats= False, training= False) -> np.ndarray:
+    def __call__(self, X: np.ndarray, update_stats= False, training= False, check_stats= False) -> np.ndarray:
         r'''
         X: matrix with first axis is batch axis
         y: output
@@ -102,6 +102,12 @@ class Tree:
                 top -= node.arity
                 stack[top] = val
                 top += 1
+                
+            if check_stats:
+                mean = np.mean(stack[top])
+                var = np.var(stack[top])
+                assert abs(mean - node.mean) / (abs(node.mean) + 1e-12) < 1e-3
+                assert abs(var - node.var) / (abs(node.var) + 1e-12) < 1e-3
         
         assert top == 1
         return stack[0]
@@ -160,7 +166,6 @@ class Tree:
         self.cached_expression = expr
         return expr
     
-    @property
     def callable_expression(self, nvars:int = None) -> Callable:
         if self.cached_callable_expression is not None and (nvars is None):
             return self.cached_callable_expression
