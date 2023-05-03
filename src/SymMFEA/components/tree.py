@@ -17,12 +17,12 @@ class Tree:
         ('expand', lambda tree: []),
         ('collect', lambda tree: [{'syms': tree.ls_terminals}]),
     ]
-    def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True) -> None:
+    def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True, copy_batchnorm= False) -> None:
         '''
         compile: copy weight from nodes to weight_manager
         '''
         if deepcopy:
-            self.nodes: List[Node] = [Node.deepcopy(n) for n in nodes]
+            self.nodes: List[Node] = [Node.deepcopy(n, copy_batchnorm= copy_batchnorm) for n in nodes]
         else:
             self.nodes = nodes
                 

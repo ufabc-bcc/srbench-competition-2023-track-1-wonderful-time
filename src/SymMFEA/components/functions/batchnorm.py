@@ -24,22 +24,29 @@ class BatchNorm(Node):
     is_nonlinear = True	
     def __init__(self, **kwargs):	
         super().__init__(arity = 1)	
+        self.inp_mean = 0
+        self.inp_var = 0
 
     def __str__(self) -> str:	
         return 'BN'	
+    
+    def update_stats(self, inp: np.ndarray, out: np.ndarray):
+        super().update_stats(out)
+        super().update_inp_stats(inp)
+        
 
     def __call__(self, X, update_stats= False):	
-        if abs(self.mean) <1e-15 and abs(self.var) < 1e-15:
+        if abs(self.inp_mean) <1e-15 and abs(self.inp_var) < 1e-15:
             out, self.dX = batchnorm_training(X)
         else:
-            out, self.dX = batchnorm(X, self.mean, self.var)	
+            out, self.dX = batchnorm(X, self.inp_mean, self.inp_var)	
 
         self.dW = out	
 
         assert self.dX.ndim == 2, self.dX.ndim	
         if update_stats:	
-            self.update_stats(out)	
+            self.update_stats(X[0], out)	
         return out
     
     def expression(self, X: List[Expr]) -> Expr:
-        return (X[0] - self.mean) / (np.sqrt(self.var) + 1e-12)
+        return (X[0] - self.inp_mean) / (np.sqrt(self.inp_var) + 1e-12)

@@ -65,11 +65,15 @@ class Individual:
             self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3)])
         
         
-    def run_check(self, metric: Metric):
-        if os.environ.get('DEBUG'):
-            met = metric(self.task.data.y_val, self(self.task.data.X_val))
-                        
-            assert abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-3, (met, self.best_metric) 
+    def run_check(self, metric: Metric, raise_error= True):
+        met = metric(self.task.data.y_val, self(self.task.data.X_val))
+        
+        rs = abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-15
+        
+        if raise_error:
+            assert rs, (met, self.best_metric) 
+        else:
+            return rs
             
 
             

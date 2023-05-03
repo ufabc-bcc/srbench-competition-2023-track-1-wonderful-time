@@ -6,7 +6,6 @@ from typing import Tuple
 from ...utils.progress_bar import FinetuneProgressBar
 from tqdm.asyncio import tqdm_asyncio
 
-
 class Trainer:
     def __init__(self, optimizer: GradOpimizer, loss: Loss, metric: Metric, early_stopping:int = 2, *args, **kwargs):
         self.optimizer = optimizer
@@ -52,15 +51,22 @@ class Trainer:
                 break
         
         ind.rollback_best()
+        
         #update stats
         ind.flush_stats()
-        
-        #update stats twice for batchnorm
-        ind(X, update_stats= True)
         ind(X, update_stats= True)
         
         
-        ind.run_check(self.metric)
+        n_test = 0
+        while not ind.run_check(self.metric, raise_error = False):
+            #update stats multiple time because of batchnorm
+            ind(X, update_stats= True)
+            n_test += 1
+            if n_test > ind.genes.depth:
+                raise ValueError('Rollback false!!!!!!!!')
+        
+        
+        
         return ind.best_metric, np.mean(step_loss), step + 1, ind.optimizer_profile 
         
     def update_learning_state(self, ind, metric: float):
