@@ -51,11 +51,7 @@ class Trainer:
                 break
         
         ind.rollback_best()
-        
-        #update stats
-        ind.flush_stats()
-        ind(X, update_stats= True)
-        
+                
         #check if rollback successfully
         ind.run_check(self.metric)
         
