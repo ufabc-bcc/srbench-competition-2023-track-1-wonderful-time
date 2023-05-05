@@ -64,6 +64,7 @@ mutation = MutationList(
     [
     VariableMutation(),
      GrowTreeMutation(),
+     PruneMutation()
      ]
 )
 

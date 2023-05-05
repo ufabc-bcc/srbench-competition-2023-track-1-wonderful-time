@@ -1,7 +1,7 @@
 import numpy as np
 from ..population import Individual
 from ...components.tree import Tree, FlexTreeFactory, get_possible_range
-from ...components.functions import Operand, Node, FUNCTION_SET, LINEAR_FUNCTION_SET
+from ...components.functions import Operand, Node, FUNCTION_SET, LINEAR_FUNCTION_SET, Constant
 from ...utils.functional import numba_randomchoice_w_prob, normalize_norm1, numba_randomchoice
 import random
 from typing import List
@@ -115,21 +115,60 @@ class GrowTreeMutation(Mutation):
 
 
 class PruneMutation(Mutation):
-    def __init__(self, atol = 1e-10, rtol= 1e-5, *args, **kwargs):
+    def __init__(self, atol = 1e-6, rtol= 1e-5, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        '''
+        atol and rtol threshold of std
+        '''
         self.atol = atol
         self.rtol = rtol
         
     def __call__(self, parent: Individual):
         child_nodes = []
-        for node in parent.genes.nodes:
-            if isinstance(node, Operand):
-                child_nodes.append(Operand(index = random.randint(0, self.num_total_terminals - 1)))
-            
-            else:
-                child_nodes.append(Node.deepcopy(node))
+        
+        std = np.sqrt([node.var for node in parent.genes.nodes])
+        mean = np.abs([node.mean for node in parent.genes.nodes])
+        
+        #check atol
+        node_idx = std < self.atol
+        
+        #check rtol
+        node_idx = (np.abs((std - mean) / (mean + 1e-12)) < self.rtol) | node_idx
+        
+        #spare constant aside
+        is_constant = np.array([isinstance(node, Constant) for node in parent.genes.nodes], dtype = bool)
+        node_idx = node_idx & (~is_constant)
+        
+        #spare root aside
+        node_idx[-1] = False
+        
+        #if find no point
+        if np.sum(node_idx) < 1:
+            return []
+        
+        
+        #convert boolean to idx
+        node_idx = np.ravel(np.argwhere(node_idx)).tolist()
+        
+        #for the sake of simplicity choose the only one node which happend be the deepest node
+        point = -1
+        max_depth = -1
+        for i in node_idx:
+            if parent.genes.nodes[i].depth > max_depth and (i < parent.genes.length - 1):
+                max_depth = parent.genes.nodes[i].depth
+                point = i
                 
-        child = Individual(Tree(child_nodes), task= parent.task, skill_factor= parent.skill_factor)
+        
+        _, root = parent.genes.split_tree(point)
+        
+        new_node =  Constant()
+        new_node.value = parent.genes.nodes[point].mean 
+        new_node.bias = 0
+        new_node.compile()
+        child_nodes= root[0] + [new_node] + root[1]
+        
+        assert len(child_nodes) < parent.genes.length
+        child = Individual(Tree(child_nodes, deepcopy= True), task= parent.task, skill_factor= parent.skill_factor)
         self.update_parent_profile(child, parent)
         return [child]
         
