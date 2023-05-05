@@ -31,8 +31,8 @@ class Task:
     
 class SubTask:
     def __init__(self, task: Task, data_sample:float = 1, terminal_set:List[int] = None):
-        if terminal_set is None:
-            self.terminal_set = task.terminal_set 
+        
+        self.terminal_set = task.terminal_set if terminal_set is None else terminal_set
         self.task = task
         self.data = DataView(task.data_pool, data_sample)
         self.train_dataloader = TrainDataLoader(self.data, **self.task.train_dataloader_cfg)

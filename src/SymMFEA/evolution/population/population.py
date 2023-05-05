@@ -23,10 +23,9 @@ class SubPopulation:
         
         self.skill_factor = skill_factor
         
-        
-        self.task = SubTask(task, data_sample= data_samples)
-        
         self.tree_factory = TreeFactory(task_idx = skill_factor, num_total_terminals= len(task.terminal_set), tree_config= tree_config, column_sampler= column_sampler)
+        
+        self.task = SubTask(task, data_sample= data_samples, terminal_set= self.tree_factory.terminal_set)
         
         self.ls_inds = [Individual(self.tree_factory.create_tree(), task = self.task, skill_factor = skill_factor) for _ in range(num_inds)]
         

@@ -176,7 +176,7 @@ class GA:
 
 
             # update task info for reproducer
-            self.reproducer.update_task_info(
+            self.reproducer.update_population_info(
                 **tree_config,
                 **{attr: getattr(self, attr) for attr in self.pass_down_params},
             )

@@ -51,9 +51,9 @@ class Reproducer:
         population.ls_subPop[0].extend(cross_offsprings)
         population.ls_subPop[0].extend(mutate_offsprings)
         
-    def update_task_info(self, **kwargs):
-        self.crossover.update_task_info(**kwargs)
-        self.mutation.update_task_info(**kwargs)
+    def update_population_info(self, **kwargs):
+        self.crossover.update_population_info(**kwargs)
+        self.mutation.update_population_info(**kwargs)
         
         
 class SMPManager:
@@ -135,8 +135,8 @@ class SMP_Reproducer(Reproducer):
         
     
     
-    def update_task_info(self, **kwargs):
-        super().update_task_info(**kwargs)
+    def update_population_info(self, **kwargs):
+        super().update_population_info(**kwargs)
         self.smp = kwargs['smp']
         self.p_choose_father = kwargs['p_choose_father']
         

@@ -363,11 +363,12 @@ class TreeFactory:
 
 class FlexTreeFactory(TreeFactory):
     def __init__(self, num_total_terminals: int, *args, **kwargs):
-        #NOTE: HARD CORD HERE
         self.num_total_terminals = num_total_terminals
-        self.terminal_set = [i for i in range(num_total_terminals)]
+        self.terminal_set: List[int]
         
-    def update_config(self, max_depth: int, max_length: int):
+        
+    def update_config(self, max_depth: int, max_length: int, terminal_set: List[int]):
+        self.terminal_set = terminal_set
         self.max_depth = max_depth
         self.max_length = max_length
         
