@@ -37,17 +37,6 @@ y_train, y_val = y[: train_size], y[train_size:]
 
 
 
-#================ Other models ==================
-xgb = XGB(objective="reg:squarederror")
-gbr = GBR()
-lnr = LNR()
-s = time.time()
-xgb.fit(X_train, y_train)
-xgb_time = time.time() - s
-gbr.fit(X_train, y_train)
-gbr_time = time.time() - xgb_time - s
-lnr.fit(X_train, y_train)
-lnr_time = time.time() - gbr_time - xgb_time - s
 
 
 #========================= Prepare config==================
@@ -63,6 +52,7 @@ mutation = MutationList(
     [
     VariableMutation(),
      GrowTreeMutation(),
+     PruneMutation()
      ]
 )
 
@@ -87,7 +77,7 @@ SMP_configs = {
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 50,
+    steps_per_gen= 2,
     nb_inds_each_task= [15] * 4+ [30],
     data_sample = 0.5,
     nb_generations= 5,
@@ -107,12 +97,3 @@ model.fit(
     },
     **SMP_configs,
 )
-
-
-#===================================== Predict and display result ===========================
-xgb_pred = xgb.predict(X_val)
-gbr_pred = gbr.predict(X_val)
-lnr_pred = lnr.predict(X_val)
-ga_pred = model.predict(X_val)
-print('Linear: {:.2f}, {:.2f}s; sklearn.GradientBoosting: {:.2f}, {:.2f}s'.format(r2_score(y_val, lnr_pred), lnr_time, r2_score(y_val, gbr_pred), gbr_time))
-print('XGBoost: {:.2f}, {:.2f}s; SymGA: {:.2f}'.format(r2_score(y_val, xgb_pred), xgb_time, r2_score(y_val, ga_pred)))

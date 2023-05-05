@@ -35,6 +35,7 @@ class Multiprocessor:
         #remove concurrent to debug
         if os.environ.get('DEBUG') and os.environ.get('ONE_THREAD'):
             result = [execute_one_job(j) for j in jobs]
+            callback(result)
         else:
             result = self.pool.map_async(execute_one_job, jobs, self.chunksize, callback=callback, error_callback= custom_error_callback)
             if wait_for_result:
