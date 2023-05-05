@@ -12,7 +12,7 @@ class Crossover:
     def __call__(self, pa: Individual, pb: Individual, skf_oa= None, skf_ob= None, *args, **kwargs) -> List[Individual]:
         ...
 
-    def update_task_info(self, **kwargs):
+    def update_population_info(self, **kwargs):
         ...
     
     @staticmethod
@@ -93,6 +93,6 @@ class SubTreeCrossover(Crossover):
         return children 
         
     
-    def update_task_info(self, **kwargs):
+    def update_population_info(self, **kwargs):
         self.max_depth: int = kwargs['max_depth']
         self.max_length: int = kwargs['max_length']

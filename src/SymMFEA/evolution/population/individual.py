@@ -32,6 +32,10 @@ class Individual:
         self.genes.flush_stats()
     
     @property
+    def terminal_set(self):
+        return self.task.terminal_set
+    
+    @property
     def position(self):
         return self.genes.position
     

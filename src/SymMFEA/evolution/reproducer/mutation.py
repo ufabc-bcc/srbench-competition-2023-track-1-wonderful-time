@@ -2,7 +2,7 @@ import numpy as np
 from ..population import Individual
 from ...components.tree import Tree, FlexTreeFactory, get_possible_range
 from ...components.functions import Operand, Node, FUNCTION_SET, LINEAR_FUNCTION_SET
-from ...utils.functional import numba_randomchoice_w_prob, normalize_norm1
+from ...utils.functional import numba_randomchoice_w_prob, normalize_norm1, numba_randomchoice
 import random
 from typing import List
 
@@ -13,7 +13,7 @@ class Mutation:
     def __call__(self, parent: Individual) -> Individual:
         ...
     
-    def update_task_info(self, **kwargs):
+    def update_population_info(self, **kwargs):
         ...
     
     @staticmethod
@@ -28,20 +28,27 @@ class Mutation:
 class VariableMutation(Mutation):
     def __init__(self, *args, **kwargs):
         self.num_total_terminals: int 
+        self.mutate_variable_size: float = kwargs.get('mutate_variable_size', 0.3)
     
     def __call__(self, parent: Individual):
         child_nodes = []
-        for node in parent.genes.nodes:
-            if isinstance(node, Operand):
-                child_nodes.append(Operand(index = random.randint(0, self.num_total_terminals - 1)))
+        
+        operand_idx = np.array([i for i in range(parent.genes.length) if isinstance(parent.genes.nodes[i], Operand)], dtype = np.int64)
+        
+        mutate_idx = numba_randomchoice(operand_idx, size = int(self.mutate_variable_size * len(operand_idx)), replace= False)
+        
+        for i, node in enumerate(parent.genes.nodes):
+            if i in mutate_idx:
+                child_nodes.append(Operand(index = random.choice(parent.terminal_set)))
             
             else:
                 child_nodes.append(Node.deepcopy(node))
+                
         child = Individual(Tree(child_nodes), task= parent.task, skill_factor= parent.skill_factor)
         self.update_parent_profile(child, parent)
         return [child]
     
-    def update_task_info(self, **kwargs):
+    def update_population_info(self, **kwargs):
         self.num_total_terminals = kwargs['nb_terminals']
 
 
@@ -78,7 +85,7 @@ class GrowTreeMutation(Mutation):
                                             max_length= self.max_length[parent.skill_factor])
         
         self.tree_creator.update_config(
-            max_depth= max_depth, max_length= max_length   
+            max_depth= max_depth, max_length= max_length, terminal_set= parent.terminal_set   
         )
         
         #can not create nonlinear branch from a parent nonlinear node
@@ -97,7 +104,7 @@ class GrowTreeMutation(Mutation):
         
         return [child]
     
-    def update_task_info(self, **kwargs):
+    def update_population_info(self, **kwargs):
         self.num_total_terminals = kwargs['nb_terminals']
         self.tree_creator = FlexTreeFactory(
             num_total_terminals= self.num_total_terminals,
@@ -149,7 +156,7 @@ class MutationList(Mutation):
         mut = self.mutations[numba_randomchoice_w_prob(self.prob)]
         return mut(parent)
         
-    def update_task_info(self, **kwargs):
+    def update_population_info(self, **kwargs):
         for mut in self.mutations:
-            mut.update_task_info(**kwargs)
+            mut.update_population_info(**kwargs)
     
