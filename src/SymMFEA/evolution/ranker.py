@@ -28,9 +28,9 @@ class SingleObjectiveRanker(Ranker):
         Sort a subpopulation
         '''
         if len(subpop.ls_inds):
-            idx = sort_scalar_fitness(subpop.scalar_fitness)
+            idx = sort_scalar_fitness(subpop.scalar_fitness).tolist()
         else:
-            idx = np.array([])
+            idx = []
         
         return idx
     
@@ -44,11 +44,13 @@ class NonDominatedRanker(Ranker):
         Sort a subpopulation
         '''
         if len(subpop.ls_inds):
-            idx = mo_sort(-subpop.objective)          
+            idx = mo_sort(-subpop.objective).tolist()    
             #make sure top5 main objective are in  
             top5_main_objective = np.argsort(-subpop.main_objective)[:5]
-            idx = np.union1d(idx, top5_main_objective)
+            for i in top5_main_objective:
+                idx.remove(i)
+            idx = top5_main_objective.tolist() + idx      
         else:
-            idx = np.array([])
+            idx = []
               
         return idx
