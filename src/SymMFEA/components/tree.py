@@ -113,6 +113,10 @@ class Tree:
         assert top == 1
         return stack[0]
     
+    def setattrs(self, attrs: List[dict]):
+        for node, attr in zip(self.nodes, attrs):
+            node.attrs = attr
+    
     @property
     def expression(self) -> Expr:
         if self.cached_expression is not None:

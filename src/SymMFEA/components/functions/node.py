@@ -67,6 +67,7 @@ class Node:
         new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class(arity= node.arity, index= node.index)
         new_node.mean = node.mean
         new_node.var = node.var
+        new_node.attrs = node.attrs
         
 
         if node.tree is not None:
