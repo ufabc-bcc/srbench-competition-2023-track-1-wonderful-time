@@ -21,7 +21,7 @@ class Individual:
         self.parent_profile: dict= dict()
         self.optimizer_profile: dict= dict()
         self.is_optimized = False
-        self.age: int 
+        self.age: int = 0
     
     def flush(self):
         self.is_optimized = False

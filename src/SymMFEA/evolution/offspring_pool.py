@@ -41,7 +41,7 @@ class Optimized(OffspringsPool):
             [rs[i] for rs in result] for i in range(4) 
         ]
         for metric, job, profile in zip(metrics, optimize_jobs, profiles):
-            task, ind= job
+            task, ind = job
             ind.set_objective(metric if task.is_larger_better else -metric, self.compact)
             ind.is_optimized = True
             ind.optimizer_profile = profile
