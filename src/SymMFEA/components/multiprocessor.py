@@ -11,7 +11,7 @@ def custom_error_callback(error):
     raise ValueError(f'Got an error from Multiprocessor: {error}')
 
 class Multiprocessor:
-    def __init__(self, num_workers:int = 1, chunksize: int = 100):
+    def __init__(self, num_workers:int = 1, chunksize: int = 40):
         self.num_workers= num_workers
         self.chunksize= chunksize
         self.train_steps = mp.Value('L', 0)
