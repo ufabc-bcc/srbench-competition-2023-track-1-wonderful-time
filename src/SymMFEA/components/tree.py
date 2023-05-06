@@ -175,7 +175,10 @@ class Tree:
             nonlocal f 
             return f(*[X[:, i] for i in range(X.shape[1])])
         return infer
-            
+    
+    @property
+    def attrs(self):
+        return [node.attrs for node in self.nodes]  
     
     @property
     def largest_terminal(self) -> int:
@@ -253,7 +256,7 @@ class Tree:
         if os.environ.get('DEBUG'):
             X = data.X_val
                         
-            assert np.allclose(self(X), self.callable_expression(X, nvars = X.shape[1]))
+            assert np.allclose(self(X), self.callable_expression(nvars = X.shape[1])(X))
       
     def update_best_tree(self):
         
