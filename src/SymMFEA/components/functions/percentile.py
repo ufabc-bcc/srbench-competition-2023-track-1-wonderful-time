@@ -6,8 +6,8 @@ import numpy as np
 import numba as nb
 
 @nb.njit(nb.types.Tuple((nb.float64[:], nb.float64))(nb.float64[:,:], nb.float64, nb.int64))
-def training_percentile(X, p, idx):
-    out = X[:, idx]
+def training_percentile(X, p, index):
+    out = X[:, index]
     threshold = np.percentile(out, p)
     out = np.where(out > threshold, 1.0, 0.0)
     return out, threshold
@@ -26,14 +26,14 @@ class Percentile(Node):
         
     
     def __str__(self) -> str:
-        return 'x{} {}'.format(self.index, self.p)
+        return 'P{} {}'.format(self.index, self.p)
     
     def __call__(self, X, update_stats= False, training = False, **kwargs):
         r'''
         X: 2d array
         '''
         if training:
-            out, threshold = training_percentile(X, self.p, self.idx)
+            out, threshold = training_percentile(X, self.p, self.index)
             if self.attrs.get('threshold') is None:
                 self.attrs['threshold'] = threshold
             else:

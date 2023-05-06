@@ -297,7 +297,7 @@ class TreeFactory:
     
     @timed
     def create_tree(self, root_linear_constrant = False):
-        pset = Primitive(terminal_set= self.terminal_set, num_total_terminals= self.num_total_terminals)
+        pset = Primitive(terminal_set= self.terminal_set)
         
         
         #create root
