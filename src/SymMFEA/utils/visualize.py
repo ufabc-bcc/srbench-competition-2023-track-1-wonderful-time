@@ -85,7 +85,7 @@ def draw_tree(tree, ax = None):
     nodes = nx.draw_networkx_nodes(G, 
             pos = pos,
             node_color= node_color,
-            node_size = 800,
+            node_size = 1000,
             ax = ax
             )
     
