@@ -98,6 +98,7 @@ class TreeMerger:
         
         if len(selected_inds) == 1:
             merged_tree= selected_inds[0].genes
+            met = metric(val_data.y_val, merged_tree(val_data.X_val))
         else:
             nodes = []                                                              
             
@@ -119,7 +120,7 @@ class TreeMerger:
             
             assert abs((met - best_met) / (best_met + 1e-12)) < 1e-5, (met, best_met)
             
-            print(colored('After merge: {:.2f}, length: {}'.format(met, merged_tree. length), 'green'))
+        print(colored('After merge: {:.2f}, length: {}'.format(met, merged_tree.length), 'green'))
             
         print('=' * 111)
         return merged_tree

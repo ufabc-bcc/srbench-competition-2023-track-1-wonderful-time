@@ -3,7 +3,6 @@ from .primitive import Primitive
 from .functions import Node, Operand, Constant
 import numpy as np
 from ..utils.timer import *
-from ..utils.functional import numba_randomchoice
 from ..utils.progress_bar import SimplificationProgresBar
 from ..utils import count_nodes
 from ..components import weight_manager
@@ -14,8 +13,8 @@ import os
 
 class Tree: 
     simplifications = [
-        ('expand', lambda tree: []),
-        ('collect', lambda tree: [{'syms': tree.ls_terminals}]),
+        # ('expand', lambda tree: []),
+        # ('collect', lambda tree: [{'syms': tree.ls_terminals}]),
     ]
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True):
         '''
@@ -143,10 +142,6 @@ class Tree:
             expr = stack[0]
             first_length = count_nodes(expr)
             
-            
-        
-        
-        
             progress_bar.update(count_nodes(expr))
             for (simplify, get_args_funcs) in progress:
                 args = get_args_funcs(self)

@@ -99,6 +99,7 @@ class SMP(GA):
         if generation != -1 :    
             #update smp
             self.history_smp.append([self.smp[i].get_smp() for i in range(self.num_sub_tasks)])
+            population.update_age()
         
             
     def init_params(self, **kwargs):
