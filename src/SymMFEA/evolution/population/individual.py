@@ -31,6 +31,9 @@ class Individual:
         
     def flush_stats(self):
         self.genes.flush_stats()
+        
+    def setattrs(self, attrs):
+        self.genes.setattrs(attrs)
     
     @property
     def attrs(self):
