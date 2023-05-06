@@ -44,7 +44,10 @@ class NonDominatedRanker(Ranker):
         Sort a subpopulation
         '''
         if len(subpop.ls_inds):
-            idx = mo_sort(-subpop.objective)            
+            idx = mo_sort(-subpop.objective)          
+            #make sure top5 main objective are in  
+            top5_main_objective = np.argsort(-subpop.main_objective)[:5]
+            idx = np.union1d(idx, top5_main_objective)
         else:
             idx = np.array([])
               

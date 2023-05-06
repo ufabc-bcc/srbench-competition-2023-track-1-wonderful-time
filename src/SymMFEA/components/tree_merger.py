@@ -27,7 +27,9 @@ class TreeMerger:
         coefs = []
         objs = []
         
-        for alpha in [0,1e-12,1e-6,1e-4]:
+        alphas = [0] + [4 ** (-i) for i in range(0, 20)]
+        thresholds = [0.1 * i for i in range(1, 10)]
+        for alpha in alphas:
             
         
             model = Lasso(tol=0, alpha = alpha, fit_intercept=False, positive= True)
@@ -36,7 +38,7 @@ class TreeMerger:
             
             coef_ = model.coef_ 
             
-            for p in [1e-3, 1e-2, 1e-1, 2e-1]:
+            for p in thresholds:
                 prune_threshold = max(p, 0.5 / len(inds))
                 is_selected = coef_ > prune_threshold
                 coef = normalize_norm1(np.where(is_selected, coef_, 0))
