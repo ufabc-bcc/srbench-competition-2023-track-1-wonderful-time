@@ -9,11 +9,13 @@ from .constant import Constant
 from .log import Log
 from .valve import Valve
 from .batchnorm import BatchNorm
+from .percentile import Percentile
 
 FUNCTION_SET = {
     0 : [
         Operand,
         Constant,
+        Percentile,
     ],
     1: [
         Tanh,

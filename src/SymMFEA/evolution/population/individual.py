@@ -33,6 +33,10 @@ class Individual:
         self.genes.flush_stats()
     
     @property
+    def attrs(self):
+        return self.genes.attrs
+    
+    @property
     def terminal_set(self):
         return self.task.terminal_set
     

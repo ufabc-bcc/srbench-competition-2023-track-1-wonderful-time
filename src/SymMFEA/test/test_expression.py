@@ -46,6 +46,13 @@ class TestExpression():
     ]
     tree_relu = Tree(nodes=nodes_relu, compile = False)
     
+    #75-percent(x0)
+    nodes_percent = [
+        Percentile(0)
+    ]
+    nodes_percent[-1].attrs['threshold'] = 0.8
+    tree_percent = Tree(nodes=nodes_percent, compile = False)
+    
     #x0 * x1    
     nodes_prod = [
         Operand(0), Operand(1), Prod()
@@ -142,6 +149,24 @@ class TestExpression():
         y_normal = tree(X)
         
         y = np.maximum(X[:, 0], 0)
+        
+        assert is_closed(y_expr, y), (y_expr, y)
+        assert is_closed(y_expr, y_normal), (y_expr, y_normal)
+        
+    @pytest.mark.parametrize("X, tree", zip_inputs(
+    generate_input_list((10, 1), size= 10), 'tree_percent'
+    ))
+    def test_expression_relu(self, X: np.ndarray, tree: Tree):
+        tree = getattr(self, tree)
+        
+        print(tree.expression)
+        
+        y_expr = tree.callable_expression()(X)
+        y_normal = tree(X)
+        
+        y = X[:, 0]
+        
+        y = np.where(y > 0.8, 1.0, 0.0)
         
         assert is_closed(y_expr, y), (y_expr, y)
         assert is_closed(y_expr, y_normal), (y_expr, y_normal)

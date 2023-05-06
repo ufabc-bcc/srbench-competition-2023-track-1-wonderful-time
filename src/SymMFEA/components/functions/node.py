@@ -45,6 +45,7 @@ class Node:
         self.mean: float= 0
         self.var: float= 0
         self.n_samples:int = 0
+        self.attrs: dict = dict()
         
     
     def __call__(self, X, update_stats: bool= False, training:bool= False):
