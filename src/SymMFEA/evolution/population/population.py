@@ -81,11 +81,12 @@ class SubPopulation:
             
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds])
+        self.main_objective = np.array([ind.main_objective for ind in self.ls_inds])
         self.scalar_fitness = np.mean(self.objective, axis = 1) + 1e-12 
     
     def collect_best_info(self):
-        self.best_idx = np.argmax([ind.main_objective for ind in self.ls_inds])
-        self.max_main_objective = self.ls_inds[self.best_idx].main_objective
+        self.best_idx = np.argmax(self.max_main_objective)
+        self.max_main_objective = self.main_objective[self.best_idx]
 
 
 # ==================================================================================
