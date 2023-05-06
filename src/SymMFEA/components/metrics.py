@@ -20,21 +20,21 @@ def mape(y: np.ndarray, y_hat: np.ndarray):
     return np.mean(diff)
 class Metric:
     is_larger_better: bool
-    def __init__(self, func, is_numba = True):
+    def __init__(self, func, is_numba = True, better_tol: float= 1e-3):
         self.func = metric_jit(func) if is_numba else func
+        self.better_tol = better_tol
         
     def __str__(self):
         ...
     
-    @classmethod
-    def is_better(cls, m1:float, m2: float):
+    def is_better(self, m1:float, m2: float):
         '''
         return if m1 better than m2
         '''
         if m2 is None:
             return True
         
-        return ~(cls.is_larger_better ^ (m1 > m2))
+        return ~(self.is_larger_better ^ (m1 > m2)) & (abs(m1 - m2) > self.better_tol)
     
     def __call__(self, y: np.ndarray, y_hat: np.ndarray)-> float: 
         return self.func(y, y_hat)
