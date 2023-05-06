@@ -74,6 +74,10 @@ class SubPopulation:
         self.ls_inds = [self.ls_inds[idx] for idx in index_selected_inds]
         # self.update_optimized_idx()
         
+    def update_age(self):
+        for ind in self.ls_inds:
+            ind.age += 1
+            
             
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds])
@@ -146,6 +150,11 @@ class Population:
         for subpop in self.ls_subPop:
             subpop.collect_fitness_info()
     
+    
+    def update_age(self):
+        for subpop in self.ls_subPop:
+            subpop.update_age()
+            
     @timed     
     def collect_best_info(self):
         for subpop in self.ls_subPop:

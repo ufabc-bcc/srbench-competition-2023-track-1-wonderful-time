@@ -54,7 +54,7 @@ lnr_time = time.time() - gbr_time - xgb_time - s
 
 tree_config = {
     'max_length': [50]* 2 + [30] * 2 + [7] ,
-    'max_depth': [9] * 2 + [7] * 2 + [3],
+    'max_depth': [6] * 2 + [4] * 2 + [3],
     'num_columns': [1] + [0.7] * 6 + [0.4],
 }
 
