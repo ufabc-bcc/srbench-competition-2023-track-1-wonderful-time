@@ -167,7 +167,7 @@ class PruneMutation(Mutation):
         new_node.compile()
         child_nodes= root[0] + [new_node] + root[1]
         
-        assert len(child_nodes) < parent.genes.length
+        assert len(child_nodes) <= parent.genes.length
         child = Individual(Tree(child_nodes, deepcopy= True), task= parent.task, skill_factor= parent.skill_factor)
         self.update_parent_profile(child, parent)
         return [child]
