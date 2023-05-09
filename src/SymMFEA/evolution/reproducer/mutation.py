@@ -173,6 +173,35 @@ class PruneMutation(Mutation):
         return [child]
         
 
+class NodeMutation(Mutation):
+    def __init__(self, *args, **kwargs):
+        ...
+    
+    def __call__(self, parent: Individual):
+        prob = np.ones(parent.genes.length, dtype = np.float64)
+        is_leaf = np.array([not node.is_leaf for node in parent.genes.nodes], dtype = np.float64)
+        prob = normalize_norm1(prob * is_leaf)
+        node = parent.genes.nodes[
+            numba_randomchoice_w_prob(prob)
+        ]
+        assert not node.is_leaf 
+        
+        funcion_set = FUNCTION_SET if node.is_nonlinear else LINEAR_FUNCTION_SET
+        
+        candidates = funcion_set[node.arity] if node.arity < 3 else funcion_set[-1]
+        
+        new_node = Node.deepcopy(node, new_class= candidates[random.randint(0, len(candidates) - 1)])
+        
+        child =Individual(Tree(parent.genes.nodes[:node.id] + [new_node] + parent.genes.nodes[node.id + 1 : ]), task= parent.task, deepcopy = True, skill_factor= parent.skill_factor)
+        self.update_parent_profile(child, parent)
+        
+        return [child]
+
+
+
+
+
+
         
 class MutationList(Mutation):
     '''
