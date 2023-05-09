@@ -17,6 +17,7 @@ class Primitive:
             r = random.random()
             
             node_cls = Operand if r < 0.5 else Percentile
+            # node_cls = Operand
             
             
             

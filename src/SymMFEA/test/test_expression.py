@@ -57,7 +57,13 @@ class TestExpression():
     nodes_prod = [
         Operand(0), Operand(1), Prod()
     ]
-    tree_prod = Tree(nodes=nodes_prod, compile = False)   
+    tree_prod = Tree(nodes=nodes_prod, compile = False) 
+    
+    #x0 > x1    
+    nodes_greater = [
+        Operand(0), Operand(1), Greater()
+    ]
+    tree_greater = Tree(nodes=nodes_greater, compile = False)   
     
     #x0 / x1    
     nodes_aq = [
@@ -82,6 +88,21 @@ class TestExpression():
         y_expr = tree.callable_expression()(X)
         y_normal = tree(X)
         y = X[:,0] + X[:, 1]
+        
+        assert is_closed(y_expr, y), (y_expr, y)
+        assert is_closed(y_expr, y_normal), (y_expr, y_normal)
+        
+    @pytest.mark.parametrize("X, tree", zip_inputs(
+        generate_input_list((10, 2), size= 10), 'tree_greater'
+        ))
+    def test_expression_sum(self, X: np.ndarray, tree: Tree):
+        tree = getattr(self, tree)
+        
+        print(tree.expression)
+        
+        y_expr = tree.callable_expression()(X)
+        y_normal = tree(X)
+        y = np.where(X[:,0] > X[:, 1], 1, 0)
         
         assert is_closed(y_expr, y), (y_expr, y)
         assert is_closed(y_expr, y_normal), (y_expr, y_normal)
