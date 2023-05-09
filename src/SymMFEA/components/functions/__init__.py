@@ -10,6 +10,7 @@ from .log import Log
 from .valve import Valve
 from .batchnorm import BatchNorm
 from .percentile import Percentile
+from .greater import Greater
 
 FUNCTION_SET = {
     0 : [
@@ -27,6 +28,7 @@ FUNCTION_SET = {
         Prod,
         AQ,
         Valve,
+        Greater,
     ],
     -1:[
         Sum,
