@@ -277,7 +277,7 @@ class TreeFactory:
     def __init__(self, task_idx:int, num_total_terminals: float, tree_config: dict, column_sampler: ColumnSampler, *args, **kwargs):
         self.task_idx = task_idx
         for attr in tree_config.keys():
-            setattr(self, attr, self.handle_params(tree_config, attr))
+            setattr(self, attr, tree_config[attr][self.task_idx])
             
         self.num_total_terminals: int= num_total_terminals
         
@@ -288,11 +288,7 @@ class TreeFactory:
         self.max_length: int
         
     
-    def handle_params(self, tree_config, attr):        
-        if type(tree_config[attr]) == list: 
-            return tree_config[attr][self.task_idx]
-        
-        return attr
+
     
     
     @timed

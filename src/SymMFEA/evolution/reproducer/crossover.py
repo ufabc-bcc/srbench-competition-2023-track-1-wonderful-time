@@ -94,5 +94,5 @@ class SubTreeCrossover(Crossover):
         
     
     def update_population_info(self, **kwargs):
-        self.max_depth: int = kwargs['max_depth']
-        self.max_length: int = kwargs['max_length']
+        self.max_depth: List[int] = kwargs['max_depth']
+        self.max_length: List[int] = kwargs['max_length']
