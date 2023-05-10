@@ -1,11 +1,11 @@
 import numpy as np
-from sklearn.model_selection import train_test_split
 from typing import Tuple
-from ..utils import create_shared_np
+from ..utils import create_shared_np, stratify_train_test_split
 
 class DataPool:
-    def __init__(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, stratify:bool = False):
-        tmp = train_test_split(X, y, test_size=test_size, stratify= y if stratify else None)
+    def __init__(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, **kwargs):
+        
+        tmp = stratify_train_test_split(X, y, test_size=test_size, **kwargs)
         
         self.X_train, self.X_val, self.y_train, self.y_val = tuple([
             create_shared_np(mat.shape, mat) for mat in tmp
@@ -23,8 +23,9 @@ class DataPool:
 class DataView:
     def __init__(self, data_pool: DataPool, sample: float = 1):
         self.data_pool = data_pool
-        self.index: np.ndarray = np.random.permutation(data_pool.y_train.shape[0])[:int(sample * data_pool.y_train.shape[0])]
-        self.val_index: np.ndarray = np.random.permutation(data_pool.y_val.shape[0])[:int(sample * data_pool.y_val.shape[0])]
+        
+        self.index: np.ndarray = stratify_train_test_split(None, data_pool.y_train, test_size= sample, return_idx= True)
+        self.val_index: np.ndarray = stratify_train_test_split(None, data_pool.y_val, test_size= sample, return_idx= True)
     
     @property
     def len_train(self) -> int:
@@ -49,7 +50,7 @@ class DataView:
     def unlock(self):
         self.index = np.arange(self.data_pool.train_size)
         self.val_index = np.arange(self.data_pool.val_size)
-    
+
 #so far dataloader use for train only
 class TrainDataLoader:
     def __init__(self, data_view:DataView, batch_size:int = 10, shuffle: bool = True) -> None:
