@@ -186,3 +186,11 @@ class SMP(GA):
         plt.savefig('SMP.png')
         if re_fig:
             return fig
+
+    def handle_params(self, tree_config):        
+        for attr in tree_config.keys():
+            if not isinstance(tree_config[attr], list): 
+                tree_config[attr] = [tree_config[attr] for _ in range(self.num_sub_tasks)]
+            
+        
+        return tree_config

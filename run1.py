@@ -53,9 +53,9 @@ lnr_time = time.time() - gbr_time - xgb_time - s
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [50]* 2 + [30] * 2 + [10] * 6,
-    'max_depth': [6] * 2 + [4] * 2 + [3] * 6,
-    'num_columns': [1] + [0.7] * 3 + [0.4] * 6,
+    'max_length': [50]* 2 + [30] * 2 + [7] ,
+    'max_depth': [6] * 2 + [4] * 2 + [3],
+    'num_columns': [1] + [0.7] * 6 + [0.4],
 }
 
 crossover = SubTreeCrossover()
@@ -64,7 +64,7 @@ mutation = MutationList(
     VariableMutation(),
      GrowTreeMutation(),
      PruneMutation(),
-     NodeMutation(), 
+    #  NodeMutation(),
      ]
 )
 
@@ -84,18 +84,18 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
-    'num_sub_task': 10,
+    'num_sub_task': 5,
 }
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 50,
-    nb_inds_each_task= [15] * 4+ [30] * 6,
+    nb_inds_each_task= [15] * 4+ [30],
     data_sample = 0.5,
     nb_generations= 200,
     batch_size= 2000,
     test_size = 0.33,
-    nb_inds_min= [10] * 4 + [15] * 6,
+    nb_inds_min= [10] * 4 + [15],
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,

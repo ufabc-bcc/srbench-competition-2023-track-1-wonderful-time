@@ -146,18 +146,18 @@ class GA:
         self.moo = moo or compact
         self.terminated: bool = False
         
+        
 
         #init multiprocessor
         max_tree_legnth = tree_config.get('max_length')
-        max_tree_legnth = max_tree_legnth if isinstance(max_tree_legnth, float) else max(max_tree_legnth)
+        max_tree_legnth = max_tree_legnth if isinstance(max_tree_legnth, int) else max(max_tree_legnth)
         initWM((max_tree, max_tree_legnth))
         
         #init offsprings pool
         initOffspringsPool(compact= compact)
 
         self.init_params(**params, is_larger_better= metric.is_larger_better)
-        
-        #create column sampler
+        tree_config = self.handle_params(tree_config= tree_config)
 
         with Multiprocessor(num_workers= num_workers) as multiprocessor:
             self.multiprocessor = multiprocessor
@@ -239,3 +239,6 @@ class GA:
             
     def predict(self, X: np.ndarray):
         return self.final_solution(X)
+    
+    def handle_params(self, tree_config):        
+        return tree_config
