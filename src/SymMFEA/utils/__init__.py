@@ -6,6 +6,8 @@ import numpy as np
 import ctypes
 from typing import Iterable, Union
 from sympy import Expr
+from k_means_constrained import KMeansConstrained
+from sklearn.model_selection import train_test_split
 
 def create_shared_np(shape: Iterable[int], val= None, dtype= None):
     if isinstance(shape, int):
@@ -47,3 +49,19 @@ def count_nodes(expr: Expr):
     for arg in expr.args:
         count += count_nodes(arg)
     return count + 1
+
+
+def kmean(y: np.ndarray, **kwargs):
+    model = KMeansConstrained(**kwargs)
+    return model.fit_predict(y)
+
+def stratify_train_test_split(X:np.ndarray, y: np.ndarray, test_size: float, return_idx:bool= False, **kwargs):
+    discrete_y = kmean(y.reshape(-1, 1), n_init= 1, n_clusters= 4)
+    
+    test_size = float(test_size)
+    if return_idx:
+        if test_size == 1:
+            return np.arange(y.shape[0])
+        return train_test_split(np.arange(y.shape[0]), y, test_size=test_size, stratify= discrete_y)[1]
+    else:
+        return train_test_split(X, y, test_size=test_size, stratify= discrete_y)
