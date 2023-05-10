@@ -31,8 +31,7 @@ y = y.astype(np.float64)
 
 print(X.shape)
 train_size = int(0.8 * X.shape[0])
-X_train, X_val = X[: train_size], X[train_size:]
-y_train, y_val = y[: train_size], y[train_size:]
+X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
 
 

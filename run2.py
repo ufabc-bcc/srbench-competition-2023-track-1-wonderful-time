@@ -15,6 +15,8 @@ from xgboost import XGBRegressor as XGB
 from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 import time 
+from src.SymMFEA.utils import stratify_train_test_split
+
 # np.seterr(all='raise')
 
 #============= Load Data ======================
@@ -31,8 +33,7 @@ y = y.astype(np.float64)
 
 print(X.shape)
 train_size = int(0.8 * X.shape[0])
-X_train, X_val = X[: train_size], X[train_size:]
-y_train, y_val = y[: train_size], y[train_size:]
+X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
 
 
@@ -89,7 +90,7 @@ model.fit(
     steps_per_gen= 50,
     nb_inds_each_task= [15] * 4+ [30] * 5,
     data_sample = 0.5,
-    nb_generations= 100,
+    nb_generations= 500,
     batch_size= 2000,
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15] * 5,
