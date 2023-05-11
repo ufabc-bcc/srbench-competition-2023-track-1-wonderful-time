@@ -22,7 +22,7 @@ class Individual:
         self.optimizer_profile: dict= dict()
         self.is_optimized = False
         self.age: int = 0
-        self.train_metric: float = None
+        # self.train_metric: float = None
     
     def flush(self):
         self.is_optimized = False
@@ -77,7 +77,7 @@ class Individual:
         self.objective = [*objective]
         
         if compact:
-            self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3)])
+            self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3), -self.genes.num_nonlinear])
         
         if age:
             self.objective.append(-self.age)
