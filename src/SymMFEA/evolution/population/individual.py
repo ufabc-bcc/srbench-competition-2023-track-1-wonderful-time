@@ -22,6 +22,7 @@ class Individual:
         self.optimizer_profile: dict= dict()
         self.is_optimized = False
         self.age: int = 0
+        self.train_metric: float = None
     
     def flush(self):
         self.is_optimized = False
@@ -71,9 +72,9 @@ class Individual:
     def finetune(self, finetune_steps: int, decay_lr: float):
         return self.task.finetune(self, finetune_steps= finetune_steps, decay_lr = decay_lr)
         
-    def set_objective(self, objective: np.ndarray, compact:bool = False, age: bool = True):
+    def set_objective(self, *objective: np.ndarray, compact:bool = False, age: bool = True):
         
-        self.objective = [objective]
+        self.objective = [*objective]
         
         if compact:
             self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3)])
