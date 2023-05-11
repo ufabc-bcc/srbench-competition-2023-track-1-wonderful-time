@@ -70,7 +70,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = ADAM(1e-3, weight_decay= 1e-5)
+optimizer = ADAM(1e-2, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
         'crossover': crossover,

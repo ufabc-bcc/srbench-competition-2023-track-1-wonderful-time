@@ -15,6 +15,8 @@ from xgboost import XGBRegressor as XGB
 from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 import time 
+from src.SymMFEA.utils import stratify_train_test_split
+
 # np.seterr(all='raise')
 
 #============= Load Data ======================
