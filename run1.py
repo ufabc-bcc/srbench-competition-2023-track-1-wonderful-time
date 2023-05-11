@@ -37,6 +37,10 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
 
 
+
+
+
+
 #================ Other models ==================
 xgb = XGB(objective="reg:squarederror")
 gbr = GBR()
@@ -48,6 +52,15 @@ gbr.fit(X_train, y_train)
 gbr_time = time.time() - xgb_time - s
 lnr.fit(X_train, y_train)
 lnr_time = time.time() - gbr_time - xgb_time - s
+
+
+X_fake = np.random.uniform(low= np.min(X_train, axis= 0), high= np.max(X_train, axis = 0), size= (10000, X_train.shape[1]))
+y_fake = xgb.predict(X_fake)
+
+X_train = np.concatenate((X_train, X_fake), axis = 0) 
+y_train = np.concatenate((y_train, y_fake), axis = 0) 
+
+
 
 
 #========================= Prepare config==================
@@ -105,7 +118,7 @@ model.fit(
     compact= True,
     moo= True, 
     trainer_config= {
-        'early_stopping': 3
+        'early_stopping': 5
     },
     **SMP_configs,
 )

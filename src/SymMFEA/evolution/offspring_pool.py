@@ -34,17 +34,17 @@ class Optimized(OffspringsPool):
         super().__init__()
         self.compact= compact
 
-        
+    @timed
     def handle_result(self, result, optimize_jobs):
         inds = []
-        metrics, train_metrics, loss, train_steps, profiles, attrs_list = [
+        metrics, loss, train_steps, profiles, attrs_list = [
             [rs[i] for rs in result] for i in range(len(result[0])) 
         ]
-        for metric, train_metric, job, profile, attrs in zip(metrics, train_metrics, optimize_jobs, profiles,attrs_list):
+        for metric, job, profile, attrs in zip(metrics, optimize_jobs, profiles,attrs_list):
             task, ind = job
             if not task.is_larger_better:
-                metric, train_metric = -metric, -train_metric
-            ind.set_objective(metric, train_metric, compact = self.compact)
+                metric = -metric
+            ind.set_objective(metric, compact = self.compact)
             ind.is_optimized = True
             ind.optimizer_profile = profile
             ind.setattrs(attrs)

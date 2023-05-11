@@ -49,6 +49,14 @@ class Tree:
             node.flush_stats()
     
     @property
+    def num_nonlinear(self):
+        num = 0
+        for node in self.nodes:
+            if node.is_nonlinear:
+                num+=1
+        return num
+    
+    @property
     def W(self):
         if self.compiled:
             return weight_manager.WM.weight[self.position][:len(self.nodes)]

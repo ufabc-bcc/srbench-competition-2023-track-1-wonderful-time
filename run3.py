@@ -92,8 +92,8 @@ model.fit(
     steps_per_gen= 20,
     nb_inds_each_task= 15,
     data_sample = 0.8,
-    nb_generations= 500,
-    batch_size= 2000,
+    nb_generations= 150,
+    batch_size= 10000,
     test_size = 0.33,
     nb_inds_min= 10,
     finetune_steps= 500,
@@ -104,9 +104,9 @@ model.fit(
     expected_generations_inqueue= 15,
     compact= True,
     moo= True, 
-    max_tree= 5000000,
+    max_tree= 500000,
     trainer_config= {
-        'early_stopping': 5,
+        'early_stopping': 4,
     },
     **SMP_configs,
 )
