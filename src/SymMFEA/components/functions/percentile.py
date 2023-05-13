@@ -18,8 +18,8 @@ class Percentile(Node):
     percentiles: List[float] = [0.05, 0.1, 0.25, 0.5, 0.75, 0.95]
     
     
-    def __init__(self, index: int = 0, value:float = 1, bias = 0, **kwargs):      
-        super().__init__(arity = 0, value = value, bias = bias)
+    def __init__(self, index: int = 0, value:float = 1, **kwargs):      
+        super().__init__(arity = 0, value = value)
         assert index >= 0
         self.index = index
         self.p = self.percentiles[random.randint(0, len(self.percentiles) - 1)]

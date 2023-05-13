@@ -164,7 +164,6 @@ class PruneMutation(Mutation):
         
         new_node =  Constant()
         new_node.value = parent.genes.nodes[point].mean 
-        new_node.bias = 0
         new_node.compile()
         child_nodes= root[0] + [new_node] + root[1]
         

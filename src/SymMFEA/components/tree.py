@@ -32,7 +32,6 @@ class Tree:
             self.compile(init_weight= init_weight)
         else:
             self._W = np.array([node.value for node in self.nodes], dtype= np.float64)
-            self._bias = np.array([node.bias for node in self.nodes], dtype= np.float64)
             
         self.cached_expression: Expr = None
         self.cached_callable_expression: Callable = None
@@ -62,23 +61,14 @@ class Tree:
             return weight_manager.WM.weight[self.position][:len(self.nodes)]
         else:
             return self._W
-    
-    @property
-    def bias(self):
-        if self.compiled:
-            return weight_manager.WM.bias[self.position][:len(self.nodes)]
-        else:
-            return self._bias
+
     
     @property
     def dW(self):
         assert self.compiled
         return weight_manager.WM.dW[self.position][:len(self.nodes)]
     
-    @property
-    def dB(self):
-        assert self.compiled
-        return weight_manager.WM.dB[self.position][:len(self.nodes)]
+
         
     @property
     def length(self):
@@ -97,22 +87,21 @@ class Tree:
         stack = np.empty((self.length, X.shape[0]), dtype = np.float64)
         top = 0
         W = self.W 
-        bias = self.bias 
         
         for i, node in enumerate(self.nodes):
             if node.is_leaf:
-                stack[top] = node(X, update_stats= update_stats, training= training) * W[i] + bias[i]
+                stack[top] = node(X, update_stats= update_stats, training= training) * W[i] 
                 top += 1
             
             else:
-                val = node(stack[top - node.arity : top], update_stats= update_stats, training= training) * W[i] + bias[i]
+                val = node(stack[top - node.arity : top], update_stats= update_stats, training= training) * W[i]
                 top -= node.arity
                 stack[top] = val
                 top += 1
                 
             if check_stats:
                 if not isinstance(node, Constant):
-                    raw = (stack[top - 1] - bias[i]) / W[i]
+                    raw = stack[top - 1] / W[i]
                     mean = np.mean(raw)
                     var = np.var(raw)
                     assert abs(mean - node.mean) / (abs(node.mean) + 1e-12) < 1e-3
@@ -137,15 +126,14 @@ class Tree:
             stack: List[Expr] = [None] * self.length
             top = 0
             W = self.W 
-            bias = self.bias 
             
             for i, node in enumerate(self.nodes):
                 if node.is_leaf:
-                    stack[top] = (node.expression() * Float(W[i]) + Float(bias[i]))
+                    stack[top] = node.expression() * Float(W[i]) 
                     top += 1
                 
                 else:
-                    val = node.expression(stack[top - node.arity : top]) * Float(W[i]) + Float(bias[i])
+                    val = node.expression(stack[top - node.arity : top]) * Float(W[i]) 
                     top -= node.arity
                     stack[top] = val
                     top += 1
@@ -243,15 +231,12 @@ class Tree:
         after compile value and bias from node doesn't matter
         '''
         W = self.W
-        bias = self.bias
         
         if init_weight:
             W[:] = np.ones(len(self.nodes), dtype= np.float64)
-            bias[:] = np.zeros(len(self.nodes), dtype= np.float64)
         else:
             for i, node in enumerate(self.nodes):
                 W[i] = node.value
-                bias[i] = node.bias
         
         for i, node in enumerate(self.nodes):
             node.compile(self)
@@ -261,7 +246,6 @@ class Tree:
         
     def scale(self, scale_factor:float):
         self.W[self.length - 1] = self.W[self.length - 1] * scale_factor
-        self.bias[self.length - 1] = self.bias[self.length - 1] * scale_factor
 
             
     def run_check_expression(self, data):
@@ -273,13 +257,11 @@ class Tree:
     def update_best_tree(self):
         
         weight_manager.WM.best_weight[self.position] = weight_manager.WM.weight[self.position]
-        weight_manager.WM.best_bias[self.position] = weight_manager.WM.bias[self.position]
 
     
     def rollback_best(self):
         
         weight_manager.WM.weight[self.position] = weight_manager.WM.best_weight[self.position]
-        weight_manager.WM.bias[self.position] = weight_manager.WM.best_bias[self.position]
 
 class TreeFactory:
     def __init__(self, task_idx:int, num_total_terminals: float, tree_config: dict, column_sampler: ColumnSampler, *args, **kwargs):
@@ -352,7 +334,6 @@ class TreeFactory:
     def convert_unknown_node(self, node: Node):
         new_node =  Constant()
         new_node.value = node.mean 
-        new_node.bias = 0
         
         return new_node
     

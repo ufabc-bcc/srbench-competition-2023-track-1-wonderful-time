@@ -112,7 +112,6 @@ class TreeMerger:
             #add root
             root = Sum(arity= len(selected_inds))
             root.W = 1
-            root.bias = 0
             root.compile()
             nodes.append(root)
             

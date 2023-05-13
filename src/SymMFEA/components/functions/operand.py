@@ -3,8 +3,8 @@ from .node import Node
 from typing import List
 
 class Operand(Node):
-    def __init__(self, index: int = 0, value:float = 1, bias = 0, **kwargs):      
-        super().__init__(arity = 0, value = value, bias = bias)
+    def __init__(self, index: int = 0, value:float = 1, **kwargs):      
+        super().__init__(arity = 0, value = value)
         assert index >= 0
         self.index = index
         
