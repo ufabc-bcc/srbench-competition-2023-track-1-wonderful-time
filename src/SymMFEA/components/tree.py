@@ -41,6 +41,7 @@ class Tree:
             self._W = np.array([node.value for node in self.nodes], dtype= np.float64)
             self._mean = np.zeros(self.length, dtype = np.float64)
             self._var = np.zeros(self.length, dtype = np.float64)
+            self._bias = 0
             
         self.cached_expression: Expr = None
         self.cached_callable_expression: Callable = None
@@ -66,6 +67,19 @@ class Tree:
                 num+=1
         return num
     
+    @property
+    def bias(self):
+        if self.compiled:
+            return weight_manager.WM.tree_bias[self.position]
+        else:
+            return self._bias
+        
+    def update_bias(self, val):
+        if self.compiled:
+            weight_manager.WM.tree_bias[self.position] = val
+        else:
+            self._bias = val
+        
     @property
     def W(self):
         if self.compiled:
@@ -143,7 +157,7 @@ class Tree:
             self.n_samples += X.shape[0]
         
         assert top == 1
-        return stack[0]
+        return stack[0] + self.bias
     
     def setattrs(self, attrs: List[dict]):
         for node, attr in zip(self.nodes, attrs):
@@ -292,10 +306,11 @@ class Tree:
     def update_best_tree(self):
         
         weight_manager.WM.best_weight[self.position] = weight_manager.WM.weight[self.position]
-
+        weight_manager.WM.best_tree_bias[self.position] = weight_manager.WM.tree_bias[self.position]
     
     def rollback_best(self):
         weight_manager.WM.weight[self.position] = weight_manager.WM.best_weight[self.position]
+        weight_manager.WM.tree_bias[self.position] = weight_manager.WM.best_tree_bias[self.position]
     
 
 class TreeFactory:

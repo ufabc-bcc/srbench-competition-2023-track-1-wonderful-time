@@ -80,6 +80,10 @@ class ADAM(GradOpimizer):
                         'lr': self.lr,
                        }
         
+        #update bias
+        tree.update_bias(tree.bias - np.mean(dY) * self.lr)
+        
+        
         bp = root.backprop(dY, lr = self.lr)
         
         if tree.length == 1:
