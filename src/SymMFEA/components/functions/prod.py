@@ -15,7 +15,7 @@ class Prod(Node):
     def __str__(self) -> str:
         return '*'
     
-    def __call__(self, operands: np.ndarray, update_stats= False, **kwargs):
+    def __call__(self, operands: np.ndarray, **kwargs):
         out =  prod(operands)
         self.dW = out
         
@@ -23,8 +23,8 @@ class Prod(Node):
         self.dX = self.value * operands[::-1]
         assert self.dX.ndim == 2, self.dX.ndim
         
-        if update_stats:
-            self.update_stats(out)
+        
+            
 
         return out
     

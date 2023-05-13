@@ -12,15 +12,15 @@ class Operand(Node):
     def __str__(self) -> str:
         return 'x_{}'.format(self.index)
     
-    def __call__(self, X, update_stats= False, **kwargs):
+    def __call__(self, X, **kwargs):
         r'''
         X: 2d array
         '''
         out = X[:, self.index]
         self.dW = out
         
-        if update_stats:
-            self.update_stats(out)
+        
+            
 
         return out
     

@@ -15,9 +15,9 @@ class Constant(Node):
     def expression(self, X: List[Expr]= None) -> Expr:
         return Float(1)
     
-    def __call__(self, X, update_stats= False, **kwargs):
+    def __call__(self, X, **kwargs):
         #make shape consistent
         out = np.ones(X.shape[0], dtype = np.float64)
-        if update_stats:
-            self.update_stats(out)
+        
+            
         return out        

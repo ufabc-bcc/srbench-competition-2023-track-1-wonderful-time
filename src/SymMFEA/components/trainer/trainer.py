@@ -51,15 +51,14 @@ class Trainer:
                 break
         
         ind.rollback_best()
-        
-        
-        # #calculate train metric
-        # y_hat = ind(val_data.X_train)
-        # train_metric= self.metric(val_data.y_train, y_hat)
-                
+        ind.update_stats()        
         #check if rollback successfully
-        ind.run_check(self.metric)
         
+        
+        ind.run_check(self.metric)
+        ind.run_check_stats()
+        
+
         
         
         return ind.best_metric, np.mean(step_loss), step + 1, ind.optimizer_profile, ind.attrs

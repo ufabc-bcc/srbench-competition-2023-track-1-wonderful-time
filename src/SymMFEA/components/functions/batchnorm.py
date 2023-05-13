@@ -1,6 +1,6 @@
 from typing import List
 from sympy import Expr
-from .node import Node, update_node_stats
+from .node import Node
 import numpy as np	
 import numba as nb	
 
@@ -30,7 +30,7 @@ class BatchNorm(Node):
         return 'BN'	
     
 
-    def __call__(self, X, update_stats= False, training= False):	
+    def __call__(self, X, training= False):	
         if training:
             out, self.dX = batchnorm_training(X)
             
@@ -44,8 +44,8 @@ class BatchNorm(Node):
         else:
             out = np.ravel(X)
 
-        if update_stats:	
-            self.update_stats(out)	
+        	
+            	
         return out
     
     def expression(self, X: List[Expr]) -> Expr:

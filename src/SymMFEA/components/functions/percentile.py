@@ -24,11 +24,10 @@ class Percentile(Node):
         self.index = index
         self.p = self.percentiles[random.randint(0, len(self.percentiles) - 1)]
         
-    
     def __str__(self) -> str:
         return '%x{}'.format(self.index)
     
-    def __call__(self, X, update_stats= False, training = False, **kwargs):
+    def __call__(self, X, training = False, **kwargs):
         r'''
         X: 2d array
         '''
@@ -45,8 +44,6 @@ class Percentile(Node):
                         
         self.dW = out
         
-        if update_stats:
-            self.update_stats(out)
 
         return out
     

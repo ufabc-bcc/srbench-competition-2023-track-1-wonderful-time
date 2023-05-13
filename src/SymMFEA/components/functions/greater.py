@@ -19,15 +19,15 @@ class Greater(Node):
     def __str__(self) -> str:
         return '>'
     
-    def __call__(self, X, update_stats= False, **kwargs):
+    def __call__(self, X, **kwargs):
         out = nb_greater(X)
         
         self.dW = out
         self.dX = np.zeros_like(X)
         assert self.dX.ndim == 2, self.dX.ndim
                 
-        if update_stats:
-            self.update_stats(out)
+        
+            
 
         return out
     

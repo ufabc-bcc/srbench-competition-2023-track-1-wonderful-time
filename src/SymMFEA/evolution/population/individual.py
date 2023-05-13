@@ -30,9 +30,6 @@ class Individual:
         self.nb_consecutive_not_improve = 0
         self.objective = None
         
-    def flush_stats(self):
-        self.genes.flush_stats()
-        
     def setattrs(self, attrs):
         self.genes.setattrs(attrs)
     
@@ -64,6 +61,10 @@ class Individual:
     
     def update_stats(self):
         self(self.task.data.X_train, update_stats= True)
+        
+    def run_check_stats(self):
+        if os.environ.get('DEBUG'):
+            self(self.task.data.X_train, check_stats= True)
     
     def update_parent_profile(self, **profile):
         for k, v in profile.items():
@@ -106,9 +107,7 @@ class Individual:
             
             assert rs, (met, self.best_metric) 
     
-    def run_check_stats(self):
-        if os.environ.get('DEBUG'):
-            self(self.task.data.X_train, check_stats= True)
+
              
             
     def scale(self, scale_factor: float):

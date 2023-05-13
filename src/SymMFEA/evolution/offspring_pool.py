@@ -71,10 +71,6 @@ class Optimized(OffspringsPool):
             
             
             for ind in opt:
-                #update stats
-                ind.flush_stats()
-                ind.update_stats()
-                ind.run_check_stats()
                 ind.age = 0
                 offsprings[ind.skill_factor].append(ind)
         else:

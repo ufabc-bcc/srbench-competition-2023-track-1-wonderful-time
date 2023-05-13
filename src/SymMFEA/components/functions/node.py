@@ -3,7 +3,6 @@ from typing import List
 import numpy as np
 import numba as nb
 from sympy import Expr
-from ...utils.timer import timed
 
 @nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]))
 def matrix_vec_prod(m, v):
@@ -11,13 +10,6 @@ def matrix_vec_prod(m, v):
     for i in nb.prange(m.shape[0]):
         result[i] = m[i] * v
     return result
-
-nb.njit(nb.types.Tuple((nb.float64, nb.float64, nb.int64))(nb.float64, nb.float64, nb.int64, nb.float64[:]))
-def update_node_stats(old_mean, old_var, old_samples, X):	
-    new_samples = X.shape[0] + old_samples	
-    mean = (old_mean * old_samples + X.sum()) / new_samples	
-    var = (old_var * old_samples + X.var() * X.shape[0]) / new_samples	
-    return mean, var, new_samples
 
     
 class Node:
@@ -41,31 +33,26 @@ class Node:
         
         self.tree = None
         self.compiled: bool = False
-        self.mean: float= 0
-        self.var: float= 0
-        self.n_samples:int = 0
         self.attrs: dict = dict()
         
     
-    def __call__(self, X, update_stats: bool= False, training:bool= False):
+    def __call__(self, X, training:bool= False):
         ...
     
     
     def expression(self, X: List[Expr]) -> Expr:
         ...
         
-    def flush_stats(self):
-        self.mean = 0
-        self.var = 0
-        self.n_samples = 0
-        
+    @property
+    def n_samples(self):
+        return self.tree.n_samples
+    
+    
     @staticmethod
     def deepcopy(node: Node, new_class = None):
         assert node.compiled, 'make sure to compile node before copy'
         
         new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class(arity= node.arity, index= node.index)
-        new_node.mean = node.mean
-        new_node.var = node.var
         new_node.attrs = node.attrs
         
 
@@ -87,17 +74,18 @@ class Node:
         if self.is_leaf:
             return None
         return matrix_vec_prod(self.dX, dY)
-    
-    def update_stats(self, X):	
-        '''	
-        X: 1d array	
-        '''	
-        self.mean, self.var, self.n_samples = update_node_stats(self.mean, self.var, self.n_samples, X)
-        
+         
     def update_value_hard(self, val: float):
         self.value = val
         self.tree.W[self.index] = val
-        
+    
+    @property
+    def mean(self):
+        return self.tree.mean[self.id]
+    
+    @property
+    def var(self):
+        return self.tree.var[self.id]
         
     @property
     def is_leaf(self) -> bool:

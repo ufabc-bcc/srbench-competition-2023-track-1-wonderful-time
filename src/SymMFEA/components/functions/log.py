@@ -24,15 +24,15 @@ class Log(Node):
     def __str__(self) -> str:
         return 'log'
     
-    def __call__(self, X, update_stats= False, **kwargs):
+    def __call__(self, X, **kwargs):
         out, self.dX = nblog(X)
         
         self.dW = out
         
         assert self.dX.ndim == 2, self.dX.ndim
         
-        if update_stats:
-            self.update_stats(out)
+        
+            
 
         return out
     
