@@ -14,7 +14,7 @@ def find_first(vec):
 
 
 class WeightManager:
-    def __init__(self, shape: tuple= (100000, 50)):
+    def __init__(self, shape: tuple):
         self.index = 0    
         self.len = shape[0]
         self.weight = create_shared_np(shape)
@@ -23,6 +23,8 @@ class WeightManager:
         self.mean = create_shared_np(shape)
         self.var = create_shared_np(shape)
         self.allocated = np.zeros(shape[0], dtype = bool)
+        self.tree_bias = create_shared_np((shape[0],))
+        self.best_tree_bias = create_shared_np((shape[0],))
     
     @timed
     def __next__(self):

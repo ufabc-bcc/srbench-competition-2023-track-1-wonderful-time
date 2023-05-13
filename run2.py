@@ -97,7 +97,7 @@ model.fit(
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
-    num_workers= 24,
+    num_workers= 40,
     offspring_size= 5,
     expected_generations_inqueue= 5,
     compact= True,
