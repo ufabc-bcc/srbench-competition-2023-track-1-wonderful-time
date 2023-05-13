@@ -81,7 +81,7 @@ class ADAM(GradOpimizer):
                        }
         
         #update bias
-        tree.update_bias(tree.bias - np.mean(dY) * self.lr)
+        tree.set_bias(tree.bias - np.mean(dY) * self.lr)
         
         
         bp = root.backprop(dY, lr = self.lr)

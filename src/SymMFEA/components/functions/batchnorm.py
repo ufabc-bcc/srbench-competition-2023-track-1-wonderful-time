@@ -38,7 +38,7 @@ class BatchNorm(Node):
             self.inp_mean, self.inp_var, _= update_node_stats(self.inp_mean, self.inp_var, self.n_samples, np.ravel(X))
             
             self.update_value_hard(1 / (np.sqrt(self.inp_var) + 1e-12))
-            self.update_bias_hard(- self.inp_mean / np.sqrt(self.inp_var + 1e-12))
+            self.set_bias_hard(- self.inp_mean / np.sqrt(self.inp_var + 1e-12))
             
             assert self.dX.ndim == 2, self.dX.ndim	
         else:

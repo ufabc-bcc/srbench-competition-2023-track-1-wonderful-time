@@ -74,7 +74,7 @@ class Tree:
         else:
             return self._bias
         
-    def update_bias(self, val):
+    def set_bias(self, val):
         if self.compiled:
             weight_manager.WM.tree_bias[self.position] = val
         else:
@@ -295,6 +295,7 @@ class Tree:
         
     def scale(self, scale_factor:float):
         self.W[self.length - 1] = self.W[self.length - 1] * scale_factor
+        self.set_bias(self.bias * scale_factor)
 
             
     def run_check_expression(self, data):
