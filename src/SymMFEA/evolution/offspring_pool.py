@@ -63,7 +63,6 @@ class Optimized(OffspringsPool):
         
         return wrapper
     
-    @timed
     def collect_optimized(self, num_subpops):
         opt = self.collect()
         num = len(opt)

@@ -21,6 +21,7 @@ class Mutation:
         child.update_parent_profile(
             born_way= 'mutation',
             num_parents = 1,
+            idx_target_smp = 0,
             parent_objective= [parent.objective],
             parent_skf = [parent.skill_factor]
         )

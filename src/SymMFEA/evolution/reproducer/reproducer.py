@@ -185,19 +185,19 @@ class SMP_Reproducer(Reproducer):
         num_task = population.num_sub_tasks
         
         for skf, offsprings_skf in enumerate(offsprings):
-            for o in offsprings_skf:
-                num_parents = o.parent_profile.get('num_parents')
-                for i in range(num_parents):
-                    parent_objective = o.parent_profile.get('parent_objective')[i]
-                                        
-                    d = (o.main_objective - parent_objective[0]) / (parent_objective[0] ** 2 + 1e-50)
+            for o in offsprings_skf:                
+                idx_target_smp = o.parent_profile.get('idx_target_smp')
+                
+                parent_objective = o.parent_profile.get('parent_objective')[idx_target_smp]
+                                    
+                d = (o.main_objective - parent_objective[0]) / (parent_objective[0] ** 2 + 1e-50)
 
-                    if o.parent_profile.get('born_way') == 'crossover':
-                        Delta[skf][o.parent_profile.get('parent_skf')[i]] += max([d, 0])**2
-                        count_Delta[skf][o.parent_profile.get('parent_skf')[i]] += 1
-                    else:
-                        Delta[skf][num_task] += max([d, 0])**2
-                        count_Delta[skf][num_task] += 1
+                if o.parent_profile.get('born_way') == 'crossover':
+                    Delta[skf][o.parent_profile.get('parent_skf')[idx_target_smp]] += max([d, 0])**2
+                    count_Delta[skf][o.parent_profile.get('parent_skf')[idx_target_smp]] += 1
+                else:
+                    Delta[skf][num_task] += max([d, 0])**2
+                    count_Delta[skf][num_task] += 1
                     
 
         for i, smp in enumerate(self.smp):

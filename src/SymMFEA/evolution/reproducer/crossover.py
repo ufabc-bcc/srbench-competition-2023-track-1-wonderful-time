@@ -19,6 +19,7 @@ class Crossover:
     def update_parent_profile(child, parent: List[Individual]):
         child.update_parent_profile(
             born_way= 'crossover',
+            idx_target_smp = 1,
             num_parents = len(parent),
             parent_objective= [p.objective for p in parent],
             parent_skf = [p.skill_factor for p in parent]
@@ -86,7 +87,7 @@ class SubTreeCrossover(Crossover):
         assert child_a.genes.length <= self.max_length[pa.skill_factor], (child_a.genes.length, self.max_length[pa.skill_factor])
         assert child_a.genes.depth <= self.max_depth[pa.skill_factor], (child_a.genes.depth, self.max_depth[pa.skill_factor])
                 
-        self.update_parent_profile(child_a, [pb])
+        self.update_parent_profile(child_a, [pa, pb])
         
         children = [child_a]
         
