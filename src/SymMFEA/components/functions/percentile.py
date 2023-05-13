@@ -22,7 +22,7 @@ class Percentile(Node):
         super().__init__(arity = 0, value = value)
         assert index >= 0
         self.index = index
-        self.p = self.percentiles[random.randint(0, len(self.percentiles) - 1)]
+        self.attrs['p'] = self.percentiles[random.randint(0, len(self.percentiles) - 1)]
         
     def __str__(self) -> str:
         return '%x{}'.format(self.index)
@@ -32,7 +32,7 @@ class Percentile(Node):
         X: 2d array
         '''
         if training:
-            out, threshold = training_percentile(X, self.p, self.index)
+            out, threshold = training_percentile(X, self.attrs['p'], self.index)
             if self.attrs.get('threshold') is None:
                 self.attrs['threshold'] = threshold
             else:
