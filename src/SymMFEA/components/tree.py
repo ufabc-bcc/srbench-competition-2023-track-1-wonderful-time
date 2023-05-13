@@ -6,10 +6,17 @@ from ..utils.timer import *
 from ..utils.progress_bar import SimplificationProgresBar
 from ..utils import count_nodes
 from ..components import weight_manager
-import math
 from sympy import Expr, Float, lambdify
 from ..components.column_sampler import ColumnSampler
 import os
+import numba as nb
+
+nb.njit(nb.types.Tuple((nb.float64, nb.float64))(nb.float64, nb.float64, nb.int64, nb.float64[:]))
+def update_node_stats(old_mean, old_var, old_samples, X):	
+    new_samples = X.shape[0] + old_samples	
+    mean = (old_mean * old_samples + X.sum()) / new_samples	
+    var = (old_var * old_samples + X.var() * X.shape[0]) / new_samples	
+    return mean, var
 
 class Tree: 
     simplifications = [
@@ -32,9 +39,12 @@ class Tree:
             self.compile(init_weight= init_weight)
         else:
             self._W = np.array([node.value for node in self.nodes], dtype= np.float64)
+            self._mean = np.zeros(self.length, dtype = np.float64)
+            self._var = np.zeros(self.length, dtype = np.float64)
             
         self.cached_expression: Expr = None
         self.cached_callable_expression: Callable = None
+        self.n_samples = 0 
 
     def __str__(self) -> str:
         s = ''
@@ -43,9 +53,6 @@ class Tree:
             
         return s
     
-    def flush_stats(self):
-        for node in self.nodes:
-            node.flush_stats()
     
     @property
     def num_nonlinear(self):
@@ -62,6 +69,19 @@ class Tree:
         else:
             return self._W
 
+    @property
+    def mean(self):
+        if self.compiled:
+            return weight_manager.WM.mean[self.position][:len(self.nodes)]
+        else:
+            return self._mean
+        
+    @property
+    def var(self):
+        if self.compiled:
+            return weight_manager.WM.var[self.position][:len(self.nodes)]
+        else:
+            return self._var
     
     @property
     def dW(self):
@@ -86,26 +106,37 @@ class Tree:
         #init to prevent multiple allocate
         stack = np.empty((self.length, X.shape[0]), dtype = np.float64)
         top = 0
+        
         W = self.W 
+        mean = self.mean 
+        var = self.var
         
         for i, node in enumerate(self.nodes):
             if node.is_leaf:
-                stack[top] = node(X, update_stats= update_stats, training= training) * W[i] 
-                top += 1
+                stack[top] = node(X, training= training) * W[i] 
+                
             
             else:
-                val = node(stack[top - node.arity : top], update_stats= update_stats, training= training) * W[i]
+                val = node(stack[top - node.arity : top], training= training) * W[i]
                 top -= node.arity
                 stack[top] = val
-                top += 1
+                
+            if update_stats:
+                self.mean[i], self.var[i] = update_node_stats(self.mean[i], self.var[i], self.n_samples, stack[top])
+                
                 
             if check_stats:
                 if not isinstance(node, Constant):
-                    raw = stack[top - 1] / W[i]
+                    raw = stack[top]
                     mean = np.mean(raw)
                     var = np.var(raw)
-                    assert abs(mean - node.mean) / (abs(node.mean) + 1e-12) < 1e-3
-                    assert abs(var - node.var) / (abs(node.var) + 1e-12) < 1e-3
+                    assert abs(mean - self.mean[i]) / (abs(self.mean[i]) + 1e-12) < 1e-3
+                    assert abs(var - self.var[i]) / (abs(self.var[i]) + 1e-12) < 1e-3
+                    
+            top += 1
+        
+        if update_stats:
+            self.n_samples += X.shape[0]
         
         assert top == 1
         return stack[0]
@@ -260,8 +291,8 @@ class Tree:
 
     
     def rollback_best(self):
-        
         weight_manager.WM.weight[self.position] = weight_manager.WM.best_weight[self.position]
+    
 
 class TreeFactory:
     def __init__(self, task_idx:int, num_total_terminals: float, tree_config: dict, column_sampler: ColumnSampler, *args, **kwargs):
@@ -333,7 +364,7 @@ class TreeFactory:
     
     def convert_unknown_node(self, node: Node):
         new_node =  Constant()
-        new_node.value = node.mean 
+        new_node.value = node.mean
         
         return new_node
     
@@ -341,7 +372,7 @@ class TreeFactory:
         for i, n in enumerate(tree.nodes):
             if isinstance(n, Operand):
                 if n.index not in self.terminal_set:
-                    tree.nodes[i] = self.convert_unknown_node(n)
+                    tree.nodes[i] = self.convert_unknown_node(tree.nodes[i])
         
         #NOTE: redundant compute
         tree.updateNodes()        

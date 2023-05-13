@@ -9,6 +9,8 @@ class WeightManager:
         self.weight = create_shared_np(shape)
         self.best_weight = create_shared_np(shape)
         self.dW = create_shared_np(shape)
+        self.mean = create_shared_np(shape)
+        self.var = create_shared_np(shape)
     
     def __next__(self):
         tmp = self.index

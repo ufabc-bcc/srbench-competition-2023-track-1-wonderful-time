@@ -16,7 +16,7 @@ class Relu(Node):
     def __str__(self) -> str:
         return 'relu'
     
-    def __call__(self, operands: np.ndarray, update_stats= False, **kwargs):
+    def __call__(self, operands: np.ndarray, **kwargs):
         out = relu(operands)
         
         #calculate d
@@ -24,8 +24,8 @@ class Relu(Node):
         self.dX =  np.where(operands > 0, 1.0, 0.0)
         assert self.dX.ndim == 2, self.dX.ndim
 
-        if update_stats:
-            self.update_stats(out)
+        
+            
         
         return out
     

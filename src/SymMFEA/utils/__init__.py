@@ -9,7 +9,7 @@ from sympy import Expr
 from k_means_constrained import KMeansConstrained
 from sklearn.model_selection import train_test_split
 
-def create_shared_np(shape: Iterable[int], val= None, dtype= None):
+def create_shared_np(shape: Iterable[int], val= 0, dtype= None):
     if isinstance(shape, int):
         shape = (shape, )
         
