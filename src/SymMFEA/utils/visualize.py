@@ -70,7 +70,7 @@ def draw_tree(tree, ax = None):
                 G.add_edge(i, idx, weight = tree.nodes[idx].value, mean = tree.mean[idx], var = tree.var[idx])
         
         stack.append(i)
-    G.add_edge(len(tree.nodes), len(tree.nodes) - 1, weight = tree.nodes[len(tree.nodes) - 1].value, mean = tree.nodes[len(tree.nodes) - 1].mean, var = tree.nodes[len(tree.nodes) - 1].var)
+    G.add_edge(len(tree.nodes), len(tree.nodes) - 1, weight = tree.nodes[len(tree.nodes) - 1].value, mean = tree.mean[len(tree.nodes) - 1], var = tree.var[len(tree.nodes) - 1])
     
     if show:
         fig, ax = plt.subplots(1,1, figsize=(max(np.sqrt(len(tree.nodes)).item(), 5) , max(np.sqrt(len(tree.nodes)).item(), 6)))
