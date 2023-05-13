@@ -26,7 +26,7 @@ class Percentile(Node):
         
     
     def __str__(self) -> str:
-        return 'P{} {:.2f}'.format(self.index, self.p)
+        return '%x{}'.format(self.index)
     
     def __call__(self, X, update_stats= False, training = False, **kwargs):
         r'''

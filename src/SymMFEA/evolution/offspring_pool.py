@@ -52,6 +52,7 @@ class Optimized(OffspringsPool):
             
         return inds, sum(train_steps)
     
+    @timed
     def create_append_callback(self, optimize_jobs, multiprocessor):
         def wrapper(result):
             inds, train_steps = self.handle_result(result, optimize_jobs= optimize_jobs)
@@ -62,6 +63,7 @@ class Optimized(OffspringsPool):
         
         return wrapper
     
+    @timed
     def collect_optimized(self, num_subpops):
         opt = self.collect()
         num = len(opt)

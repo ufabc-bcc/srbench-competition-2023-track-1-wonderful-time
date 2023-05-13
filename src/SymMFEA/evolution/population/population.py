@@ -151,7 +151,7 @@ class Population:
         for subpop in self.ls_subPop:
             subpop.collect_fitness_info()
     
-    
+    @timed
     def update_age(self):
         for subpop in self.ls_subPop:
             subpop.update_age()
@@ -184,3 +184,10 @@ class Population:
             candidates = [subPop.ls_inds[subPop.best_idx] for subPop in self]
             
         return candidates
+    
+    def extend(self, offsprings: List[List[Individual]]):
+        
+        for subpop, offspring in zip(self, offsprings):
+            #filter offspring not better than parent
+            betters = [o for o in offspring if o.better_than_parent]
+            subpop.ls_inds.extend(betters)

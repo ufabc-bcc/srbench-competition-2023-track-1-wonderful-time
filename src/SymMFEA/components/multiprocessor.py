@@ -41,7 +41,7 @@ class Multiprocessor:
             if wait_for_result:
                 result.wait()
        
-    
+    @timed
     def __exit__(self, *args, **kwargs):
         if not os.environ.get('ONE_THREAD'):
             self.pool.close()
