@@ -89,7 +89,7 @@ class Individual:
         for i in range(num_parents):
             parent_objective = self.parent_profile.get('parent_objective')[i]
             #NOTE: HARD CODE Tolerance here
-            if self.main_objective - parent_objective[0] < 1e-2:
+            if self.main_objective - parent_objective[0] < 1e-3:
                 return False
         
         return True
