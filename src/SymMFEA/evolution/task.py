@@ -38,15 +38,12 @@ class SubTask:
         self.train_dataloader = TrainDataLoader(self.data, **self.task.train_dataloader_cfg)
         self.is_larger_better = self.task.is_larger_better
     
-    @timed
     def train(self, ind, steps = None):            
         return self.task.trainer.fit(ind, self.train_dataloader, steps= self.task.steps_per_gen if steps is None else steps, val_data = self.data)
-        
-    
+            
     def eval(self, ind):
         return ind(self.data.y_val)
     
-    @timed
     def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100):
         '''
         unlock_view: use all data

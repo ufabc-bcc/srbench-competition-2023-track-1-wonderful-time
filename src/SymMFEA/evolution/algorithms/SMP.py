@@ -69,8 +69,7 @@ class SMP(GA):
                 self.reproducer.update_smp(population, offsprings)
                 #add offsprings to population
                 
-            for subpop, offspring in zip(population, offsprings):
-                subpop.ls_inds.extend(offspring)
+                population.extend(offsprings= offsprings)
             
             population.collect_fitness_info()
             

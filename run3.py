@@ -55,9 +55,9 @@ lnr_time = time.time() - gbr_time - xgb_time - s
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': 60,
-    'max_depth': 6,
-    'num_columns': 0.7,
+    'max_length': 100,
+    'max_depth': 8,
+    'num_columns': 1,
 }
 
 crossover = SubTreeCrossover()
@@ -70,7 +70,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = ADAM(1e-2, weight_decay= 1e-5)
+optimizer = ADAM(1e-2, weight_decay= 0)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -90,21 +90,21 @@ SMP_configs = {
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 20,
-    nb_inds_each_task= 15,
+    nb_inds_each_task= 300,
     data_sample = 0.8,
-    nb_generations= 150,
+    nb_generations= 1000,
     batch_size= 10000,
     test_size = 0.33,
     nb_inds_min= 10,
-    finetune_steps= 500,
+    finetune_steps= 200,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 40,
-    offspring_size= 5,
+    offspring_size= 1,
     expected_generations_inqueue= 15,
     compact= True,
     moo= True, 
-    max_tree= 500000,
+    max_tree= 3000000,
     trainer_config= {
         'early_stopping': 4,
     },
@@ -113,6 +113,7 @@ model.fit(
 
 
 #===================================== Predict and display result ===========================
+print(xgb.feature_importances_)
 xgb_pred = xgb.predict(X_val)
 gbr_pred = gbr.predict(X_val)
 lnr_pred = lnr.predict(X_val)

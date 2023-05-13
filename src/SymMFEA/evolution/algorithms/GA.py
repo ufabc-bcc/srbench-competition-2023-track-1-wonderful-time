@@ -42,7 +42,7 @@ class GA:
         self.tree_merger: TreeMerger = self.tree_merger_class()
         self.final_solution = None
         
-
+    @timed
     def update_process_bar(self, population: Population, reverse: bool, **kwargs):
         self.progress.update(
             [subPop.max_main_objective for subPop in population], reverse=reverse, **kwargs)
@@ -79,7 +79,7 @@ class GA:
         plt.savefig('Final_solution.png')
         
         
-
+    @timed
     def update_nb_inds_tasks(self, population: Population, generation: int):
         nb = np.ceil(np.minimum(
             (self.nb_inds_min - self.nb_inds_each_task) / (self.nb_generations - 1) * (generation - 1) + self.nb_inds_each_task, self.nb_inds_each_task

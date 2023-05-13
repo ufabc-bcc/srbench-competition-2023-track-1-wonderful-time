@@ -81,7 +81,18 @@ class Individual:
         
         if age:
             self.objective.append(-self.age)
+            
+    @property
+    def better_than_parent(self) -> bool:
+        num_parents = self.parent_profile.get('num_parents')
         
+        for i in range(num_parents):
+            parent_objective = self.parent_profile.get('parent_objective')[i]
+            #NOTE: HARD CODE Tolerance here
+            if self.main_objective - parent_objective[0] < 1e-2:
+                return False
+        
+        return True
         
     def run_check(self, metric: Metric):
         if os.environ.get('DEBUG'):
