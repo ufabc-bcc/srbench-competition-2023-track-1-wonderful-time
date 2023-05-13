@@ -67,7 +67,7 @@ def draw_tree(tree, ax = None):
                 children.append(stack.pop())
             while len(children):
                 idx = children.pop()
-                G.add_edge(i, idx, weight = tree.nodes[idx].value, mean = tree.nodes[idx].mean, var = tree.nodes[idx].var)
+                G.add_edge(i, idx, weight = tree.nodes[idx].value, mean = tree.mean[idx], var = tree.var[idx])
         
         stack.append(i)
     G.add_edge(len(tree.nodes), len(tree.nodes) - 1, weight = tree.nodes[len(tree.nodes) - 1].value, mean = tree.nodes[len(tree.nodes) - 1].mean, var = tree.nodes[len(tree.nodes) - 1].var)
