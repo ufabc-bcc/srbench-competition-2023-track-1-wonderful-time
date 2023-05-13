@@ -1,7 +1,7 @@
 from .tree import Tree
 from ..evolution.population import Individual
 from sklearn.linear_model import Lasso
-from typing import List
+from typing import List, Iterable
 from .data_pool import DataView
 from termcolor import colored
 from .functions import Sum
@@ -102,22 +102,7 @@ class TreeMerger:
             merged_tree= selected_inds[0].genes
             met = metric(val_data.y_val, merged_tree(val_data.X_val))
         else:
-            nodes = []                                                              
-            biases = []
-            for ind, w in zip(selected_inds, selected_weights):
-                ind.scale(w)
-                
-                nodes.extend(ind.genes.nodes)
-                biases.append(ind.genes.bias)
-            
-            #add root
-            root = Sum(arity= len(selected_inds))
-            root.W = 1
-            root.compile()
-            nodes.append(root)
-            
-            merged_tree =  Tree(nodes, deepcopy= True, compile= False)
-            merged_tree.update_bias(np.sum(biases))
+            merged_tree = self.merge_trees([ind.genes for ind in selected_inds], selected_weights)
             
             met = metric(val_data.y_val, merged_tree(val_data.X_val))
             
@@ -127,7 +112,27 @@ class TreeMerger:
             
         print('=' * 111)
         return merged_tree
-            
+    
+    def merge_trees(self, trees: Iterable[Tree], weights: Iterable[float]):
+        assert len(trees) == len(weights)
+        nodes = []                                                              
+        biases = []
+        for tree, w in zip(trees, weights):
+            tree.scale(w)
+            nodes.extend(tree.nodes)
+            biases.append(tree.bias)
+        
+        #add root
+        root = Sum(arity= len(trees))
+        root.value = 1
+        root.compile()
+        nodes.append(root)
+        
+        merged_tree =  Tree(nodes, deepcopy= True, compile= False)
+        merged_tree.set_bias(np.sum(biases))
+        return merged_tree
+
+        
         
         
         
