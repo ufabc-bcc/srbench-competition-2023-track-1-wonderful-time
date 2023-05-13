@@ -86,7 +86,7 @@ class SubTreeCrossover(Crossover):
         assert child_a.genes.length <= self.max_length[pa.skill_factor], (child_a.genes.length, self.max_length[pa.skill_factor])
         assert child_a.genes.depth <= self.max_depth[pa.skill_factor], (child_a.genes.depth, self.max_depth[pa.skill_factor])
                 
-        self.update_parent_profile(child_a, [pa, pb])
+        self.update_parent_profile(child_a, [pb])
         
         children = [child_a]
         
