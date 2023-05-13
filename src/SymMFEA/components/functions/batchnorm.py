@@ -12,7 +12,7 @@ def batchnorm_training(x):
     scale = 1 / (std + 1e-12)
     return (x - mean) * scale, np.full((1, x.shape[0]), scale.item())	
 
-
+#NOTE: batchnorm deprecated
 
 class BatchNorm(Node):	
     '''

@@ -35,7 +35,6 @@ class Node:
         
         self.value:float = 1
         
-        self.bias:float = 0
         
         self.dW:np.ndarray
         self.dX:List[np.ndarray]
@@ -72,7 +71,6 @@ class Node:
 
         if node.tree is not None:
             new_node.value = node.tree.W[node.id]
-            new_node.bias = node.tree.bias[node.id] 
             
             
         return new_node
@@ -84,7 +82,6 @@ class Node:
         #receive dY from parent and pass new a list of dLs to children
         
         self.tree.dW[self.id] = np.mean(self.dW * dY) 
-        self.tree.dB[self.id] = np.mean(dY)
         
         #len self.dX = arity
         if self.is_leaf:
@@ -101,10 +98,6 @@ class Node:
         self.value = val
         self.tree.W[self.index] = val
         
-    def update_bias_hard(self, b: float):
-        self.bias = b
-        self.tree.bias[self.index] = b
-    
         
     @property
     def is_leaf(self) -> bool:

@@ -32,18 +32,16 @@ class GradOpimizer:
             if not node.is_leaf:
                 stack.extend(dY)
             
-        dW, dB = self.compute_gradient(tree)
+        dW = self.compute_gradient(tree)
         
         W = tree.W 
-        bias = tree.bias 
         
         W[:] = W - dW * self.lr 
-        bias[:] = bias - dB * self.lr
+        
     
     def compute_gradient(self, tree):
         dW = log_normalize(tree.dW * (1 + self.weight_decay))
-        dB = log_normalize(tree.dB * (1 + self.weight_decay))
-        return dW, dB
+        return dW
     
 
 
@@ -98,17 +96,13 @@ class ADAM(GradOpimizer):
                 stack.extend(dY)
         
         #compute gradient 
-        dW, dB = self.compute_gradient(tree)
+        dW = self.compute_gradient(tree)
         
         profile['mw'], mw_hat = update_m(profile['mw'], self.betas1, dW, profile['step'])
-        profile['mb'], mb_hat = update_m(profile['mb'], self.betas1, dB, profile['step'])
-        
         profile['vw'], vw_hat = update_v(profile['vw'], self.betas2, dW, profile['step'])
-        profile['vb'], vb_hat = update_v(profile['vb'], self.betas2, dB, profile['step'])
+        
         
         W = tree.W 
-        bias = tree.bias    
         W[:] = W - profile['lr'] * mw_hat / (np.sqrt(vw_hat) + self.eps)
-        bias[:] = bias - profile['lr'] * mb_hat / (np.sqrt(vb_hat) + self.eps)
         
         profile['step'] = profile['step'] + 1
