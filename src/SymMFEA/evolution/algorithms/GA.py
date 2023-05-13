@@ -3,7 +3,7 @@ from ..ranker import SingleObjectiveRanker, Ranker
 from ..population import Population, Individual
 from ..reproducer import Reproducer
 from ..task import Task
-from ..selector import ElitismSelector, Selector
+from ..selector import Selector, Selector
 from ...components.trainer import Loss, GradOpimizer
 from ...components.metrics import Metric
 from ...utils import GAProgressBar, draw_tree, CandidateFinetuneProgressBar
@@ -17,7 +17,7 @@ from ...components.tree_merger import TreeMerger
 class GA:
     ranker_class = SingleObjectiveRanker
     reproducer_class = Reproducer
-    selector_class = ElitismSelector
+    selector_class = Selector
     pass_down_params: list = ['nb_terminals']
     tree_merger_class = TreeMerger
 
@@ -118,7 +118,7 @@ class GA:
             expected_generations_inqueue: int = 5000,
             compact:bool = False,
             moo:bool = False,
-            max_tree:int= 500000,
+            max_tree:int= 100000,
             tree_merger: bool = True,
             min_candidates: int = None,
             trainer_config:dict= {},
