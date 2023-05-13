@@ -4,7 +4,7 @@ import numpy as np
 from ..ranker import NonDominatedRanker
 from ..population import Population
 from ..reproducer import SMP_Reproducer, SMPManager
-from ..selector import ElitismSelector
+from ..selector import Selector
 import matplotlib.pyplot as plt
 from .. import offspring_pool
 from ...utils.timer import timed
@@ -14,7 +14,7 @@ class SMP(GA):
     
     ranker_class = NonDominatedRanker
     reproducer_class = SMP_Reproducer
-    selector_class = ElitismSelector
+    selector_class = Selector
     pass_down_params: list = ['nb_terminals', "smp", 'p_choose_father']
     
     @timed

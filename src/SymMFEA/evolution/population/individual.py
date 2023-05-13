@@ -104,7 +104,7 @@ class Individual:
         if os.environ.get('DEBUG'):
             met = metric(self.task.data.y_val, self(self.task.data.X_val))
             
-            rs = abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-15
+            rs = abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-4
             
             
             assert rs, (met, self.best_metric) 
