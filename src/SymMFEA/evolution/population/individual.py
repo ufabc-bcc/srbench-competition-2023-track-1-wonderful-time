@@ -29,6 +29,8 @@ class Individual:
         self.best_metric = None
         self.nb_consecutive_not_improve = 0
         self.objective = None
+        self.n_samples = 0 
+        self.genes.flush()
         
     def setattrs(self, attrs):
         self.genes.setattrs(attrs)

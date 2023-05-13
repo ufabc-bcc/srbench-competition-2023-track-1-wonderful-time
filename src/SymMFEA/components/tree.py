@@ -53,6 +53,10 @@ class Tree:
             
         return s
     
+    def flush(self):
+        self.mean[:] = 0
+        self.var[:] = 0
+        self.n_samples = 0
     
     @property
     def num_nonlinear(self):
