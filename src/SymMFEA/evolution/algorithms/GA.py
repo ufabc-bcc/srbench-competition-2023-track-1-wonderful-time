@@ -118,7 +118,7 @@ class GA:
             expected_generations_inqueue: int = 5000,
             compact:bool = False,
             moo:bool = False,
-            max_tree:int= 50000,
+            max_tree:int= 100000,
             tree_merger: bool = True,
             min_candidates: int = None,
             trainer_config:dict= {},

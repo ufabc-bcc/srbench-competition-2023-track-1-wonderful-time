@@ -1,6 +1,5 @@
 from ...components.tree import TreeFactory
 from .individual import Individual
-from ...utils.functional import numba_v2v_int_wrapper
 import numpy as np
 from ...components.multiprocessor import Multiprocessor
 from pygmo import fast_non_dominated_sorting
@@ -9,6 +8,7 @@ from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
 from ..task import Task, SubTask
 from ...components.column_sampler import ColumnSampler
+from ...components import weight_manager 
 
         
 class SubPopulation:
@@ -68,11 +68,9 @@ class SubPopulation:
         
     def append(self, offsprings: List[Individual]):
         self.ls_inds.extend(offsprings)
-        # self.update_optimized_idx
 
     def select(self, index_selected_inds: list):
         self.ls_inds = [self.ls_inds[idx] for idx in index_selected_inds]
-        # self.update_optimized_idx()
         
     def update_age(self):
         for ind in self.ls_inds:
@@ -189,5 +187,12 @@ class Population:
         
         for subpop, offspring in zip(self, offsprings):
             #filter offspring not better than parent
-            betters = [o for o in offspring if o.better_than_parent]
+            betters = []
+            for o in offspring:
+                if o.better_than_parent:
+                    betters.append(o)
+                else:
+                    #free space
+                    weight_manager.WM.free_space(o.genes.position)
+                    
             subpop.ls_inds.extend(betters)

@@ -103,11 +103,12 @@ class TreeMerger:
             met = metric(val_data.y_val, merged_tree(val_data.X_val))
         else:
             nodes = []                                                              
-            
+            biases = []
             for ind, w in zip(selected_inds, selected_weights):
                 ind.scale(w)
                 
                 nodes.extend(ind.genes.nodes)
+                biases.append(ind.genes.bias)
             
             #add root
             root = Sum(arity= len(selected_inds))
@@ -116,6 +117,7 @@ class TreeMerger:
             nodes.append(root)
             
             merged_tree =  Tree(nodes, deepcopy= True, compile= False)
+            merged_tree.update_bias(np.sum(biases))
             
             met = metric(val_data.y_val, merged_tree(val_data.X_val))
             
