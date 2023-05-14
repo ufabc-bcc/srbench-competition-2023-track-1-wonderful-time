@@ -63,7 +63,7 @@ class TreeMerger:
         
         fronts, _, _, _ = fast_non_dominated_sorting(objs)
         
-        best_met = 0 
+        best_met = -1000000
         for idx in fronts[0]: 
             met = - objs[idx][0]
             if met > best_met:

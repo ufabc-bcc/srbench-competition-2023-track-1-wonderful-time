@@ -4,7 +4,7 @@ import numba as nb
 from ...utils.functional import sigmoid
 
 loss_jit = nb.njit([nb.types.Tuple((nb.float64[:], nb.float64))(nb.float64[:], nb.float64[:]),
-                    ])
+                    ], cache= True)
 
 class Loss:
     def __init__(self):
@@ -26,7 +26,7 @@ def mse(y: np.ndarray, y_hat: np.ndarray):
 def logloss(y: np.ndarray, y_hat: np.ndarray):
     y_hat = sigmoid(y_hat)
     diff = y * np.log(y_hat) + (1-y) * np.log(1 - y_hat)
-    return y_hat * (1-y_hat) * (y / y_hat + (1 - y) / (1 - y_hat)), np.mean(diff)
+    return y_hat * (1-y_hat) * (y / (y_hat + 1e-12) + (1 - y) / (1 - y_hat + 1e-12)), np.mean(diff)
 
 
 class MSE(Loss):

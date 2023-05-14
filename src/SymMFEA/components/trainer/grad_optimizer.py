@@ -1,7 +1,7 @@
 from ..tree import Tree
 import numpy as np
 from ...utils.functional import log_normalize
-from numba import jit
+import numba as nb
 
 
 #NOTE: syntax may be outdated
@@ -45,13 +45,13 @@ class GradOpimizer:
     
 
 
-@jit(nopython = True)
+@nb.njit(cache= True)
 def update_m(m, beta, g, t):
     m = m * beta + (1 - beta) * g 
     m_hat = m / (1 - np.power(beta, t))
     return m, m_hat
     
-@jit(nopython = True)
+@nb.njit(cache= True)
 def update_v(v, beta, g, t):
     v = v * beta + (1 - beta) * g * g  
     v_hat = v / (1 - np.power(beta, t))

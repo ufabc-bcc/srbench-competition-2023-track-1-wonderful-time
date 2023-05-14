@@ -83,7 +83,7 @@ class FinetuneProgressBar(ProgressBar):
 class CandidateFinetuneProgressBar(ProgressBar):
     def __init__(self, num_iters: int, metric_name: str = 'Obj', **kwargs) -> None:
         super().__init__(num_iters, metric_name= metric_name, dsc= 'Finetuning candidates', **kwargs)
-        self.curbest = 0
+        self.curbest = -1e10
         self.best_idx = None
         
     def compare(self, metric:float, reverse:bool):

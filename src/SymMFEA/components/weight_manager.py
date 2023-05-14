@@ -4,7 +4,7 @@ from ..utils.timer import timed
 import numba as nb 
 import ctypes
 
-@nb.njit(nb.int64(nb.boolean[:], nb.int64))
+@nb.njit(nb.int64(nb.boolean[:], nb.int64), cache= True)
 def find_first(vec, start):
   for i in nb.prange(start, len(vec)):
     if vec[i] == 0:
