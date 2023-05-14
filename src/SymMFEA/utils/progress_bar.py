@@ -1,4 +1,4 @@
-from tqdm.auto import tqdm
+from tqdm import tqdm
 from typing import List, Union, Iterable
 from termcolor import colored
 import numpy as np
