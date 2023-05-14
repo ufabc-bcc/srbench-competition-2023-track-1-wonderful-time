@@ -8,7 +8,6 @@ from ...utils.functional import numba_randomchoice
 from ...utils.timer import *
 from ..task import Task, SubTask
 from ...components.column_sampler import ColumnSampler
-from ...components import weight_manager 
 
         
 class SubPopulation:
@@ -193,6 +192,6 @@ class Population:
                     betters.append(o)
                 else:
                     #free space
-                    weight_manager.WM.free_space(o.genes.position)
+                    o.free_space()
                     
             subpop.ls_inds.extend(betters)

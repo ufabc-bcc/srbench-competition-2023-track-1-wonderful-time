@@ -64,6 +64,9 @@ class Individual:
     def update_stats(self):
         self(self.task.data.X_train, update_stats= True)
         
+    def free_space(self):
+        self.genes.free_space()
+        
     def run_check_stats(self):
         if os.environ.get('DEBUG'):
             self(self.task.data.X_train, check_stats= True)

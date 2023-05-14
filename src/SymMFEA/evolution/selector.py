@@ -1,6 +1,5 @@
 import numpy as np
 from ..evolution.population import Population
-from ..components import weight_manager 
 from typing import List
 from ..utils.timer import *
 
@@ -21,7 +20,8 @@ class Selector():
             #free space not selected idx
             not_selected = np.arange(N + 1, l).tolist()
             if len(not_selected):
-                weight_manager.WM.free_space([subpop.ls_inds[i].genes.position for i in not_selected])
+                for i in not_selected:
+                    subpop.ls_inds[i].free_space()
             
             subpop.select(idx_selected_inds)
 

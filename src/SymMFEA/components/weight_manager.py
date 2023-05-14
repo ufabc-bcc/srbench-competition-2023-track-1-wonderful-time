@@ -1,13 +1,16 @@
 
 from ..utils import create_shared_np
 from ..utils.timer import timed
-import numpy as np
 import numba as nb 
+import ctypes
 
-
-@nb.njit(nb.int64(nb.boolean[:]))
-def find_first(vec):
-  for i in nb.prange(len(vec)):
+@nb.njit(nb.int64(nb.boolean[:], nb.int64))
+def find_first(vec, start):
+  for i in nb.prange(start, len(vec)):
+    if vec[i] == 0:
+      return i
+  
+  for i in nb.prange(0, start):
     if vec[i] == 0:
       return i
   return -1
@@ -22,20 +25,23 @@ class WeightManager:
         self.dW = create_shared_np(shape)
         self.mean = create_shared_np(shape)
         self.var = create_shared_np(shape)
-        self.allocated = np.zeros(shape[0], dtype = bool)
-        self.tree_bias = create_shared_np((shape[0],))
-        self.best_tree_bias = create_shared_np((shape[0],))
+        self.tree_bias = create_shared_np(self.len)
+        self.allocated = create_shared_np(self.len, dtype = ctypes.c_bool)
+        self.best_tree_bias = create_shared_np(self.len, val = 0)
+        self.start = 0
     
     @timed
     def __next__(self):
-        idx = find_first(self.allocated)
+        idx = find_first(self.allocated, self.start)
+        self.start = idx + 1
         if idx == -1:
             raise ValueError("Out of space in weight manager")
         self.allocated[idx] = 1
         return idx
     
-    def free_space(self, ls_idx):
-        self.allocated[ls_idx] = 0
+    @timed
+    def free_space(self, idx: int):
+        self.allocated[idx] = 0
 
 def initWM(shape):
     global WM
