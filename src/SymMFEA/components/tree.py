@@ -54,6 +54,10 @@ class Tree:
             
         return s
     
+    def free_space(self):
+        weight_manager.WM.free_space(self.position)
+        
+    
     def flush(self):
         self.mean[:] = 0
         self.var[:] = 0
