@@ -5,7 +5,7 @@ import random
 import numpy as np
 import numba as nb
 
-@nb.njit(nb.types.Tuple((nb.float64[:], nb.float64))(nb.float64[:,:], nb.float64, nb.int64))
+@nb.njit(nb.types.Tuple((nb.float64[:], nb.float64))(nb.float64[:,:], nb.float64, nb.int64), cache= True)
 def training_percentile(X, p, index):
     out = X[:, index]
     threshold = np.percentile(out, p)

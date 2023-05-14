@@ -3,7 +3,7 @@ import numba as nb
 from ..utils.timer import *
 from pygmo import sort_population_mo as mo_sort
 
-@nb.njit(nb.int64[:](nb.float64[:]))
+@nb.njit(nb.int64[:](nb.float64[:]), cache= True)
 def sort_scalar_fitness(ls_fcost):
     return np.argsort(-ls_fcost)
 

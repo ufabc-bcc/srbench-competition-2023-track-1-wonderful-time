@@ -5,7 +5,7 @@ from sklearn.metrics import r2_score
 from ..utils.functional import sigmoid
 
 metric_jit = nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
-                      ])
+                      ], cache= True)
 
 def mse(y: np.ndarray, y_hat: np.ndarray):
     diff =  y - y_hat
@@ -86,7 +86,7 @@ class R2(Metric):
         super().__init__(r2_score, use_numba= False)
         
 class LogLoss(Metric):
-    is_larger_better = False
+    is_larger_better = True
 
     def __str__(self):
         return 'LogLoss'
