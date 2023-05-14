@@ -2,9 +2,9 @@
 import numpy as np
 import numba as nb
 from sklearn.metrics import r2_score
+from ..utils.functional import sigmoid
 
 metric_jit = nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
-                      nb.float64(nb.float64[:], nb.float64),
                       ])
 
 def mse(y: np.ndarray, y_hat: np.ndarray):
@@ -20,6 +20,7 @@ def mape(y: np.ndarray, y_hat: np.ndarray):
     return np.mean(diff)
 
 def logloss(y: np.ndarray, y_hat: np.ndarray):
+    y_hat = sigmoid(y_hat)
     diff = y * np.log(y_hat) + (1-y) * np.log(1 - y_hat)
     return np.mean(diff)
 

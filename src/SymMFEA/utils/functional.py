@@ -50,10 +50,4 @@ def softmax(x):
 
 @numba_v2v_float_wrapper
 def sigmoid(x):
-  # subtract the max of x for numerical stability
-  z = x - np.max(x)
-  # apply the exp and normalize
-  numerator = np.exp(z)
-  denominator = np.sum(np.exp(z))
-  # return the sigmoid
-  return numerator / denominator
+  return np.where(x >= 0, 1 / (1 + np.exp(-x)), np.exp(x) / (1 + np.exp(x)))
