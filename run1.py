@@ -66,9 +66,9 @@ y_train = np.concatenate((y_train, y_fake), axis = 0)
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [50]* 2 + [30] * 2 + [7] *3,
-    'max_depth': [6] * 2 + [4] * 2 + [3] * 3,
-    'num_columns': [1] + [0.7] * 6 + [0.4] * 3,
+    'max_length': [50]* 2 + [30] * 2 + [7] * 5,
+    'max_depth': [6] * 2 + [4] * 2 + [3] * 5,
+    'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
 
 crossover = SubTreeCrossover()
@@ -97,22 +97,22 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
-    'num_sub_task': 7,
+    'num_sub_task': 9,
 }
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 50,
-    nb_inds_each_task= [15] * 4+ [30]* 3,
+    steps_per_gen= 30,
+    nb_inds_each_task= [15] * 4+ [30]* 5,
     data_sample = 0.5,
     nb_generations= 100,
     batch_size= 2000,
     test_size = 0.33,
-    nb_inds_min= [10] * 4 + [15]* 3,
+    nb_inds_min= [10] * 4 + [15]* 5,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
-    num_workers= 24,
+    num_workers= 40,
     offspring_size= 5,
     expected_generations_inqueue= 5,
     compact= True,

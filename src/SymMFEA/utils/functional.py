@@ -47,3 +47,13 @@ def numba_randomchoice(a, size, replace= True):
 def softmax(x):
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0) 
+
+@numba_v2v_float_wrapper
+def sigmoid(x):
+  # subtract the max of x for numerical stability
+  z = x - np.max(x)
+  # apply the exp and normalize
+  numerator = np.exp(z)
+  denominator = np.sum(np.exp(z))
+  # return the sigmoid
+  return numerator / denominator

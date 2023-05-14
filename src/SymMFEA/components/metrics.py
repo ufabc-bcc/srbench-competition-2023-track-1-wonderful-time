@@ -18,10 +18,16 @@ def mae(y: np.ndarray, y_hat: np.ndarray):
 def mape(y: np.ndarray, y_hat: np.ndarray):    
     diff =  np.abs(y - y_hat / (y + 1e-12)) 
     return np.mean(diff)
+
+def logloss(y: np.ndarray, y_hat: np.ndarray):
+    diff = y * np.log(y_hat) + (1-y) * np.log(1 - y_hat)
+    return np.mean(diff)
+
+
 class Metric:
     is_larger_better: bool
-    def __init__(self, func, is_numba = True, better_tol: float= 1e-3):
-        self.func = metric_jit(func) if is_numba else func
+    def __init__(self, func, use_numba = True, better_tol: float= 1e-3):
+        self.func = metric_jit(func) if use_numba else func
         self.better_tol = better_tol
         
     def __str__(self):
@@ -76,4 +82,13 @@ class R2(Metric):
         return 'R2'
     
     def __init__(self):
-        super().__init__(r2_score, is_numba= False)
+        super().__init__(r2_score, use_numba= False)
+        
+class LogLoss(Metric):
+    is_larger_better = False
+
+    def __str__(self):
+        return 'LogLoss'
+    
+    def __init__(self):
+        super().__init__(logloss, use_numba= True)
