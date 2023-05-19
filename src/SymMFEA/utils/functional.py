@@ -50,5 +50,5 @@ def softmax(x):
 
 @numba_v2v_float_wrapper
 def sigmoid(x):
-    x = np.clip(x, -20, 20)
+    # x = np.clip(x, -20, 20)
     return np.where(x >= 0, 1 / (1 + np.exp(-x)), np.exp(x) / (1 + np.exp(x)))

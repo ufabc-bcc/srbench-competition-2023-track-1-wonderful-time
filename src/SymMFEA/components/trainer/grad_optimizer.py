@@ -4,7 +4,6 @@ from ...utils.functional import log_normalize
 import numba as nb
 
 
-#NOTE: syntax may be outdated
 class GradOpimizer:
     def __init__(self, lr: float = 1e-2, weight_decay: float=0):
         self.lr = lr 
@@ -75,8 +74,6 @@ class ADAM(GradOpimizer):
                         'step': 1,
                         'mw': 0,
                         'vw': 0,
-                        'mb': 0,
-                        'vb': 0,
                         'lr': self.lr,
                        }
         
@@ -110,3 +107,4 @@ class ADAM(GradOpimizer):
         W[:] = W - profile['lr'] * mw_hat / (np.sqrt(vw_hat) + self.eps)
         
         profile['step'] = profile['step'] + 1
+        return profile
