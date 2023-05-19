@@ -3,8 +3,8 @@ from ..utils import create_shared_np
 from ..utils.timer import timed
 import numba as nb 
 import ctypes
-
-@nb.njit(nb.int64(nb.boolean[:], nb.int64), cache= True)
+import os
+@nb.njit(nb.int64(nb.boolean[:], nb.int64), cache= os.environ.get('NUMBA_CACHE'))
 def find_first(vec, start):
   for i in nb.prange(start, len(vec)):
     if vec[i] == 0:

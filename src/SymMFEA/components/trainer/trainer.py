@@ -21,7 +21,7 @@ class Trainer:
             return 0
         
         assert not ind.is_optimized
-        profile = ind.optimizer_profile
+        
         
         if finetuner is not None: 
             progress, pbar = finetuner
@@ -36,7 +36,7 @@ class Trainer:
                 X, y = next(data)
                 y_hat = ind(X, training= True)
                 dY, loss = self.loss(y, y_hat)
-                self.optimizer.backprop(ind.genes, dY, profile= profile)
+                ind.optimizer_profile = self.optimizer.backprop(ind.genes, dY, profile= ind.optimizer_profile)
                 step_loss.append(loss)
                 
             y_hat = ind(val_data.X_val)
@@ -59,8 +59,6 @@ class Trainer:
         ind.run_check_stats()
         
 
-        
-        
         return ind.best_metric, np.mean(step_loss), step + 1, ind.optimizer_profile, ind.attrs
         
     def update_learning_state(self, ind, metric: float):

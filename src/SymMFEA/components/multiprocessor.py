@@ -3,11 +3,14 @@ from typing import List, Tuple, Callable
 from ..evolution.task import SubTask
 from ..utils.timer import timed
 import os
+import traceback
 def execute_one_job(args: Tuple[SubTask, List]):
     task, ind= args
     return task.task.trainer.fit(ind, task.train_dataloader, steps= task.task.steps_per_gen, val_data = task.data)
 
+
 def custom_error_callback(error):
+    print(''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)))
     raise ValueError(f'Got an error from Multiprocessor: {error}')
 
 class Multiprocessor:

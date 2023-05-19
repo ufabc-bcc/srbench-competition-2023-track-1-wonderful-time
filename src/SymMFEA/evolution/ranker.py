@@ -2,8 +2,8 @@ import numpy as np
 import numba as nb
 from ..utils.timer import *
 from pygmo import sort_population_mo as mo_sort
-
-@nb.njit(nb.int64[:](nb.float64[:]), cache= True)
+import os
+@nb.njit(nb.int64[:](nb.float64[:]), cache= os.environ.get('NUMBA_CACHE'))
 def sort_scalar_fitness(ls_fcost):
     return np.argsort(-ls_fcost)
 
