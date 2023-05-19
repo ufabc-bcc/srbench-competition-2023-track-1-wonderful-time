@@ -57,9 +57,10 @@ class Optimized(OffspringsPool):
         def wrapper(result):
             inds, train_steps = self.handle_result(result, optimize_jobs= optimize_jobs)
             self.append(inds)
-            multiprocessor.train_steps.value = multiprocessor.train_steps.value + train_steps
-            multiprocessor.in_queue.value = multiprocessor.in_queue.value - len(inds)
-            multiprocessor.processed.value = multiprocessor.processed.value + len(inds)
+            with multiprocessor.in_queue.get_lock(), multiprocessor.processed.get_lock(), multiprocessor.train_steps.get_lock():
+                multiprocessor.train_steps.value = multiprocessor.train_steps.value + train_steps
+                multiprocessor.in_queue.value -= len(inds)
+                multiprocessor.processed.value += len(inds)
         
         return wrapper
     

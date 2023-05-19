@@ -33,7 +33,8 @@ class Multiprocessor:
     
     @timed
     def execute(self, jobs: List[Tuple[SubTask, List]], callback: Callable, wait_for_result: bool = False):
-        self.in_queue.value = self.in_queue.value + len(jobs) 
+        with self.in_queue.get_lock():
+            self.in_queue.value += len(jobs) 
         
         #remove concurrent to debug
         if os.environ.get('DEBUG') and os.environ.get('ONE_THREAD'):
