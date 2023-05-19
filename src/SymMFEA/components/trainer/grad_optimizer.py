@@ -2,7 +2,7 @@ from ..tree import Tree
 import numpy as np
 from ...utils.functional import log_normalize
 import numba as nb
-
+import os
 
 class GradOpimizer:
     def __init__(self, lr: float = 1e-2, weight_decay: float=0):
@@ -19,7 +19,7 @@ class GradOpimizer:
         bp = root.backprop(dY, lr = self.lr)
         
         if tree.length == 1:
-            return
+            return {}
         
         stack.extend(bp)
             
@@ -37,6 +37,7 @@ class GradOpimizer:
         
         W[:] = W - dW * self.lr 
         
+        return {}
     
     def compute_gradient(self, tree):
         dW = log_normalize(tree.dW * (1 + self.weight_decay))
@@ -44,13 +45,13 @@ class GradOpimizer:
     
 
 
-@nb.njit(cache= True)
+@nb.njit(cache= os.environ.get('NUMBA_CACHE'))
 def update_m(m, beta, g, t):
     m = m * beta + (1 - beta) * g 
     m_hat = m / (1 - np.power(beta, t))
     return m, m_hat
     
-@nb.njit(cache= True)
+@nb.njit(cache= os.environ.get('NUMBA_CACHE'))
 def update_v(v, beta, g, t):
     v = v * beta + (1 - beta) * g * g  
     v_hat = v / (1 - np.power(beta, t))
@@ -69,6 +70,7 @@ class ADAM(GradOpimizer):
         stack = []
         root = tree.nodes[-1]
         
+        assert isinstance(profile, dict)
         if len(profile) == 0:
             profile = {
                         'step': 1,
@@ -84,7 +86,7 @@ class ADAM(GradOpimizer):
         bp = root.backprop(dY, lr = self.lr)
         
         if tree.length == 1:
-            return
+            return profile
         
         stack.extend(bp)
             

@@ -29,8 +29,8 @@ X = X.astype(np.float64)
 y = y.astype(np.float64) 
 
 
-logloss = MSE()
-# logloss = LogLossWithSigmoid()
+# logloss = MSE()
+logloss = LogLossWithSigmoid()
 
 
 def test_optimizer():
@@ -41,7 +41,6 @@ def test_optimizer():
         y_hat = tree(X)
         dy, loss = logloss(y, y_hat)
 
-        # assert abs(loss - log_loss(y, sigmoid(y_hat))) < 1e-5
         losses.append(loss)
         
         optimizer.backprop(tree, dy, profile={})
@@ -57,11 +56,10 @@ def test_optimizer():
         y_hat = tree1(X)
         dy, loss = logloss(y, y_hat)
 
-        # assert abs(loss - log_loss(y, sigmoid(y_hat))) < 1e-5
+        assert abs(loss - log_loss(y, sigmoid(y_hat))) < 1e-5
         losses.append(loss)
         
         profile = optimizer.backprop(tree1, dy, profile=profile)
-    print(profile)
     
     
     plt.plot(np.arange(epochs), losses, color= 'red', label='ADAM')
@@ -73,7 +71,6 @@ def test_optimizer():
         y_hat = tree2(X)
         dy, loss = logloss(y, y_hat)
 
-        # assert abs(loss - log_loss(y, sigmoid(y_hat))) < 1e-5
         losses.append(loss)
         
         optimizer.backprop(tree2, dy, profile={})
@@ -90,7 +87,6 @@ def test_logloss():
         y_hat = tree(X)
         dy, loss = logloss(y, y_hat)
 
-        # assert abs(loss - log_loss(y, sigmoid(y_hat))) < 1e-5
         losses.append(loss)
         
         optimizer.backprop(tree, dy, profile={})
@@ -99,8 +95,7 @@ def test_logloss():
     plt.plot(np.arange(epochs), losses)
     plt.savefig('logloss_test.png')
         
-    
+
     
 if __name__ == '__main__':
     test_optimizer()
-    # test_logloss()

@@ -3,9 +3,9 @@ import numpy as np
 import numba as nb
 from sklearn.metrics import r2_score
 from ..utils.functional import sigmoid
-
+import os
 metric_jit = nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
-                      ], cache= True)
+                      ], cache= os.environ.get('NUMBA_CACHE'))
 
 def mse(y: np.ndarray, y_hat: np.ndarray):
     diff =  y - y_hat

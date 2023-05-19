@@ -3,8 +3,8 @@ from typing import List
 import numpy as np
 import numba as nb
 from sympy import Expr
-
-@nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]), cache= True)
+import os
+@nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]), cache= os.environ.get('NUMBA_CACHE'))
 def matrix_vec_prod(m, v):
     result = np.empty_like(m, dtype = np.float64)
     for i in nb.prange(m.shape[0]):
