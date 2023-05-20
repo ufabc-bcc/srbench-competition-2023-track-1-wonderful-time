@@ -206,7 +206,7 @@ class GA:
         # finetune candidates
         reverse = not metric.is_larger_better
         
-        with CandidateFinetuneProgressBar(num_iters=len(candidates), metric_name=str(metric)) as (progress, pbar):
+        with CandidateFinetuneProgressBar(num_iters=len(candidates), metric= metric) as (progress, pbar):
             for i in pbar:
                 finetune_result = candidates[i].finetune(
                     finetune_steps= finetune_steps, decay_lr= finetune_decay_lr

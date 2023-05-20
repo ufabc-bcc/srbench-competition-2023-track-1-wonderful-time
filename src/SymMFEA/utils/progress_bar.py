@@ -2,7 +2,7 @@ from tqdm import tqdm
 from typing import List, Union, Iterable
 from termcolor import colored
 import numpy as np
-
+from ..components.metrics import Metric
 
 class ProgressBar:
     def __init__(self, num_iters: Union[int, Iterable], dsc: str = ' ', metric_name:str = 'Obj', leave= True, position = 0, **kwargs) -> None:
@@ -81,21 +81,16 @@ class FinetuneProgressBar(ProgressBar):
         
         
 class CandidateFinetuneProgressBar(ProgressBar):
-    def __init__(self, num_iters: int, metric_name: str = 'Obj', **kwargs) -> None:
-        super().__init__(num_iters, metric_name= metric_name, dsc= 'Finetuning candidates', **kwargs)
-        self.curbest = -1e10
+    def __init__(self, num_iters: int, metric: Metric, **kwargs) -> None:
+        super().__init__(num_iters, metric_name= str(metric), dsc= 'Finetuning candidates', **kwargs)
+        self.curbest = None
         self.best_idx = None
-        
-    def compare(self, metric:float, reverse:bool):
-        if not reverse:
-            return metric > self.curbest 
-        else:
-            return metric < self.curbest   
-        
-    
+        self.compare = metric.is_better
+
+            
     def update(self, metric: float, idx:int , reverse= False):
         metric = -metric if reverse else metric
-        if self.compare(metric, reverse):
+        if self.compare(metric, self.curbest):
             self.curbest= metric
             self.best_idx = idx
                     
