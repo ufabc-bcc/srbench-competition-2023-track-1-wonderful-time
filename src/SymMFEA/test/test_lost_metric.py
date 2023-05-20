@@ -1,11 +1,11 @@
 from SymMFEA.components.functions import *
 from SymMFEA.utils.functional import *
 from SymMFEA.components.trainer.loss import *
+from SymMFEA.components.metrics import *
 import numpy as np
 import pytest
 from .utils import *
-import random
-
+from sklearn.metrics import log_loss
 
 class TestLost():
     
@@ -20,3 +20,17 @@ class TestLost():
         assert abs(y - y_hat) < 1e-5
         
         
+class TestMetric():
+    @pytest.mark.parametrize("Y", generate_input_list((2, 10), 10))
+    def test_log_loss(self, Y:np.ndarray):
+        
+        y_hat, y = Y[0], Y[1]
+        
+        y = sigmoid(y)
+        y = np.where(y > 0.5, 1, 0)
+        print(y_hat, y)
+        
+        l1 = log_loss(y, sigmoid(y_hat))
+        l2 = logloss(y, y_hat)
+        
+        assert np.allclose(l1, l2)

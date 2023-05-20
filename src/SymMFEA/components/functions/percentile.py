@@ -15,7 +15,7 @@ def training_percentile(X, p, index):
 
 
 class Percentile(Node):
-    percentiles: List[float] = [0.05, 0.1, 0.25, 0.5, 0.75, 0.95]
+    percentiles: List[float] = [float(i) for i in range(5, 100, 5)]
     
     
     def __init__(self, index: int = 0, value:float = 1, **kwargs):      
@@ -32,6 +32,7 @@ class Percentile(Node):
         X: 2d array
         '''
         if training:
+            assert self.attrs['p'] > 0 and self.attrs['p'] < 100
             out, threshold = training_percentile(X, self.attrs['p'], self.index)
             if self.attrs.get('threshold') is None:
                 self.attrs['threshold'] = threshold
