@@ -45,13 +45,13 @@ class GradOpimizer:
     
 
 
-@nb.njit(cache= os.environ.get('NUMBA_CACHE'))
+@nb.njit(cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def update_m(m, beta, g, t):
     m = m * beta + (1 - beta) * g 
     m_hat = m / (1 - np.power(beta, t))
     return m, m_hat
     
-@nb.njit(cache= os.environ.get('NUMBA_CACHE'))
+@nb.njit(cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def update_v(v, beta, g, t):
     v = v * beta + (1 - beta) * g * g  
     v_hat = v / (1 - np.power(beta, t))

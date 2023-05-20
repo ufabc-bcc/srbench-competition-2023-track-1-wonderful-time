@@ -4,7 +4,7 @@ import numpy as np
 import numba as nb
 from sympy import Expr
 import os
-@nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]), cache= os.environ.get('NUMBA_CACHE'))
+@nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def matrix_vec_prod(m, v):
     result = np.empty_like(m, dtype = np.float64)
     for i in nb.prange(m.shape[0]):
