@@ -5,9 +5,10 @@ import numpy as np
 from ..components.metrics import Metric
 
 class ProgressBar:
-    def __init__(self, num_iters: Union[int, Iterable], dsc: str = ' ', metric_name:str = 'Obj', leave= True, position = 0, **kwargs) -> None:
+    def __init__(self, num_iters: Union[int, Iterable], dsc: str = ' ', metric_name:str = 'Obj', leave= True, position = 0, miniters:int=None, **kwargs) -> None:
         iterable = range(num_iters) if isinstance(num_iters, int) else num_iters
-        self.pbar = tqdm(iterable, leave= leave, position= position, colour='blue')
+
+        self.pbar = tqdm(iterable, leave= leave, position= position, colour='blue', miniters= miniters)
         self.pbar.set_description(colored(dsc, 'red'))
         self.metric_name = metric_name
         
@@ -67,13 +68,17 @@ class FinetuneProgressBar(ProgressBar):
         '''
         metric_name: loss name, metric name
         '''
-        super().__init__(num_iters, dsc = 'Candidates', metric_name = metric_name, leave=False, position= 1, **kwargs)
+        super().__init__(num_iters, dsc = 'Candidates', metric_name = metric_name, leave=False, position= 1, miniters= int(num_iters / 10),**kwargs)
         
     def update(self, loss: float, metric: float, best_metric: float, reverse = False):
         display_str = ''
+        
+        to_display_met = metric 
+        to_display_best_met = best_metric
+        
         metric = -metric if reverse else metric
         best_metric = -best_metric if reverse else best_metric
-        for m, val in zip(self.metric_name + ['Best ' + self.metric_name[1]], [loss, metric, best_metric]):
+        for m, val in zip(self.metric_name + ['Best ' + self.metric_name[1]], [loss, to_display_met, to_display_best_met]):
             display_str += '{}: {:.2f}; '.format(m, val)
         
         self.pbar.set_postfix_str(colored(display_str, 'green'))

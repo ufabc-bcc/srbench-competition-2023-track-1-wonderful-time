@@ -9,8 +9,6 @@ class GradOpimizer:
         self.lr = lr 
         self.weight_decay = weight_decay
     
-    def update_lr(self, lr):
-        self.lr = lr
         
     def backprop(self, tree: Tree, dY: float, **kwargs):
         stack = []

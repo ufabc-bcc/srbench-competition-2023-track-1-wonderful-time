@@ -13,9 +13,7 @@ class Trainer:
         self.metric = metric
         self.early_stopping = early_stopping
         
-    def update_lr(self, lr):
-        self.optimizer.update_lr(lr)
-        
+
     def fit(self, ind, data: TrainDataLoader, val_data: DataView, steps: int = 10, finetuner: Tuple[FinetuneProgressBar, tqdm_asyncio]= None):
         if steps == 0:
             return 0
@@ -62,10 +60,7 @@ class Trainer:
         return ind.best_metric, np.mean(step_loss), step + 1, ind.optimizer_profile, ind.attrs
         
     def update_learning_state(self, ind, metric: float):
-        if ind.best_metric is not None: 
-            if self.metric.is_better(metric, ind.best_metric):
-                ind.update_best_tree(metric)
-            else:
-                ind.nb_consecutive_not_improve += 1
-        else:
+        if self.metric.is_better(metric, ind.best_metric):
             ind.update_best_tree(metric)
+        else:
+            ind.nb_consecutive_not_improve += 1
