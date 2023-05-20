@@ -26,9 +26,10 @@ def mse(y: np.ndarray, y_hat: np.ndarray):
 
 @loss_jit
 def logloss(y: np.ndarray, y_hat: np.ndarray):
-    sig = np.clip(sigmoid(y_hat), EPS, 1 - EPS)
+    sig = sigmoid(y_hat)
     diff = -(y * np.log(sig) + (1-y) * np.log(1 - sig))
-    return -sig * (1-sig) * (y / (sig) + (1 - y) / (1 - sig)), np.mean(diff)
+    # -sig * (1-sig) * (y / (sig) + (1 - y) / (1 - sig)) 
+    return  y * (sig - 1) - (y - 1) * sig,  np.mean(diff)
 
 
 class MSE(Loss):

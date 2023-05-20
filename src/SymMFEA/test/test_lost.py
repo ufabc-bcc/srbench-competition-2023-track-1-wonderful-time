@@ -9,8 +9,6 @@ import random
 
 class TestLost():
     
-
-    
     @pytest.mark.parametrize("x, y", [
         (3, 0.9525741268224809),
         (-18.5, 9.237449576580103e-9),

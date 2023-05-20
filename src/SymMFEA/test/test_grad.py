@@ -18,7 +18,7 @@ from sklearn.metrics import log_loss
 from sklearn.linear_model import LinearRegression
 initWM((100, 10))
 
-#tanh(x0 * x1) + x2    
+#x0 + x1 + x2    
 nodes = [
     Operand(0), Operand(1), Operand(2), Sum(arity= 3)
 ]
@@ -38,18 +38,24 @@ logloss = LogLossWithSigmoid()
 def test_optimizer():
     epochs = 1000
     losses = []
+    
+    #============================SGD===================
     optimizer = GradOpimizer(lr=5e-3)
     for epoch in range(epochs):
         y_hat = tree(X)
         dy, loss = logloss(y, y_hat)
-
+        if epoch > 0:
+            assert loss - losses[-1] < 1e-5
         losses.append(loss)
         
         optimizer.backprop(tree, dy, profile={})
-        
+    
+    sgd_loss = np.min(losses)
     
     plt.plot(np.arange(epochs), losses, label='SGD')
     
+    
+    #============================ADAM no profile===================
     optimizer = ADAM(lr=5e-3)
     losses = []
     profile = {}
@@ -59,38 +65,52 @@ def test_optimizer():
         dy, loss = logloss(y, y_hat)
 
         assert abs(loss - log_loss(y, sigmoid(y_hat))) < 1e-5
+        
+        if epoch > 0:
+            assert loss - losses[-1] < 1e-5
         losses.append(loss)
         
         profile = optimizer.backprop(tree1, dy, profile=profile)
     
+    no_profile = np.min(losses)
+    
     
     plt.plot(np.arange(epochs), losses, color= 'red', label='ADAM')
     
+    
+    
+    #============================ADAM with profile===================    
     optimizer = ADAM(lr=5e-3)
     losses = []
 
     for epoch in range(epochs):
         y_hat = tree2(X)
         dy, loss = logloss(y, y_hat)
-
+        if epoch > 0:
+            assert loss - losses[-1] < 1e-5
         losses.append(loss)
         
         optimizer.backprop(tree2, dy, profile={})
     plt.plot(np.arange(epochs), losses, color= 'green', label='ADAM no profile')
+    
+    adam_loss = np.min(losses)
+    
     
     
     lnr = LinearRegression()
     lnr.fit(X, y)
     y_hat = lnr.predict(X)
     dy, loss = logloss(y, y_hat)
-    plt.axhline(y=loss, linestyle='dashed', label ='linear', color = 'purple')
-
     
     
     
+    plt.axhline(y=loss, linestyle='dashed', label ='linear with mse', color = 'purple')
     plt.legend()
     plt.savefig('optimizer_test.png')
     plt.clf()
+    
+    assert adam_loss < sgd_loss
+    assert no_profile < sgd_loss
 
 
 def test_logloss():
@@ -100,8 +120,11 @@ def test_logloss():
     for epoch in range(epochs):
         y_hat = tree3(X)
         dy, loss = logloss(y, y_hat)
-
+        
+        if epoch > 0:
+            assert loss - losses[-1] < 1e-5
         losses.append(loss)
+        
         
         optimizer.backprop(tree3, dy, profile={})
         
