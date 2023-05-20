@@ -41,6 +41,8 @@ class TreeMerger:
             for p in thresholds:
                 prune_threshold = max(p, 0.5 / len(inds))
                 is_selected = coef_ > prune_threshold
+                if sum(is_selected) == 0:
+                    continue
                 coef = normalize_norm1(np.where(is_selected, coef_, 0))
                 
                 coefs.append(coef)
@@ -48,9 +50,10 @@ class TreeMerger:
                 y_hat = y_vals @ coef
                 
                 met = metric(val_data.y_val, y_hat)
+                met = -met if metric.is_larger_better else met
                 
                 length = sum([ind.genes.length for i, ind in enumerate(inds) if is_selected[i]])
-                objs.append([-met if metric.is_larger_better else met, length])
+                objs.append([met, length])
                 
         for i in range(len(inds)):
             coef = np.zeros(len(inds), dtype= np.float64)
@@ -58,21 +61,23 @@ class TreeMerger:
             
             coefs.append(coef)
             
-            objs.append([-inds[i].best_metric, inds[i].genes.length])
+            objs.append([inds[i].main_objective, inds[i].genes.length])
         
         
-        fronts, _, _, _ = fast_non_dominated_sorting(objs)
+        fronts, _, _, _ = fast_non_dominated_sorting(-np.array(objs))
         
-        best_met = -1000000
+        best_met = -10000000000
+        best_length = 1000000000
         for idx in fronts[0]: 
-            met = - objs[idx][0]
-            if met > best_met:
-                best_met = met
-                best_coef = coefs[idx]
-                
+            #get objectives
+            met, length = -objs[idx][0], -objs[idx][1]
             
-        
-        
+            if met > best_met:
+                if met - best_met > metric.better_tol or length < best_length:
+                    best_met = met
+                    best_coef = coefs[idx]
+                    best_length = length
+                
         select_idx = best_coef > 0
         
         

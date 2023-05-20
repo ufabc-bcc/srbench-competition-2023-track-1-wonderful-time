@@ -49,6 +49,9 @@ class Individual:
     
     @property
     def main_objective(self):
+        '''
+        main_objective: larger is better while best metric is what it should be
+        '''
         return self.objective[0]
         
     def update_best_tree(self, metric):

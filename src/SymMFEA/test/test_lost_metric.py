@@ -21,6 +21,7 @@ class TestLost():
         
         
 class TestMetric():
+    l = LogLoss()
     @pytest.mark.parametrize("Y", generate_input_list((2, 10), 10))
     def test_log_loss(self, Y:np.ndarray):
         
@@ -34,3 +35,16 @@ class TestMetric():
         l2 = logloss(y, y_hat)
         
         assert np.allclose(l1, l2)
+    
+    
+    @pytest.mark.parametrize("x1, x2, gt", [
+        (0.8, 0.9525741268224809, True),
+        (2, 9.237449576580103e-9, False),
+        (0.4, 0.6813537337890835, True),
+        (0.1, 0.13010847436292233, True),
+        (1, 0.5, False),
+    ])
+    def test_log_loss_is_better(self, x1, x2, gt):
+        
+        is_better = self.l.is_better(x1, x2)
+        assert is_better == gt

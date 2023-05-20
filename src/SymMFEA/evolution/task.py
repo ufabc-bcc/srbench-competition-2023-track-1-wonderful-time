@@ -56,8 +56,10 @@ class SubTask:
         self.train_dataloader.unlock()
         self.data.unlock()
         
-        lr= self.task.trainer.optimizer.lr 
-        self.task.trainer.update_lr(self.task.trainer.optimizer.lr / decay_lr)
+        
+        lr = ind.optimizer_profile.get('lr')
+        new_lr = lr / decay_lr if lr is not None else self.task.trainer.optimizer.lr / decay_lr
+        ind.optimizer_profile['lr'] = new_lr
         
         with FinetuneProgressBar(
             num_iters= finetune_steps,
@@ -68,6 +70,5 @@ class SubTask:
             
                 
                         
-        self.task.trainer.update_lr(lr)
         
         return result

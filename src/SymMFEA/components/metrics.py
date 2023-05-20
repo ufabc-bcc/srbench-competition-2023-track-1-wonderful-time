@@ -41,7 +41,7 @@ class Metric:
         if m2 is None:
             return True
         
-        return ~(self.is_larger_better ^ (m1 > m2)) & (abs(m1 - m2) > self.better_tol)
+        return bool(~(self.is_larger_better ^ (m1 > m2)) & (abs(m1 - m2) > self.better_tol))
     
     def __call__(self, y: np.ndarray, y_hat: np.ndarray)-> float: 
         return self.func(y, y_hat)
