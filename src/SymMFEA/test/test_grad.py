@@ -15,15 +15,17 @@ from sklearn.datasets import make_classification
 from SymMFEA.components.trainer.grad_optimizer import *
 from SymMFEA.components.weight_manager import initWM
 from sklearn.metrics import log_loss
+from sklearn.linear_model import LinearRegression
 initWM((100, 10))
 
 #tanh(x0 * x1) + x2    
 nodes = [
-    Operand(0), Operand(1), Prod(), Tanh(), Operand(2), Sum(arity= 2)
+    Operand(0), Operand(1), Operand(2), Sum(arity= 3)
 ]
 tree = Tree(nodes=nodes, compile = True)
 tree1 = Tree(nodes=tree.nodes, deepcopy= True, compile= True)
 tree2 = Tree(nodes=tree.nodes, deepcopy= True, compile= True)
+tree3 = Tree(nodes=tree.nodes, deepcopy= True, compile= True)
 X, y = make_classification(n_features=3, n_redundant=0, n_repeated=0, n_informative=3)
 X = X.astype(np.float64)
 y = y.astype(np.float64) 
@@ -75,21 +77,33 @@ def test_optimizer():
         
         optimizer.backprop(tree2, dy, profile={})
     plt.plot(np.arange(epochs), losses, color= 'green', label='ADAM no profile')
+    
+    
+    lnr = LinearRegression()
+    lnr.fit(X, y)
+    y_hat = lnr.predict(X)
+    dy, loss = logloss(y, y_hat)
+    plt.axhline(y=loss, linestyle='dashed', label ='linear', color = 'purple')
+
+    
+    
+    
     plt.legend()
     plt.savefig('optimizer_test.png')
+    plt.clf()
 
 
 def test_logloss():
-    optimizer = ADAM(lr=5e-3)
+    optimizer = GradOpimizer(lr=5e-3)
     losses = []
     epochs = 1000
     for epoch in range(epochs):
-        y_hat = tree(X)
+        y_hat = tree3(X)
         dy, loss = logloss(y, y_hat)
 
         losses.append(loss)
         
-        optimizer.backprop(tree, dy, profile={})
+        optimizer.backprop(tree3, dy, profile={})
         
     
     plt.plot(np.arange(epochs), losses)
@@ -99,3 +113,4 @@ def test_logloss():
     
 if __name__ == '__main__':
     test_optimizer()
+    test_logloss()

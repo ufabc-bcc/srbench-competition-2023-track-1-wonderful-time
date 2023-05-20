@@ -20,15 +20,15 @@ class Loss:
 @loss_jit
 def mse(y: np.ndarray, y_hat: np.ndarray):
     diff = y_hat - y 
-    return 2 * diff, np.mean(diff * diff )
+    return 2 * diff, np.mean(diff * diff)
 
 
 
 @loss_jit
 def logloss(y: np.ndarray, y_hat: np.ndarray):
-    y_hat = np.clip(sigmoid(y_hat), EPS, 1 - EPS)
-    diff = -(y * np.log(y_hat) + (1-y) * np.log(1 - y_hat))
-    return y_hat * (1-y_hat) * (y / (y_hat) + (1 - y) / (1 - y_hat)), np.mean(diff)
+    sig = np.clip(sigmoid(y_hat), EPS, 1 - EPS)
+    diff = -(y * np.log(sig) + (1-y) * np.log(1 - sig))
+    return -sig * (1-sig) * (y / (sig) + (1 - y) / (1 - sig)), np.mean(diff)
 
 
 class MSE(Loss):
@@ -51,4 +51,5 @@ class LogLossWithSigmoid(Loss):
         return 'LogLoss'
     
     def __call__(self, y: np.ndarray, y_hat: np.ndarray) -> float:
+        assert np.amax(y) <=1 and np.amin(y) >=0
         return logloss(y, y_hat)

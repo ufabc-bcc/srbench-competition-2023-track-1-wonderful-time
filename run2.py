@@ -69,7 +69,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = ADAM(1e-3, weight_decay= 1e-5)
+optimizer = ADAM(1e-2, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -87,17 +87,17 @@ SMP_configs = {
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 5,
+    steps_per_gen= 20,
     nb_inds_each_task= [15] * 4+ [30] * 5,
     data_sample = 0.5,
     nb_generations= 100,
-    batch_size= 30,
+    batch_size= 100,
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
-    num_workers= 40,
+    num_workers= 16,
     offspring_size= 5,
     expected_generations_inqueue= 5,
     compact= True,
