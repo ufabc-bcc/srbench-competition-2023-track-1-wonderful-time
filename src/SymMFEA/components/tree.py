@@ -11,7 +11,7 @@ from ..components.column_sampler import ColumnSampler
 import os
 import numba as nb
 
-nb.njit(nb.types.Tuple((nb.float64, nb.float64))(nb.float64, nb.float64, nb.int64, nb.float64[:]), cache= os.environ.get('NUMBA_CACHE'))
+nb.njit(nb.types.Tuple((nb.float64, nb.float64))(nb.float64, nb.float64, nb.int64, nb.float64[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def update_node_stats(old_mean, old_var, old_samples, X):	
     new_samples = X.shape[0] + old_samples	
     mean = (old_mean * old_samples + X.sum()) / new_samples	

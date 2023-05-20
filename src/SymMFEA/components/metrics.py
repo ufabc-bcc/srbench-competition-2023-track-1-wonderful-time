@@ -5,7 +5,7 @@ from sklearn.metrics import r2_score
 from ..utils.functional import sigmoid
 import os
 metric_jit = nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
-                      ], cache= os.environ.get('NUMBA_CACHE'))
+                      ], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 
 def mse(y: np.ndarray, y_hat: np.ndarray):
     diff =  y - y_hat
