@@ -86,7 +86,7 @@ class R2(Metric):
         super().__init__(r2_score, use_numba= False)
         
 class LogLoss(Metric):
-    is_larger_better = True
+    is_larger_better = False
 
     def __str__(self):
         return 'LogLoss'

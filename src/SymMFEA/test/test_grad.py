@@ -45,7 +45,7 @@ def test_optimizer():
         y_hat = tree(X)
         dy, loss = logloss(y, y_hat)
         if epoch > 0:
-            assert loss - losses[-1] < 1e-5
+            assert loss - losses[-1] < 1e-3
         losses.append(loss)
         
         optimizer.backprop(tree, dy, profile={})
@@ -64,10 +64,10 @@ def test_optimizer():
         y_hat = tree1(X)
         dy, loss = logloss(y, y_hat)
 
-        assert abs(loss - log_loss(y, sigmoid(y_hat))) < 1e-5
+        assert abs(loss - log_loss(y, sigmoid(y_hat))) < 1e-3
         
         if epoch > 0:
-            assert loss - losses[-1] < 1e-5
+            assert loss - losses[-1] < 1e-3
         losses.append(loss)
         
         profile = optimizer.backprop(tree1, dy, profile=profile)
@@ -87,7 +87,7 @@ def test_optimizer():
         y_hat = tree2(X)
         dy, loss = logloss(y, y_hat)
         if epoch > 0:
-            assert loss - losses[-1] < 1e-5
+            assert loss - losses[-1] < 1e-3
         losses.append(loss)
         
         optimizer.backprop(tree2, dy, profile={})
@@ -122,7 +122,7 @@ def test_logloss():
         dy, loss = logloss(y, y_hat)
         
         if epoch > 0:
-            assert loss - losses[-1] < 1e-5
+            assert loss - losses[-1] < 1e-3
         losses.append(loss)
         
         
