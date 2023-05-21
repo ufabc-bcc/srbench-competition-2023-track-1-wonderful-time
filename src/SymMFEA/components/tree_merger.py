@@ -105,13 +105,13 @@ class TreeMerger:
         
         if len(selected_inds) == 1:
             merged_tree= selected_inds[0].genes
-            met = metric(val_data.y_val, merged_tree(val_data.X_val))
+            
         else:
             merged_tree = self.merge_trees([ind.genes for ind in selected_inds], selected_weights)
             
-            met = metric(val_data.y_val, merged_tree(val_data.X_val))
             
-        met = -met if metric.is_larger_better else met
+        met = metric(val_data.y_val, merged_tree(val_data.X_val))    
+        met = -met if not metric.is_larger_better else met
         
         assert abs((met - best_met) / (best_met + 1e-12)) < 1e-5, (met, best_met)
             
