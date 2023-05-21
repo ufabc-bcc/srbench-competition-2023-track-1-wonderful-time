@@ -91,7 +91,7 @@ model.fit(
     nb_inds_each_task= 25,
     data_sample = 0.5,
     nb_generations= 200,
-    batch_size= 2000,
+     
     test_size = 0.33,
     nb_inds_min= 10,
     finetune_steps= 500,

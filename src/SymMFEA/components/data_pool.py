@@ -51,42 +51,6 @@ class DataView:
         self.index = np.arange(self.data_pool.train_size)
         self.val_index = np.arange(self.data_pool.val_size)
 
-#so far dataloader use for train only
-class TrainDataLoader:
-    def __init__(self, data_view:DataView, batch_size:int = 10, shuffle: bool = True) -> None:
-        self.data_view = data_view
-        self.batch_size = batch_size
-        self.i = 0
-        self.shuffle = shuffle
-        self.index: np.ndarray
-        if shuffle:
-            self.shuffle_view()
-        else:
-            self.index = np.arange(self.data_view.len_train)
-            
-            
-    def unlock(self):
-        self.data_view.unlock()
-        
-    @property
-    def hasNext(self):
-        has =  self.i < self.data_view.len_train
-        if not has:
-            self.i = 0
-            if self.shuffle:
-                self.shuffle_view()
-        
-        return has
-        
-    def __next__(self) -> Tuple[np.ndarray]:
-        end  = min(self.i + self.batch_size, self.data_view.len_train)
-        index = self.index[self.i : end]
-        data = self.data_view.X_train[index], self.data_view.y_train[index]
-        self.i += self.batch_size
-        return data
-    
-    def shuffle_view(self):
-        self.index = np.random.permutation(self.data_view.len_train)
         
 def initDataPool(*args, **kwargs):
     global data_pool 

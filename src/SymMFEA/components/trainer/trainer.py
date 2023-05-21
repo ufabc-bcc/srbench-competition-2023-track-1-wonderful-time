@@ -1,5 +1,5 @@
 from .grad_optimizer import GradOpimizer
-from ..data_pool import TrainDataLoader, DataView
+from ..data_pool import DataView
 from .loss import *
 from ..metrics import Metric
 from typing import Tuple
@@ -14,7 +14,7 @@ class Trainer:
         self.early_stopping = early_stopping
         
 
-    def fit(self, ind, data: TrainDataLoader, val_data: DataView, steps: int = 10, finetuner: Tuple[FinetuneProgressBar, tqdm_asyncio]= None):
+    def fit(self, ind, data: DataView, steps: int = 10, finetuner: Tuple[FinetuneProgressBar, tqdm_asyncio]= None):
         if steps == 0:
             return 0
         
@@ -30,15 +30,15 @@ class Trainer:
         
         for step in pbar:
             step_loss = []
-            while data.hasNext:
-                X, y = next(data)
-                y_hat = ind(X, training= True)
-                dY, loss = self.loss(y, y_hat)
-                ind.optimizer_profile = self.optimizer.backprop(ind.genes, dY, profile= ind.optimizer_profile)
-                step_loss.append(loss)
+            
+            X, y = data.X_train, data.y_train
+            y_hat = ind(X, training= True)
+            dY, loss = self.loss(y, y_hat)
+            ind.optimizer_profile = self.optimizer.backprop(ind.genes, dY, profile= ind.optimizer_profile)
+            step_loss.append(loss)
                 
-            y_hat = ind(val_data.X_val)
-            metric = self.metric(val_data.y_val, y_hat)
+            y_hat = ind(data.X_val)
+            metric = self.metric(data.y_val, y_hat)
             
             self.update_learning_state(ind, metric= metric)
             
