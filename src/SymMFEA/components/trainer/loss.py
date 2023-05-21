@@ -4,7 +4,7 @@ import numba as nb
 from ...utils.functional import sigmoid
 import os 
 loss_jit = nb.njit([nb.types.Tuple((nb.float64[:], nb.float64))(nb.float64[:], nb.float64[:]),
-                    ], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+                    ], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
 
 class Loss:
     def __init__(self):
