@@ -32,12 +32,12 @@ class Individual:
         self.n_samples = 0 
         self.genes.flush()
         
-    def setattrs(self, attrs: List[dict]):
-        self.genes.setattrs(attrs)
+    # def setattrs(self, attrs: List[dict]):
+    #     self.genes.setattrs(attrs)
     
-    @property
-    def attrs(self):
-        return self.genes.attrs
+    # @property
+    # def attrs(self):
+    #     return self.genes.attrs
     
     @property
     def terminal_set(self):

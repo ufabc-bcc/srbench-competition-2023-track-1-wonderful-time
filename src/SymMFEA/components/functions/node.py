@@ -38,7 +38,7 @@ class Node:
         
         self.tree = None
         self.compiled: bool = False
-        self.attrs: dict = dict()
+        # self.attrs: dict = dict()
         
     
     def __call__(self, X, training:bool= False):
@@ -57,7 +57,7 @@ class Node:
     def deepcopy(node, new_class = None):
         
         new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class(arity= node.arity, index= node.index)
-        new_node.attrs = node.attrs
+        # new_node.attrs = node.attrs
         
 
         if node.tree is not None:

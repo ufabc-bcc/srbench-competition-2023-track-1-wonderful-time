@@ -1,7 +1,7 @@
 import numpy as np
 from ..population import Individual
 from ...components.tree import Tree, FlexTreeFactory, get_possible_range
-from ...components.functions import Operand, Node, FUNCTION_SET, LINEAR_FUNCTION_SET, Constant, Percentile
+from ...components.functions import Operand, Node, FUNCTION_SET, LINEAR_FUNCTION_SET, Constant
 from ...utils.functional import numba_randomchoice_w_prob, normalize_norm1, numba_randomchoice
 import random
 from typing import List
@@ -137,7 +137,7 @@ class PruneMutation(Mutation):
         node_idx = (np.abs((std - mean) / (mean + 1e-12)) < self.rtol) | node_idx
         
         #spare constant aside
-        is_constant = np.array([isinstance(node, Constant) or isinstance(node, Percentile) for node in parent.genes.nodes], dtype = bool)
+        is_constant = np.array([isinstance(node, Constant) for node in parent.genes.nodes], dtype = bool)
         node_idx = node_idx & (~is_constant)
         
         #spare root aside

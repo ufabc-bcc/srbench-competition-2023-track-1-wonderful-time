@@ -8,15 +8,13 @@ from .aq import AQ
 from .constant import Constant
 from .log import Log
 from .valve import Valve
-from .batchnorm import BatchNorm
-from .percentile import Percentile
 from .greater import Greater
 
 FUNCTION_SET = {
     0 : [
         Operand,
         Constant,
-        Percentile,
+        # Percentile,
     ],
     1: [
         Tanh,

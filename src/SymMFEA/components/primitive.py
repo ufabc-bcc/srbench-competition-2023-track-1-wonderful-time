@@ -1,4 +1,4 @@
-from .functions import Node, FUNCTION_SET, LINEAR_FUNCTION_SET, Operand, Percentile
+from .functions import Node, FUNCTION_SET, LINEAR_FUNCTION_SET, Operand
 import numpy as np
 import random
 from ..utils.functional import numba_randomchoice_w_prob, normalize_norm1
@@ -47,7 +47,7 @@ class Primitive:
         
             node_cls = candidate_functions[random.randint(0, len(candidate_functions) -1)]
         
-        if node_cls in [Operand, Percentile]:
+        if node_cls in [Operand]:
             return node_cls(index = self.terminal_set[random.randint(0, len(self.terminal_set) - 1)],
                             **params)
         return node_cls(**params)
