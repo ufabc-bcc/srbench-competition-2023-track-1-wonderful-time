@@ -1,6 +1,5 @@
 from .progress_bar import *
 from .visualize import draw_tree
-
 import multiprocessing as mp
 import numpy as np
 import ctypes
@@ -9,7 +8,7 @@ from sympy import Expr
 from k_means_constrained import KMeansConstrained
 from sklearn.model_selection import train_test_split
 
-def create_shared_np(shape: Iterable[int], val= 0, dtype= None):
+def create_shared_np(shape: Iterable[int], val: Union[float, np.array]= 0.0, dtype= None):
     if isinstance(shape, int):
         shape = (shape, )
         
