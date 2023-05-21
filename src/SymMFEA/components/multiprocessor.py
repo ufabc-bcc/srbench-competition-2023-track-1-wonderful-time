@@ -6,7 +6,7 @@ import os
 import traceback
 def execute_one_job(args: Tuple[SubTask, List]):
     task, ind= args
-    return task.task.trainer.fit(ind, task.train_dataloader, steps= task.task.steps_per_gen, val_data = task.data)
+    return task.task.trainer.fit(ind, steps= task.task.steps_per_gen, data = task.data)
 
 
 def custom_error_callback(error):
