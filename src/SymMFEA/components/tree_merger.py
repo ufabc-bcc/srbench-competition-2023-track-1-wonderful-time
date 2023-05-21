@@ -53,7 +53,7 @@ class TreeMerger:
                 met = -met if metric.is_larger_better else met
                 
                 length = sum([ind.genes.length for i, ind in enumerate(inds) if is_selected[i]])
-                objs.append([met, length])
+                objs.append([met, -length])
                 
         for i in range(len(inds)):
             coef = np.zeros(len(inds), dtype= np.float64)
@@ -61,7 +61,7 @@ class TreeMerger:
             
             coefs.append(coef)
             
-            objs.append([inds[i].main_objective, inds[i].genes.length])
+            objs.append([inds[i].main_objective, -inds[i].genes.length])
         
         
         fronts, _, _, _ = fast_non_dominated_sorting(-np.array(objs))
@@ -70,7 +70,7 @@ class TreeMerger:
         best_length = 1000000000
         for idx in fronts[0]: 
             #get objectives
-            met, length = -objs[idx][0], -objs[idx][1]
+            met, length = objs[idx][0], -objs[idx][1]
             
             if met > best_met:
                 if met - best_met > metric.better_tol or length < best_length:
@@ -111,7 +111,9 @@ class TreeMerger:
             
             met = metric(val_data.y_val, merged_tree(val_data.X_val))
             
-            assert abs((met - best_met) / (best_met + 1e-12)) < 1e-5, (met, best_met)
+        met = -met if metric.is_larger_better else met
+        
+        assert abs((met - best_met) / (best_met + 1e-12)) < 1e-5, (met, best_met)
             
         print(colored('After merge: {:.2f}, length: {}'.format(met, merged_tree.length), 'green'))
             
