@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Tuple
 from ..utils import create_shared_np, stratify_train_test_split
+import ctypes
 
 class DataPool:
     def __init__(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, **kwargs):
@@ -20,13 +21,17 @@ class DataPool:
         return self.X_val.shape[0]
     
     
+    
 class DataView:
     def __init__(self, data_pool: DataPool, sample: float = 1):
         self.data_pool = data_pool
         
-        self.index: np.ndarray = stratify_train_test_split(None, data_pool.y_train, test_size= sample, return_idx= True)
-        self.val_index: np.ndarray = stratify_train_test_split(None, data_pool.y_val, test_size= sample, return_idx= True)
-    
+        idx = stratify_train_test_split(None, data_pool.y_train, test_size= sample, return_idx= True)
+        self.index = create_shared_np((len(idx),), val = idx, dtype= ctypes.c_ulong)
+        
+        idx = stratify_train_test_split(None, data_pool.y_val, test_size= sample, return_idx= True)
+        self.val_index = create_shared_np((len(idx),), val = idx, dtype= ctypes.c_ulong)
+        
     @property
     def len_train(self) -> int:
         return self.y_train.shape[0]
