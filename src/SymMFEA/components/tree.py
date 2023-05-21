@@ -171,9 +171,9 @@ class Tree:
         assert top == 1
         return stack[0] + self.bias
     
-    def setattrs(self, attrs: List[dict]):
-        for node, attr in zip(self.nodes, attrs):
-            node.attrs = attr
+    # def setattrs(self, attrs: List[dict]):
+    #     for node, attr in zip(self.nodes, attrs):
+    #         node.attrs = attr
     
     @property
     def expression(self) -> Expr:
@@ -237,9 +237,9 @@ class Tree:
             return f(*[X[:, i] for i in range(X.shape[1])])
         return infer
     
-    @property
-    def attrs(self):
-        return [node.attrs for node in self.nodes]  
+    # @property
+    # def attrs(self):
+    #     return [node.attrs for node in self.nodes]  
     
     @property
     def largest_terminal(self) -> int:
