@@ -160,9 +160,7 @@ class GA:
 
         with Multiprocessor(num_workers= num_workers) as multiprocessor:
             self.multiprocessor = multiprocessor
-            self.main_task = Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen,
-                        batch_size=batch_size, test_size=test_size,
-                        shuffle=shuffle, trainer_config= trainer_config)
+            self.main_task = Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen, shuffle=shuffle)
             
             # initialize population
             population = Population(
