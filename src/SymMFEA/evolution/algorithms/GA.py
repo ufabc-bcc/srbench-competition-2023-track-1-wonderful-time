@@ -101,7 +101,6 @@ class GA:
             loss: Loss,
             optimzier: GradOpimizer,
             metric: Metric,
-            shuffle: bool = True,
             steps_per_gen: int = 10,
             nb_generations: int = 100,
             nb_inds_each_task: int = 100,
@@ -160,7 +159,7 @@ class GA:
 
         with Multiprocessor(num_workers= num_workers) as multiprocessor:
             self.multiprocessor = multiprocessor
-            self.main_task = Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen, shuffle=shuffle)
+            self.main_task = Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen, test_size= test_size)
             
             # initialize population
             population = Population(
