@@ -109,9 +109,17 @@ class Tree:
     def dW(self):
         assert self.compiled
         return weight_manager.WM.dW[self.position][:len(self.nodes)]
-    
 
-        
+    @property
+    def momentum(self):
+        assert self.compiled
+        return weight_manager.WM.momentum[self.position][:len(self.nodes)]    
+
+    @property
+    def velocity(self):
+        assert self.compiled
+        return weight_manager.WM.velocity[self.position][:len(self.nodes)]
+
     @property
     def length(self):
         return self.nodes[-1].length + 1

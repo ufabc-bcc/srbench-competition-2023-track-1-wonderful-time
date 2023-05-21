@@ -64,8 +64,8 @@ def caculate_bias(b, dY, lr):
 
 @nb.njit(nb.float64[:](nb.float64[:], nb.float64, nb.float64[:], nb.float64[:], nb.float64),
     cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
-def caculate_W(W, lr, mw_hat, vw_hat, eps):
-    return W - lr * mw_hat / (np.sqrt(vw_hat) + eps)
+def caculate_W(W, lr, m_hat, v_hat, eps):
+    return W - lr * m_hat / (np.sqrt(v_hat) + eps)
 
 
 class ADAM(GradOpimizer):
@@ -84,8 +84,6 @@ class ADAM(GradOpimizer):
         if len(profile) == 0:
             profile = {
                         'step': 1,
-                        'mw': np.zeros(tree.length, dtype=np.float64),
-                        'vw': np.zeros(tree.length, dtype=np.float64),
                         'lr': self.lr,
                        }
         
@@ -111,8 +109,11 @@ class ADAM(GradOpimizer):
         #compute gradient 
         dW = self.compute_gradient(tree)
         
-        profile['mw'], mw_hat = update_m(profile['mw'], self.betas1, dW, profile['step'])
-        profile['vw'], vw_hat = update_v(profile['vw'], self.betas2, dW, profile['step'])
+        momentum = tree.momentum
+        velocity = tree.velocity
+        
+        momentum[:], mw_hat = update_m(momentum, self.betas1, dW, profile['step'])
+        velocity[:], vw_hat = update_v(velocity, self.betas2, dW, profile['step'])
         
         
         W = tree.W 
