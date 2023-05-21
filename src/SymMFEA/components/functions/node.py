@@ -1,15 +1,20 @@
-from __future__ import annotations
 from typing import List
 import numpy as np
 import numba as nb
 from sympy import Expr
 import os
-@nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+from ...utils.functional import numba_v2v_float_wrapper
+@nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
 def matrix_vec_prod(m, v):
     result = np.empty_like(m, dtype = np.float64)
     for i in nb.prange(m.shape[0]):
         result[i] = m[i] * v
     return result
+
+@nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
+          nb.float64(nb.float64, nb.float64[:]),], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
+def calculate_dW(dW, dY):
+    return np.mean(dW * dY) 
 
     
 class Node:
@@ -49,7 +54,7 @@ class Node:
     
     
     @staticmethod
-    def deepcopy(node: Node, new_class = None):
+    def deepcopy(node, new_class = None):
         
         new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class(arity= node.arity, index= node.index)
         new_node.attrs = node.attrs
@@ -64,10 +69,10 @@ class Node:
     def __str__(self) -> str:
         return 
         
-    def backprop(self, dY, lr) -> List[float]:
+    def backprop(self, dY) -> List[float]:
         #receive dY from parent and pass new a list of dLs to children
         
-        self.tree.dW[self.id] = np.mean(self.dW * dY) 
+        self.tree.dW[self.id] = calculate_dW(self.dW, dY)
         
         #len self.dX = arity
         if self.is_leaf:

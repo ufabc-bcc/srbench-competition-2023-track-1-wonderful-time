@@ -1,6 +1,6 @@
 from ..tree import Tree
 import numpy as np
-from ...utils.functional import log_normalize
+from ...utils.functional import log_normalize, numba_update_adam
 import numba as nb
 import os
 
@@ -14,7 +14,7 @@ class GradOpimizer:
         stack = []
         root = tree.nodes[-1]
         
-        bp = root.backprop(dY, lr = self.lr)
+        bp = root.backprop(dY)
         
         if tree.length == 1:
             return {}
@@ -24,7 +24,7 @@ class GradOpimizer:
         for i in range(2, len(tree.nodes) + 1):
             node = tree.nodes[-i]
             dY = stack.pop()  
-            dY = node.backprop(dY, lr = self.lr)
+            dY = node.backprop(dY)
             
             if not node.is_leaf:
                 stack.extend(dY)
@@ -42,18 +42,30 @@ class GradOpimizer:
         return dW
     
 
+#===========================================ADAM==============================================
 
-@nb.njit(cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+@numba_update_adam
 def update_m(m, beta, g, t):
     m = m * beta + (1 - beta) * g 
     m_hat = m / (1 - np.power(beta, t))
     return m, m_hat
     
-@nb.njit(cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+@numba_update_adam
 def update_v(v, beta, g, t):
     v = v * beta + (1 - beta) * g * g  
     v_hat = v / (1 - np.power(beta, t))
     return v, v_hat
+
+
+@nb.njit(nb.float64(nb.float64, nb.float64[:], nb.float64),
+    cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+def caculate_bias(b, dY, lr):
+    return b - np.mean(dY) * lr
+
+@nb.njit(nb.float64[:](nb.float64[:], nb.float64, nb.float64[:], nb.float64[:], nb.float64),
+    cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+def caculate_W(W, lr, mw_hat, vw_hat, eps):
+    return W - lr * mw_hat / (np.sqrt(vw_hat) + eps)
 
 
 class ADAM(GradOpimizer):
@@ -72,16 +84,16 @@ class ADAM(GradOpimizer):
         if len(profile) == 0:
             profile = {
                         'step': 1,
-                        'mw': 0,
-                        'vw': 0,
+                        'mw': np.zeros(tree.length, dtype=np.float64),
+                        'vw': np.zeros(tree.length, dtype=np.float64),
                         'lr': self.lr,
                        }
         
         #update bias
-        tree.set_bias(tree.bias - np.mean(dY) * self.lr)
+        tree.set_bias(caculate_bias(tree.bias, dY, profile['lr']))
         
         
-        bp = root.backprop(dY, lr = self.lr)
+        bp = root.backprop(dY)
         
         if tree.length == 1:
             return profile
@@ -91,7 +103,7 @@ class ADAM(GradOpimizer):
         for i in range(2, len(tree.nodes) + 1):
             node = tree.nodes[-i]
             dY = stack.pop()  
-            dY = node.backprop(dY, lr = self.lr)
+            dY = node.backprop(dY)
             
             if not node.is_leaf:
                 stack.extend(dY)
@@ -104,7 +116,7 @@ class ADAM(GradOpimizer):
         
         
         W = tree.W 
-        W[:] = W - profile['lr'] * mw_hat / (np.sqrt(vw_hat) + self.eps)
+        W[:] = caculate_W(W, profile['lr'], mw_hat, vw_hat, self.eps)
         
         profile['step'] = profile['step'] + 1
         return profile

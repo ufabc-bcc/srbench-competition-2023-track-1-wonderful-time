@@ -11,3 +11,4 @@ solution
 
 .ipynb_checkpoints 
 .fleet
+!remove_pycache.sh
