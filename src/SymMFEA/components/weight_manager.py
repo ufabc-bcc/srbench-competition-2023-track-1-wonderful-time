@@ -28,6 +28,8 @@ class WeightManager:
         self.tree_bias = create_shared_np(self.len)
         self.allocated = create_shared_np(self.len, dtype = ctypes.c_bool)
         self.best_tree_bias = create_shared_np(self.len, val = 0)
+        self.momentum = create_shared_np(shape, val=0)
+        self.velocity = create_shared_np(shape, val=0)
         self.start = 0
     
     @timed
