@@ -154,7 +154,7 @@ class Tree:
             if update_stats:
                 self.mean[i], self.var[i] = update_node_stats(self.mean[i], self.var[i], self.n_samples, stack[top])
                 
-                
+            #only run when test
             if check_stats:
                 if not isinstance(node, Constant):
                     raw = stack[top]
@@ -171,10 +171,7 @@ class Tree:
         assert top == 1
         return stack[0] + self.bias
     
-    # def setattrs(self, attrs: List[dict]):
-    #     for node, attr in zip(self.nodes, attrs):
-    #         node.attrs = attr
-    
+
     @property
     def expression(self) -> Expr:
         if self.cached_expression is not None:
