@@ -6,7 +6,7 @@ import ctypes
 class DataPool:
     def __init__(self, X: np.ndarray, y: np.ndarray, test_size: float = 0.2, **kwargs):
         
-        tmp = stratify_train_test_split(X, y, test_size=test_size, **kwargs)
+        tmp = stratify_train_test_split(X.astype(np.float32), y.astype(np.float32), test_size=test_size, **kwargs)
         
         self.X_train, self.X_val, self.y_train, self.y_val = tuple([
             create_shared_np(mat.shape, mat) for mat in tmp

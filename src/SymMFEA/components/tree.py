@@ -5,6 +5,7 @@ import numpy as np
 from ..utils.timer import *
 from ..utils.progress_bar import SimplificationProgresBar
 from ..utils import count_nodes
+from ..utils.functional import multiply
 from ..components import weight_manager
 from sympy import Expr, Float, lambdify
 from ..components.column_sampler import ColumnSampler
@@ -18,9 +19,7 @@ def update_node_stats(old_mean, old_var, old_samples, X):
     var = (old_var * old_samples + X.var() * X.shape[0]) / new_samples	
     return mean, var
 
-nb.njit(nb.float32[:](nb.float32[:], nb.float32), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
-def multiply(vec, val):
-    return vec * val
+
 
 class Tree: 
     simplifications = [

@@ -2,14 +2,23 @@ from typing import List
 from sympy import Expr, sqrt
 from .node import Node
 import numpy as np
-from ...utils.functional import numba_operator_wrapper
+from ...utils.functional import numba_operator_wrapper, ONE
+import numba as nb
+import os 
 
 @numba_operator_wrapper
 def aq(operands: np.ndarray):
     r'''
     operands: np.ndarray of 1d np.array
     '''
-    return operands[0] / np.sqrt(operands[1] ** 2 + 1)
+    return operands[0] / np.sqrt(operands[1] ** 2 + ONE)
+
+@nb.njit(nb.float32[:, :](nb.float32[:, :], nb.float32), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
+def calculate_dx(operands, value):
+    dx = np.empty((2, operands.shape[1]), dtype = np.float32)
+    dx[0] = value / np.sqrt(operands[1] ** 2 + 1)
+    dx[1] = - value * operands[0] * operands[1] / (ONE + operands[1] ** 2) ** 1.5
+    return dx
 
 
 class AQ(Node):
@@ -22,12 +31,11 @@ class AQ(Node):
     def __call__(self, operands: np.ndarray, **kwargs):
         out =  aq(operands)
         self.dW = out
-        self.dX = np.empty((2, operands.shape[1]), dtype = np.float32)
-        self.dX[0] = self.value / np.sqrt(operands[1] ** 2 + 1)
-        self.dX[1] = - self.value * operands[0] * operands[1] / (1 + operands[1] ** 2) ** 1.5
+        self.dX = calculate_dx(operands, self.value)
+        
         
         assert self.dX.ndim == 2, self.dX.ndim
-        	
+        assert self.dX.dtype == np.float32
         return out
     
     def expression(self, X: List[Expr]) -> Expr:

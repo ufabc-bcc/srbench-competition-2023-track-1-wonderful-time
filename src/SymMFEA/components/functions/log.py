@@ -30,7 +30,7 @@ class Log(Node):
         self.dW = out
         
         assert self.dX.ndim == 2, self.dX.ndim
-        
+        assert self.dX.dtype == np.float32
         
             
 

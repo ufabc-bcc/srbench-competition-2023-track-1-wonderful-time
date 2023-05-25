@@ -1,6 +1,6 @@
 import numpy as np
 from ..utils.timer import timed
-from ..utils.functional import normalize_norm1, numba_randomchoice_w_prob
+from ..utils.functional import normalize_norm1, numba_randomchoice_w_prob, ONE
 import random
 import math
 class ColumnSampler:

@@ -8,7 +8,8 @@ numba_operator_wrapper = nb.njit(nb.float32[:](nb.float32[:, :]), cache= os.envi
 numba_operator_with_grad_wrapper = nb.njit(nb.types.Tuple((nb.float32[:], nb.float32[:, :]))(nb.float32[:, :]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 
 
-numba_v2v_float_wrapper = nb.njit(nb.float32[:](nb.float32[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+numba_v2v_float_wrapper = nb.njit([nb.float32[:](nb.float32[:]),
+                                   nb.float64[:](nb.float64[:])], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 
 numba_v2v_int_wrapper = nb.njit(nb.int64[:](nb.float32[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 
@@ -16,10 +17,15 @@ numba_v2v_int_wrapper = nb.njit(nb.int64[:](nb.float32[:]), cache= os.environ.ge
 numba_v2v_wrapper = nb.njit([nb.float32[:](nb.float32[:]),
                              nb.float32[:](nb.int64[:]),
                              nb.float32[:](nb.int32[:]),
+                             nb.float64[:](nb.float64[:]),
                              nb.int64[:](nb.int64[:])], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 
 numba_update_adam = nb.njit(nb.types.Tuple((nb.float32[:], nb.float32[:]))(nb.float32[:], nb.float32, nb.float32[:], nb.int64),
     cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+
+nb.njit(nb.float32[:](nb.float32[:], nb.float32), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+def multiply(vec, val):
+    return vec * val
 
 @numba_v2v_float_wrapper
 def foo(x):
@@ -40,7 +46,7 @@ def log_normalize(x):
 
 @nb.njit
 def numba_randomchoice_w_prob(prob):
-    assert np.abs(np.sum(prob) - 1.0) < 1e-9
+    assert np.abs(np.sum(prob) - 1.0) < 1e-5
     rd = np.random.rand()
     res = 0
     sum_p = prob[0]
@@ -60,5 +66,5 @@ def softmax(x):
 
 @numba_v2v_float_wrapper
 def sigmoid(x):
-    x = np.clip(x, -20, 20).astype(np.float32)
-    return np.where(x >= ZERO, ONE / (ONE + np.exp(-x)), np.exp(x) / (ONE + np.exp(x)))
+    x = np.clip(x, -20, 20)
+    return np.where(x >= ZERO, ONE / (ONE + np.exp(-x)), np.exp(x) / (ONE + np.exp(x))).astype(x.dtype)

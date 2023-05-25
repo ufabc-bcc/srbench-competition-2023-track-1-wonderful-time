@@ -1,12 +1,19 @@
 from typing import List
-from sympy import Expr, Piecewise, Float
+from sympy import Expr, Piecewise
 from .node import Node
 import numpy as np
-from ...utils.functional import numba_operator_wrapper
+import numba as nb
+from ...utils.functional import numba_operator_wrapper, ONE, ZERO, numba_v2v_float_wrapper
+import os 
 
 @numba_operator_wrapper
 def relu(X):
-    return np.maximum(np.ravel(X), 0)
+    return np.maximum(np.ravel(X), ZERO)
+
+@nb.njit(nb.float32[:, :](nb.float32[:, :]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
+def calculate_dx(operands):
+    return np.where(operands > ZERO, ONE, ZERO)
+
 
 class Relu(Node):
     is_nonlinear = True
@@ -21,7 +28,9 @@ class Relu(Node):
         
         #calculate d
         self.dW = out
-        self.dX =  np.where(operands > 0, 1.0, 0.0)
+        self.dX = calculate_dx(operands)
+        
+        assert self.dX.dtype == np.float32
         assert self.dX.ndim == 2, self.dX.ndim
 
         

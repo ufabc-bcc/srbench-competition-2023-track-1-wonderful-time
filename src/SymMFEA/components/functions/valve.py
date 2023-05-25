@@ -2,7 +2,7 @@ from typing import List
 from sympy import Expr, sign as Sign, Piecewise, exp as Exp
 from .node import Node
 import numpy as np
-from ...utils.functional import numba_operator_with_grad_wrapper, numba_v2v_float_wrapper, ONE
+from ...utils.functional import numba_operator_with_grad_wrapper, numba_v2v_float_wrapper, ONE, multiply
 
 
 @numba_v2v_float_wrapper
@@ -35,7 +35,10 @@ class Valve(Node):
         
         
         self.dW = out
-        self.dX = self.value * self.dX
+        
+        self.dX = multiply(self.dX, self.value)
+        
+        assert self.dX.dtype == np.float32
         assert self.dX.ndim == 2, self.dX.ndim
         
         
