@@ -77,8 +77,15 @@ class ADAM(GradOpimizer):
         self.eps = eps 
 
     def backprop(self, tree: Tree, dY: float, profile: dict, **kwargs):
-        stack = []
+        # stack = []
+        if tree.length <= 1:
+            return profile
+        
         root = tree.nodes[-1]
+        stack = np.empty((tree.length, root.dX.shape[1]), dtype = np.float64)
+        
+        
+        
         
         assert isinstance(profile, dict)
         if len(profile) == 0:
@@ -89,22 +96,22 @@ class ADAM(GradOpimizer):
         
         #update bias
         tree.set_bias(caculate_bias(tree.bias, dY, profile['lr']))
-        
-        
-        bp = root.backprop(dY)
-        
+        stack[:root.arity] = root.backprop(dY)
+        top = root.arity - 1
+                
         if tree.length == 1:
             return profile
         
-        stack.extend(bp)
             
         for i in range(2, len(tree.nodes) + 1):
             node = tree.nodes[-i]
-            dY = stack.pop()  
+            dY = stack[top]
+            top -= 1
             dY = node.backprop(dY)
-            
+              
             if not node.is_leaf:
-                stack.extend(dY)
+                stack[top + 1 : top + 1 + node.arity] = dY
+                top += node.arity
         
         #compute gradient 
         dW = self.compute_gradient(tree)

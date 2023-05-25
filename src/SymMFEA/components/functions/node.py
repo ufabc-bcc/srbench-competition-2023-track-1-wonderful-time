@@ -34,7 +34,7 @@ class Node:
         
         
         self.dW:np.ndarray
-        self.dX:List[np.ndarray]
+        self.dX:np.ndarray
         
         self.tree = None
         self.compiled: bool = False
