@@ -24,10 +24,10 @@ Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
 X, y = Z[:, :-1], Z[:, -1]
 
 
-X = X.astype(np.float64)
+X = X.astype(np.float32)
 
 
-y = y.astype(np.float64) 
+y = y.astype(np.float32) 
 
 print(X.shape)
 X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)

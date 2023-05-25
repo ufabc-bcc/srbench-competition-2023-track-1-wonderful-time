@@ -27,8 +27,8 @@ tree1 = Tree(nodes=tree.nodes, deepcopy= True, compile= True)
 tree2 = Tree(nodes=tree.nodes, deepcopy= True, compile= True)
 tree3 = Tree(nodes=tree.nodes, deepcopy= True, compile= True)
 X, y = make_classification(n_features=3, n_redundant=0, n_repeated=0, n_informative=3)
-X = X.astype(np.float64)
-y = y.astype(np.float64) 
+X = X.astype(np.float32)
+y = y.astype(np.float32) 
 
 
 # logloss = MSE()

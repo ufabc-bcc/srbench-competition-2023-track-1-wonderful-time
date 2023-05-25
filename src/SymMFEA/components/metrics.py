@@ -4,7 +4,7 @@ import numba as nb
 from sklearn.metrics import r2_score
 from ..utils.functional import sigmoid, EPS
 import os
-metric_jit = nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
+metric_jit = nb.njit([nb.float32(nb.float32[:], nb.float32[:]),
                       ], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 
 def mse(y: np.ndarray, y_hat: np.ndarray):

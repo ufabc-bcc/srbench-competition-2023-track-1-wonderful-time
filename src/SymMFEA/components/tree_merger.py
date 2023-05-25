@@ -56,7 +56,7 @@ class TreeMerger:
                 objs.append([met, -length])
                 
         for i in range(len(inds)):
-            coef = np.zeros(len(inds), dtype= np.float64)
+            coef = np.zeros(len(inds), dtype= np.float32)
             coef[i] = 1
             
             coefs.append(coef)

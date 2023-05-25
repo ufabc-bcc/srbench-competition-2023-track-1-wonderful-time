@@ -16,7 +16,7 @@ class TestLost():
         (-1.9, 0.13010847436292233),
     ])
     def test_sigmoid(self, x:float, y:float):
-        y_hat = sigmoid(np.array([x], dtype=np.float64)).item()
+        y_hat = sigmoid(np.array([x], dtype=np.float32)).item()
         assert abs(y - y_hat) < 1e-5
         
         

@@ -19,8 +19,8 @@ print(f'Tree Length: {len(nodes)}')
 initWM((1000, len(nodes)))
 tree = Tree(nodes=nodes, compile = True)
 X, y = make_classification(n_features=3, n_samples= 500, n_redundant=0, n_repeated=0, n_informative=3)
-X = X.astype(np.float64)
-y = y.astype(np.float64) 
+X = X.astype(np.float32)
+y = y.astype(np.float32) 
 optimizer = ADAM(lr=5e-3)
 
 def benchmark():

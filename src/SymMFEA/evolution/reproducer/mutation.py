@@ -178,8 +178,8 @@ class NodeMutation(Mutation):
         ...
     
     def __call__(self, parent: Individual):
-        prob = np.ones(parent.genes.length, dtype = np.float64)
-        is_leaf = np.array([not node.is_leaf for node in parent.genes.nodes], dtype = np.float64)
+        prob = np.ones(parent.genes.length, dtype = np.float32)
+        is_leaf = np.array([not node.is_leaf for node in parent.genes.nodes], dtype = np.float32)
         prob = normalize_norm1(prob * is_leaf)
         node = parent.genes.nodes[
             numba_randomchoice_w_prob(prob)
@@ -213,7 +213,7 @@ class MutationList(Mutation):
         if prob is None:
             prob = np.full(len(mutations), 1 / len(mutations))
         else:
-            prob = np.array(prob, dtype = np.float64)
+            prob = np.array(prob, dtype = np.float32)
         
         assert np.abs(np.sum(prob)) - 1 < 1e-9
         

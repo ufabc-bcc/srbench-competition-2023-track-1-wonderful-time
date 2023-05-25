@@ -4,15 +4,15 @@ import numba as nb
 from sympy import Expr
 import os
 from ...utils.functional import numba_v2v_float_wrapper
-@nb.njit(nb.float64[:, :](nb.float64[:,:], nb.float64[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
+@nb.njit(nb.float32[:, :](nb.float32[:,:], nb.float32[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
 def matrix_vec_prod(m, v):
-    result = np.empty_like(m, dtype = np.float64)
+    result = np.empty_like(m, dtype = np.float32)
     for i in nb.prange(m.shape[0]):
         result[i] = m[i] * v
     return result
 
-@nb.njit([nb.float64(nb.float64[:], nb.float64[:]),
-          nb.float64(nb.float64, nb.float64[:]),], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
+@nb.njit([nb.float32(nb.float32[:], nb.float32[:]),
+          nb.float32(nb.float32, nb.float32[:]),], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
 def calculate_dW(dW, dY):
     return np.mean(dW * dY) 
 

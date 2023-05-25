@@ -24,10 +24,10 @@ X, y = Z[:, :-1], Z[:, -1]
 # X, y = load_diabetes(return_X_y= True)
 
 
-X = X.astype(np.float64)
+X = X.astype(np.float32)
 
 
-y = y.astype(np.float64) 
+y = y.astype(np.float32) 
 
 print(X.shape)
 train_size = int(0.8 * X.shape[0])

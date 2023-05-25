@@ -2,13 +2,13 @@ from typing import List
 from sympy import Expr, sign as Sign, Piecewise, exp as Exp
 from .node import Node
 import numpy as np
-from ...utils.functional import numba_operator_with_grad_wrapper, numba_v2v_float_wrapper
+from ...utils.functional import numba_operator_with_grad_wrapper, numba_v2v_float_wrapper, ONE
 
 
 @numba_v2v_float_wrapper
 def sigmoid(x):
     z = np.exp(np.sign(-x) * x)
-    z = np.where(x < 0, z, 1) / (1 + z)
+    z = np.where(x < 0, z, ONE) / (ONE + z)
     return z
 
 @numba_operator_with_grad_wrapper
@@ -17,7 +17,7 @@ def valve(operands):
     switch = sigmoid(operands[0])
     out = switch * operands[1]
     
-    dX = np.empty((2, operands.shape[1]), dtype = np.float64)
+    dX = np.empty((2, operands.shape[1]), dtype = np.float32)
     dX[0] = out * (1 - switch)
     dX[1] = switch
     return out, dX

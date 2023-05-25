@@ -20,7 +20,7 @@ class Sum(Node):
     def __call__(self, operands: np.ndarray, **kwargs):
         out =  nbsum(operands)
         self.dW = out
-        self.dX = np.full((operands.shape[0], operands.shape[1]), self.value, dtype= np.float64)
+        self.dX = np.full((operands.shape[0], operands.shape[1]), self.value, dtype= np.float32)
         assert self.dX.ndim == 2, self.dX.ndim
         
         
