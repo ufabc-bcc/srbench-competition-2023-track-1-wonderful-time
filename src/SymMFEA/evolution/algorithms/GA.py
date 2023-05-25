@@ -207,7 +207,7 @@ class GA:
                     finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
                 )
                 #NOTE: not so pretty code
-                offspring_pool.optimized.handle_result([finetune_result], optimize_jobs= [(candidates[i].task, candidates[i])])
+                offspring_pool.optimized.handle_result([finetune_result], optimize_jobs= [(candidates[i].task, candidates[i])], multiprocessor= self.multiprocessor)
 
                 candidates[i].run_check(metric= metric)
                 progress.update(candidates[i].main_objective, idx= i, reverse= reverse)

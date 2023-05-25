@@ -35,9 +35,9 @@ class Optimized(OffspringsPool):
         self.compact= compact
 
     @timed
-    def handle_result(self, result, optimize_jobs):
+    def handle_result(self, result, optimize_jobs, multiprocessor):
         inds = []
-        metrics, loss, train_steps, profiles = [
+        metrics, loss, train_steps, profiles, times = [
             [rs[i] for rs in result] for i in range(len(result[0])) 
         ]
         for metric, job, profile in zip(metrics, optimize_jobs, profiles):
@@ -49,17 +49,18 @@ class Optimized(OffspringsPool):
             ind.optimizer_profile = profile
             inds.append(ind)
             
-        return inds, sum(train_steps)
+        return inds, sum(train_steps), sum(times)
     
     @timed
     def create_append_callback(self, optimize_jobs, multiprocessor):
         def wrapper(result):
-            inds, train_steps = self.handle_result(result, optimize_jobs= optimize_jobs)
+            inds, train_steps, times = self.handle_result(result, optimize_jobs= optimize_jobs, multiprocessor= multiprocessor)
             self.append(inds)
-            with multiprocessor.in_queue.get_lock(), multiprocessor.processed.get_lock(), multiprocessor.train_steps.get_lock():
+            with multiprocessor.in_queue.get_lock(), multiprocessor.processed.get_lock(), multiprocessor.train_steps.get_lock(), multiprocessor.times.get_lock():
                 multiprocessor.train_steps.value += train_steps
                 multiprocessor.in_queue.value -= len(inds)
                 multiprocessor.processed.value += len(inds)
+                multiprocessor.times.value += times
         
         return wrapper
     

@@ -94,6 +94,7 @@ class SMP(GA):
                                     train_steps= self.multiprocessor.train_steps.value,
                                     in_queue= self.multiprocessor.in_queue.value,
                                     processed= self.multiprocessor.processed.value,
+                                    multiprocessor_time= self.multiprocessor.times.value,
                                     )
             
         
