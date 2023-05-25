@@ -3,7 +3,7 @@ import numpy as np
 import numba as nb
 from sympy import Expr
 import os
-from ...utils.functional import numba_v2v_float_wrapper
+from ...utils.functional import ONE
 @nb.njit(nb.float32[:, :](nb.float32[:,:], nb.float32[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None, nogil=True)
 def matrix_vec_prod(m, v):
     result = np.empty_like(m, dtype = np.float32)
@@ -30,7 +30,7 @@ class Node:
         self.parent:int
         self.arity:int = arity
         
-        self.value:float = 1
+        self.value:float = ONE
         
         
         self.dW:np.ndarray

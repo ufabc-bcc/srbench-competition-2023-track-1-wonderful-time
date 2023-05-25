@@ -2,11 +2,12 @@ from sympy import Expr, Float
 from .node import Node
 import numpy as np
 from typing import List
+from ...utils.functional import ONE
 
 class Constant(Node):
     def __init__(self, null = False,**kwargs):
         super().__init__(arity = 0)
-        self.dW = 1 
+        self.dW = ONE 
         self.null = null
     
     def __str__(self) -> str:

@@ -2,7 +2,7 @@ from typing import List
 from sympy import Expr, tanh
 from .node import Node
 import numpy as np
-from ...utils.functional import numba_operator_wrapper
+from ...utils.functional import numba_operator_wrapper, ONE
 
 @numba_operator_wrapper
 def nbtanh(X):
@@ -20,7 +20,9 @@ class Tanh(Node):
         out = nbtanh(X)
         
         self.dW = out
-        self.dX = np.expand_dims(1 - out ** 2, axis = 0)
+        self.dX = np.expand_dims(ONE - out ** 2, axis = 0)
+        
+        assert self.dX.dtype == np.float32
         assert self.dX.ndim == 2, self.dX.ndim
         
         

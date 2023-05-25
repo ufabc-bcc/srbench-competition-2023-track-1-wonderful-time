@@ -1,12 +1,14 @@
 from sympy import Expr
 from .node import Node
 import numpy as np
-from ...utils.functional import numba_operator_wrapper
+from ...utils.functional import numba_operator_wrapper, multiply
 from typing import List
 
 @numba_operator_wrapper
 def prod(operands): 
     return operands[0] * operands[1]
+
+
 
 class Prod(Node):
     def __init__(self, **kwargs):
@@ -20,7 +22,9 @@ class Prod(Node):
         self.dW = out
         
         
-        self.dX = self.value * operands[::-1]
+        self.dX = multiply(operands[::-1], self.value)
+        
+        assert self.dX.dtype == np.float32
         assert self.dX.ndim == 2, self.dX.ndim
         
         

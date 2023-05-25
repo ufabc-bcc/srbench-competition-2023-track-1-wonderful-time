@@ -23,9 +23,11 @@ class Greater(Node):
         out = nb_greater(X)
         
         self.dW = out
-        self.dX = np.zeros_like(X)
+        self.dX = np.zeros_like(X, dtype = np.float32)
+        
+        
         assert self.dX.ndim == 2, self.dX.ndim
-                
+        assert self.dX.dtype == np.float32
         
             
 
