@@ -144,7 +144,6 @@ class GA:
         self.moo = moo or compact
         self.terminated: bool = False
         
-        
 
         #init multiprocessor
         max_tree_legnth = tree_config.get('max_length')
