@@ -21,7 +21,7 @@ class SMP(GA):
     def wait(self):
         expected_inqueue = self.expected_generations_inqueue * self.offspring_size * sum(self.nb_inds_each_task)
         with self.multiprocessor.in_queue.get_lock():
-            time.sleep(max((self.multiprocessor.in_queue.value - expected_inqueue) / 1000, 0))
+            time.sleep(max((self.multiprocessor.in_queue.value - expected_inqueue) / 5000, 0.1))
         
     def generation_step(self, population: Population, generation: int):
         
@@ -31,11 +31,12 @@ class SMP(GA):
             
             #create new individuals
             offsprings = self.reproducer(population)
-            
+        
+        
             #so far new_born is not necessary because reproducer is not concurrent
-            
             #append to new_born pool
             offspring_pool.new_born.append(offsprings)
+            
         else:
             #append to new_born pool
             offspring_pool.new_born.append(population.all())
@@ -84,7 +85,7 @@ class SMP(GA):
             #update info to display
             population.collect_best_info()
             
-            #prevent evolve to fast without optimization
+            # #prevent evolve to fast without optimization
             self.wait()
             
             #update process bar
@@ -117,12 +118,6 @@ class SMP(GA):
         
         # prob choose first parent
         self.p_choose_father = np.full(self.num_sub_tasks, 1 / self.num_sub_tasks) 
-        
-        
-        # count_eval_stop: nums evals not decrease factorial cost
-        # maxcount_es: max of count_eval_stop
-        # if count_eval[i] == maxcount_es: p_choose_father[i] == 0
-        self.count_eval_stop = [0] * self.num_sub_tasks
         
         
         # Initialize memory smp

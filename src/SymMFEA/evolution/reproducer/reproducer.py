@@ -1,8 +1,8 @@
 
 from .crossover import *
 from .mutation import *
-from ..population import Population, SubPopulation
-from ...utils.functional import numba_randomchoice
+from ..population import Population
+from ...utils.functional import normalize_norm1
 from ...utils.timer import *
 
 #NOTE: this reproducer call is outdated
@@ -70,6 +70,8 @@ class SMPManager:
         # smp without const_val of host
         self.sum_not_host = 1 - 0.1 - p_const_intra - min_mutation_rate
         self.SMP_not_host: np.ndarray = ((np.zeros((nb_tasks + 1, )) + self.sum_not_host)/(nb_tasks + 1))
+        
+        self.SMP_not_host: np.ndarray = np.full(nb_tasks + 1, self.sum_not_host / (nb_tasks + 1), dtype= np.float64) 
         self.SMP_not_host[self.idx_host] += self.sum_not_host - np.sum(self.SMP_not_host)
 
         smp_return : np.ndarray = np.copy(self.SMP_not_host)
@@ -102,8 +104,7 @@ class SMPManager:
             smp_return[-1] += self.min_mutation_rate
             smp_return += self.lower_p
             self.SMP_include_host = smp_return
-
-        return self.SMP_include_host
+            
 
 class SMP_Reproducer(Reproducer):
     def __init__(self, crossover: Crossover, mutation: Mutation, **params):
@@ -113,6 +114,19 @@ class SMP_Reproducer(Reproducer):
     
     def select_mutation_parent(self, population: Population, skf: int):
         return population.ls_subPop[skf].__getRandomItems__(2, False)
+    
+    def update_choose_father(self, Delta_choose_father):
+        '''
+        Delta_choose_father > 0 
+        '''
+
+        
+        Delta_choose_father = np.array(Delta_choose_father)
+        if np.sum(Delta_choose_father) > 0:
+            delta = normalize_norm1(Delta_choose_father) * 0.1 
+            self.p_choose_father = normalize_norm1(self.p_choose_father + delta)
+        else:
+            self.p_choose_father = softmax(self.p_choose_father * 1.5)
     
     
     def select_crossover_parent(self, population: Population):
@@ -181,24 +195,32 @@ class SMP_Reproducer(Reproducer):
     @timed    
     def update_smp(self, population: Population, offsprings: List[Individual]):
         Delta:List[List[float]] = np.zeros((population.num_sub_tasks, population.num_sub_tasks + 1)).tolist()
+        Delta_choose_father:List[float] = []
         count_Delta: List[List[float]] = np.zeros((population.num_sub_tasks, population.num_sub_tasks + 1)).tolist()  
         num_task = population.num_sub_tasks
         
         for skf, offsprings_skf in enumerate(offsprings):
+            best_objective = -100000000000000
             for o in offsprings_skf:                
                 idx_target_smp = o.parent_profile.get('idx_target_smp')
                 
                 parent_objective = o.parent_profile.get('parent_objective')[idx_target_smp]
                                     
-                d = (o.main_objective - parent_objective[0]) / (parent_objective[0] ** 2 + 1e-50)
+                d = (o.main_objective - parent_objective[0]) / (parent_objective[0] + 1e-50)
 
-                if o.parent_profile.get('born_way') == 'crossover':
-                    Delta[skf][o.parent_profile.get('parent_skf')[idx_target_smp]] += max([d, 0])**2
-                    count_Delta[skf][o.parent_profile.get('parent_skf')[idx_target_smp]] += 1
-                else:
-                    Delta[skf][num_task] += max([d, 0])**2
-                    count_Delta[skf][num_task] += 1
-                    
+                
+                source_task = o.parent_profile.get('parent_skf')[idx_target_smp] if o.parent_profile.get('born_way') == 'crossover' else num_task
+        
+                Delta[skf][source_task] += max([d, 0])**2
+                count_Delta[skf][source_task] += 1
+                
+                best_objective = max(best_objective, o.main_objective)
+            
+            d = (best_objective - population[skf].max_main_objective) / (population[skf].max_main_objective + 1e-50)
+            Delta_choose_father.append(max(d, 0))
+                
+        
+        self.update_choose_father(Delta_choose_father)        
 
         for i, smp in enumerate(self.smp):
             smp.update_smp(Delta_task= Delta[i], count_Delta_tasks= count_Delta[i])
