@@ -4,9 +4,14 @@ from ..evolution.task import SubTask
 from ..utils.timer import timed
 import os
 import traceback
-def execute_one_job(args: Tuple[SubTask, List]):
+import time 
+
+def execute_one_job(args: Tuple[SubTask, List]):    
+    s = time.time()
     task, ind= args
-    return task.task.trainer.fit(ind, steps= task.task.steps_per_gen, data = task.data)
+    result = task.task.trainer.fit(ind, steps= task.task.steps_per_gen, data = task.data)
+    one_job_time = time.time() - s
+    return (*result, one_job_time)
 
 
 def custom_error_callback(error):
@@ -19,6 +24,7 @@ class Multiprocessor:
         self.chunksize= chunksize
         self.train_steps = mp.Value('L', 0)
         self.in_queue= mp.Value('L', 0)
+        self.times = mp.Value('d', 0)
         self.processed = mp.Value('L', 0)
     
     @property

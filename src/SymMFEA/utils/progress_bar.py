@@ -35,12 +35,12 @@ class GAProgressBar(ProgressBar):
     def __init__(self, num_iters: int, metric_name:str = 'Obj', **kwargs) -> None:
         super().__init__(num_iters= num_iters, metric_name= metric_name, dsc = 'GA progress')
     
-    def update(self, objectives: List[int], reverse = False, train_steps:int= 0, in_queue: int =0, processed:int = 0):
+    def update(self, objectives: List[int], reverse = False, train_steps:int= 0, in_queue: int =0, processed:int = 0, multiprocessor_time:float =0):
         argmax = np.argmax(objectives)
         
         objectives = objectives if not reverse else [-o for o in objectives]
         
-        display_str = colored('Train steps: {:,}, In queue: {:,}, Processed: {:,};'.format(train_steps, in_queue, processed), 'red')
+        display_str = colored('Train steps: {:,}, In queue: {:,}, Processed: {:,}, Processor time: {:.2f} s;'.format(train_steps, in_queue, processed, multiprocessor_time), 'red')
         
         
         display_str += f' {self.metric_name}: '
