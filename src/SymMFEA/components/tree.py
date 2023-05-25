@@ -11,14 +11,14 @@ from ..components.column_sampler import ColumnSampler
 import os
 import numba as nb
 
-nb.njit(nb.types.Tuple((nb.float64, nb.float64))(nb.float64, nb.float64, nb.int64, nb.float64[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+nb.njit(nb.types.Tuple((nb.float32, nb.float32))(nb.float32, nb.float32, nb.int64, nb.float32[:]), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def update_node_stats(old_mean, old_var, old_samples, X):	
     new_samples = X.shape[0] + old_samples	
     mean = (old_mean * old_samples + X.sum()) / new_samples	
     var = (old_var * old_samples + X.var() * X.shape[0]) / new_samples	
     return mean, var
 
-nb.njit(nb.float64[:](nb.float64[:], nb.float64), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+nb.njit(nb.float32[:](nb.float32[:], nb.float32), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def multiply(vec, val):
     return vec * val
 
@@ -42,9 +42,9 @@ class Tree:
             self.position = next(weight_manager.WM)
             self.compile(init_weight= init_weight)
         else:
-            self._W = np.array([node.value for node in self.nodes], dtype= np.float64)
-            self._mean = np.zeros(self.length, dtype = np.float64)
-            self._var = np.zeros(self.length, dtype = np.float64)
+            self._W = np.array([node.value for node in self.nodes], dtype= np.float32)
+            self._mean = np.zeros(self.length, dtype = np.float32)
+            self._var = np.zeros(self.length, dtype = np.float32)
             self._bias = 0
             
         self.cached_expression: Expr = None
@@ -138,7 +138,7 @@ class Tree:
         y: output
         '''
         #init to prevent multiple allocate
-        stack = np.empty((self.length, X.shape[0]), dtype = np.float64)
+        stack = np.empty((self.length, X.shape[0]), dtype = np.float32)
         top = 0
         
         W = self.W 
@@ -295,7 +295,7 @@ class Tree:
         W = self.W
         
         if init_weight:
-            W[:] = np.ones(len(self.nodes), dtype= np.float64)
+            W[:] = np.ones(len(self.nodes), dtype= np.float32)
         else:
             for i, node in enumerate(self.nodes):
                 W[i] = node.value

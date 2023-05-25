@@ -22,7 +22,7 @@ class AQ(Node):
     def __call__(self, operands: np.ndarray, **kwargs):
         out =  aq(operands)
         self.dW = out
-        self.dX = np.empty((2, operands.shape[1]), dtype = np.float64)
+        self.dX = np.empty((2, operands.shape[1]), dtype = np.float32)
         self.dX[0] = self.value / np.sqrt(operands[1] ** 2 + 1)
         self.dX[1] = - self.value * operands[0] * operands[1] / (1 + operands[1] ** 2) ** 1.5
         

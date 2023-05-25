@@ -65,7 +65,7 @@ class SubTreeCrossover(Crossover):
                         
         #want it as long as possible
         #also want it to have the same sign with the target
-        candidates_weight = softmax(np.array(candidates_weight, dtype = np.float64) * np.sign(pa.genes.nodes[tar_point].value))
+        candidates_weight = softmax(np.array(candidates_weight, dtype = np.float32) * np.sign(pa.genes.nodes[tar_point].value))
         
         src_point = candidates[
             numba_randomchoice_w_prob(

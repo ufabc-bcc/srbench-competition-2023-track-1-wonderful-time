@@ -17,7 +17,7 @@ class Constant(Node):
     
     def __call__(self, X, **kwargs):
         #make shape consistent
-        out = np.ones(X.shape[0], dtype = np.float64)
+        out = np.ones(X.shape[0], dtype = np.float32)
         
             
         return out        

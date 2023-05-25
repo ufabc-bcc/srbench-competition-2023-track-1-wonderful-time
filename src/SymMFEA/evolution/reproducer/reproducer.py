@@ -71,7 +71,7 @@ class SMPManager:
         self.sum_not_host = 1 - 0.1 - p_const_intra - min_mutation_rate
         self.SMP_not_host: np.ndarray = ((np.zeros((nb_tasks + 1, )) + self.sum_not_host)/(nb_tasks + 1))
         
-        self.SMP_not_host: np.ndarray = np.full(nb_tasks + 1, self.sum_not_host / (nb_tasks + 1), dtype= np.float64) 
+        self.SMP_not_host: np.ndarray = np.full(nb_tasks + 1, self.sum_not_host / (nb_tasks + 1), dtype= np.float32) 
         self.SMP_not_host[self.idx_host] += self.sum_not_host - np.sum(self.SMP_not_host)
 
         smp_return : np.ndarray = np.copy(self.SMP_not_host)

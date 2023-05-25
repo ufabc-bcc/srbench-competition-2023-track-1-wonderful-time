@@ -1,13 +1,13 @@
 from ..tree import Tree
 import numpy as np
-from ...utils.functional import log_normalize, numba_update_adam
+from ...utils.functional import log_normalize, numba_update_adam, ONE
 import numba as nb
 import os
 
 class GradOpimizer:
     def __init__(self, lr: float = 1e-2, weight_decay: float=0):
-        self.lr = lr 
-        self.weight_decay = weight_decay
+        self.lr = np.float32(lr)
+        self.weight_decay = np.float32(weight_decay)
     
         
     def backprop(self, tree: Tree, dY: float, **kwargs):
@@ -38,7 +38,7 @@ class GradOpimizer:
         return {}
     
     def compute_gradient(self, tree):
-        dW = log_normalize(tree.dW * (1 + self.weight_decay))
+        dW = log_normalize(tree.dW * (ONE + self.weight_decay))
         return dW
     
 
@@ -46,23 +46,23 @@ class GradOpimizer:
 
 @numba_update_adam
 def update_m(m, beta, g, t):
-    m = m * beta + (1 - beta) * g 
-    m_hat = m / (1 - np.power(beta, t))
+    m = m * beta + (ONE - beta) * g 
+    m_hat = m / (ONE - np.power(beta, t))
     return m, m_hat
     
 @numba_update_adam
 def update_v(v, beta, g, t):
-    v = v * beta + (1 - beta) * g * g  
-    v_hat = v / (1 - np.power(beta, t))
+    v = v * beta + (ONE - beta) * g * g  
+    v_hat = v / (ONE - np.power(beta, t))
     return v, v_hat
 
 
-@nb.njit(nb.float64(nb.float64, nb.float64[:], nb.float64),
+@nb.njit(nb.float32(nb.float32, nb.float32[:], nb.float32),
     cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def caculate_bias(b, dY, lr):
     return b - np.mean(dY) * lr
 
-@nb.njit(nb.float64[:](nb.float64[:], nb.float64, nb.float64[:], nb.float64[:], nb.float64),
+@nb.njit(nb.float32[:](nb.float32[:], nb.float32, nb.float32[:], nb.float32[:], nb.float32),
     cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def caculate_W(W, lr, m_hat, v_hat, eps):
     return W - lr * m_hat / (np.sqrt(v_hat) + eps)
@@ -70,10 +70,9 @@ def caculate_W(W, lr, m_hat, v_hat, eps):
 
 class ADAM(GradOpimizer):
     def __init__(self, lr: float = 1e-2, betas=(0.9, 0.999), eps: float =1e-08, weight_decay: float = 0):
-        self.lr = lr
-        self.weight_decay = weight_decay
-        self.betas1:float = betas[0]
-        self.betas2:float = betas[1]
+        super(ADAM, self).__init__(lr= lr, weight_decay=weight_decay)
+        self.betas1:float = np.float32(betas[0])
+        self.betas2:float = np.float32(betas[1])
         self.eps = eps 
 
     def backprop(self, tree: Tree, dY: float, profile: dict, **kwargs):
@@ -82,7 +81,7 @@ class ADAM(GradOpimizer):
             return profile
         
         root = tree.nodes[-1]
-        stack = np.empty((tree.length, root.dX.shape[1]), dtype = np.float64)
+        stack = np.empty((tree.length, root.dX.shape[1]), dtype = np.float32)
         
         
         

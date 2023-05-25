@@ -13,7 +13,7 @@ def create_shared_np(shape: Iterable[int], val: Union[float, np.array]= 0.0, dty
         shape = (shape, )
         
     if dtype is None:
-        dtype = ctypes.c_double 
+        dtype = ctypes.c_float 
     
     num_blocks = 1
     for s in shape:

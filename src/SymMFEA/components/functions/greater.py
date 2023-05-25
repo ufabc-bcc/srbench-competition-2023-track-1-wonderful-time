@@ -1,12 +1,12 @@
 from sympy import Expr, Piecewise
 from .node import Node
 import numpy as np
-from ...utils.functional import numba_operator_wrapper
+from ...utils.functional import numba_operator_wrapper, ONE
 from typing import List
 
 @numba_operator_wrapper
 def nb_greater(x):
-    return np.where(x[0] > x[1], 1.0, 0.0)
+    return np.where(x[0] > x[1], ONE, np.float32(0.0))
 
 
 
