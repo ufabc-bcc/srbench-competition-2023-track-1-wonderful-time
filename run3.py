@@ -28,13 +28,12 @@ X, y = Z[:, :-1], Z[:, -1]
 
 X = X.astype(np.float64)
 
+
 y = y.astype(np.float64) 
 
 print(X.shape)
 train_size = int(0.8 * X.shape[0])
 X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
-
-
 
 
 
@@ -55,9 +54,9 @@ lnr_time = time.time() - gbr_time - xgb_time - s
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': 100,
-    'max_depth': 8,
-    'num_columns': 1,
+    'max_length': [50]* 2 + [30] * 2 + [7] * 5 ,
+    'max_depth': [6] * 2 + [5] * 2 + [3] * 5,
+    'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
 
 crossover = SubTreeCrossover()
@@ -65,12 +64,12 @@ mutation = MutationList(
     [
     VariableMutation(),
      GrowTreeMutation(),
-    #  PruneMutation()
+     PruneMutation()
      ]
 )
 
 loss = MSE()
-optimizer = ADAM(1e-2, weight_decay= 0)
+optimizer = ADAM(1e-2, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -83,35 +82,34 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
-    'num_sub_task': 6,
-    'min_mutattion_rate': 0.1,
+    'num_sub_task': 9,
 }
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 20,
-    nb_inds_each_task= 300,
-    data_sample = 0.8,
-    nb_generations= 1000,
+    nb_inds_each_task= [15] * 4+ [30] * 5,
+    data_sample = 0.5,
+    nb_generations= 200,
+     
     test_size = 0.33,
-    nb_inds_min= 10,
-    finetune_steps= 200,
+    nb_inds_min= [10] * 4 + [15] * 5,
+    finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
-    num_workers= 40,
-    offspring_size= 1,
-    expected_generations_inqueue= 15,
+    num_workers= 32,
+    offspring_size= 3,
+    expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
     trainer_config= {
-        'early_stopping': 4,
+        'early_stopping': 5
     },
     **SMP_configs,
 )
 
 
 #===================================== Predict and display result ===========================
-print(xgb.feature_importances_)
 xgb_pred = xgb.predict(X_val)
 gbr_pred = gbr.predict(X_val)
 lnr_pred = lnr.predict(X_val)
