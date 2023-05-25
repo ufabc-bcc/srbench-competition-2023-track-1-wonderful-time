@@ -14,9 +14,11 @@ from termcolor import colored
 nodes = [
     Operand(0), Operand(1), Operand(2), Sum(arity= 3), Tanh(), Operand(0), Prod(), Log(), Operand(0), AQ(), Operand(1), Valve()
 ]
+
+print(f'Tree Length: {len(nodes)}')
 initWM((1000, len(nodes)))
 tree = Tree(nodes=nodes, compile = True)
-X, y = make_classification(n_features=3, n_redundant=0, n_repeated=0, n_informative=3)
+X, y = make_classification(n_features=3, n_samples= 500, n_redundant=0, n_repeated=0, n_informative=3)
 X = X.astype(np.float64)
 y = y.astype(np.float64) 
 optimizer = ADAM(lr=5e-3)

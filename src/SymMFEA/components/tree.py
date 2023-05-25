@@ -18,6 +18,10 @@ def update_node_stats(old_mean, old_var, old_samples, X):
     var = (old_var * old_samples + X.var() * X.shape[0]) / new_samples	
     return mean, var
 
+nb.njit(nb.float64[:](nb.float64[:], nb.float64), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+def multiply(vec, val):
+    return vec * val
+
 class Tree: 
     simplifications = [
         # ('expand', lambda tree: []),
@@ -147,7 +151,7 @@ class Tree:
                 
             
             else:
-                val = node(stack[top - node.arity : top], training= training) * W[i]
+                val = multiply(node(stack[top - node.arity : top], training= training), W[i])
                 top -= node.arity
                 stack[top] = val
                 
