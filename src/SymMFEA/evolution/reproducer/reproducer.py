@@ -4,6 +4,7 @@ from .mutation import *
 from ..population import Population
 from ...utils.functional import normalize_norm1
 from ...utils.timer import *
+import matplotlib.pyplot as plt
 
 #NOTE: this reproducer call is outdated
 class Reproducer:
@@ -127,6 +128,8 @@ class SMP_Reproducer(Reproducer):
             self.p_choose_father = normalize_norm1(self.p_choose_father + delta)
         else:
             self.p_choose_father = softmax(self.p_choose_father * 1.5)
+            
+        self.history_p_choose_father.append(self.p_choose_father)
     
     
     def select_crossover_parent(self, population: Population):
@@ -153,6 +156,7 @@ class SMP_Reproducer(Reproducer):
         super().update_population_info(**kwargs)
         self.smp = kwargs['smp']
         self.p_choose_father = kwargs['p_choose_father']
+        self.history_p_choose_father: List[np.ndarray] = [self.p_choose_father]
         
     @timed
     def __call__(self, population: Population):              
@@ -224,3 +228,46 @@ class SMP_Reproducer(Reproducer):
 
         for i, smp in enumerate(self.smp):
             smp.update_smp(Delta_task= Delta[i], count_Delta_tasks= count_Delta[i])
+            
+    
+    def render_smp(self, shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None):
+        
+        if title is None:
+            title = self.__class__.__name__
+            
+
+        if label_loc is None:
+            label_loc = 'lower center'
+
+        if figsize is None:
+            figsize = (6, 5)
+
+        fig = plt.figure(figsize= figsize, dpi = dpi)
+        fig.suptitle(title, size = 15)
+        fig.set_facecolor("white")
+        fig.subplots(1)
+
+        y_lim = (-0.1, 1.1)
+
+        
+        fig.axes[0].stackplot(
+            np.append(np.arange(0, len(self.p_choose_father), step), np.array([len(self.p_choose_father) - 1])),
+            [self.p_choose_father[
+                np.append(np.arange(0, len(self.p_choose_father), step), np.array([len(self.p_choose_father) - 1])), 
+                0, t] for t in range(self.num_sub_tasks + 1)],
+            labels = ['Task' + str(i + 1) for i in range(self.num_sub_tasks)] + ["mutation"]
+        )
+        # plt.legend()
+        fig.axes[0].set_title('P choose father')
+        fig.axes[0].set_xlabel('Generations')
+        fig.axes[0].set_ylabel("Probability")
+        fig.axes[0].set_ylim(bottom = y_lim[0], top = y_lim[1])
+
+
+        lines, labels = fig.axes[0].get_legend_handles_labels()
+        fig.tight_layout()
+        fig.legend(lines, labels, loc = label_loc, ncol = 1)
+        plt.show()
+        plt.savefig('P_choose_father.png')
+        if re_fig:
+            return fig

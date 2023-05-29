@@ -30,7 +30,6 @@ class Trainer:
         
         for step in pbar:
             step_loss = []
-            
             X, y = data.X_train, data.y_train
             y_hat = ind(X, training= True)
             dY, loss = self.loss(y, y_hat)
@@ -57,7 +56,12 @@ class Trainer:
         ind.run_check_stats()
         
 
-        return ind.best_metric, np.mean(step_loss), step + 1, ind.optimizer_profile
+        return {
+            'best_metric': ind.best_metric,
+            'loss': np.mean(step_loss),
+            'train_steps': step + 1, 
+            'profile': ind.optimizer_profile
+        }
         
     def update_learning_state(self, ind, metric: float):
         if self.metric.is_better(metric, ind.best_metric):

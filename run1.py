@@ -113,7 +113,7 @@ model.fit(
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 40,
-    offspring_size= 5,
+    offspring_size= 2,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 

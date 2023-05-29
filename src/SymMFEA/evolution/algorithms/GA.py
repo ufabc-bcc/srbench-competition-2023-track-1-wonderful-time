@@ -178,7 +178,12 @@ class GA:
 
 
             with GAProgressBar(num_iters=nb_generations, metric_name=str(metric)) as (self.progress, pbar):
+                #connect multiprocessor with offspring pool
+                offspring_pool.optimized.connect_input_source(self.multiprocessor.outqueue)
+                
+                
                 for generation in pbar:
+                    
                     self.generation_step(population, generation)
                     
                     
