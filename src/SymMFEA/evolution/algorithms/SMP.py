@@ -15,13 +15,16 @@ class SMP(GA):
     ranker_class = NonDominatedRanker
     reproducer_class = SMP_Reproducer
     selector_class = Selector
+    '''
+    pass_down_params: attribute to pass down to reproducer
+    '''
     pass_down_params: list = ['nb_terminals', "smp", 'p_choose_father']
     
     @timed
     def wait(self):
         expected_inqueue = self.expected_generations_inqueue * self.offspring_size * sum(self.nb_inds_each_task)
-        with self.multiprocessor.in_queue.get_lock():
-            time.sleep(max((self.multiprocessor.in_queue.value - expected_inqueue) / 5000, 0.1))
+        with self.multiprocessor.nb_inqueue.get_lock():
+            time.sleep(max((self.multiprocessor.nb_inqueue.value - expected_inqueue) / 5000, 0.1))
         
     def generation_step(self, population: Population, generation: int):
         
@@ -52,11 +55,12 @@ class SMP(GA):
             #submit optimization jobs to multiprocessor
             #optimized inds will be append to optimized pool
             optimize_jobs = offspring_pool.new_born.collect_optimize_jobs()
-            #create callback function to append offsprings when finish optimization
-            append_callback = offspring_pool.optimized.create_append_callback(optimize_jobs=optimize_jobs, multiprocessor= self.multiprocessor)
-            
-            self.multiprocessor.execute(optimize_jobs, append_callback, wait_for_result= generation == 0)
+            self.multiprocessor.submit_jobs(optimize_jobs)
         
+        
+        #first generation need to wait for result
+        if generation == 0:
+            offspring_pool.optimized.block_until_size_eq(len(optimize_jobs))
         
 
         #collect optimized offprings
@@ -92,7 +96,7 @@ class SMP(GA):
             self.update_process_bar(population, 
                                     reverse=not self.is_larger_better,
                                     train_steps= self.multiprocessor.train_steps.value,
-                                    in_queue= self.multiprocessor.in_queue.value,
+                                    nb_inqueue= self.multiprocessor.nb_inqueue.value,
                                     processed= self.multiprocessor.processed.value,
                                     multiprocessor_time= self.multiprocessor.times.value,
                                     )
@@ -130,6 +134,7 @@ class SMP(GA):
     def display_final_result(self, population:Population):
         super().display_final_result(population)
         self.render_smp()
+        self.reproducer.render_p_choose_father()
 
 
     def render_smp(self,  shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None):
