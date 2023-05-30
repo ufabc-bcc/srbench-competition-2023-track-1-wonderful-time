@@ -37,23 +37,21 @@ class OffspringsPool:
         self.size = 0    
     
             
-    @timed
     def collect(self):
         idx = self.ready_to_collect
         rs = self.pool[idx]
         self.ready_to_collect[idx] = 0
-        self.size -= len(rs)
+        # self.size -= len(rs)
         return rs
     
-    @timed
     def append(self, ind):
         if isinstance(ind, Iterable):
             idx = [i.position % POOL_SIZE for i in ind]
-            self.size += len(idx)
+            self.size = self.size + len(idx)
             
         else:
             idx = ind.position % POOL_SIZE 
-            self.size += 1
+            self.size = self.size + 1
             
         self.pool[idx] = ind
         self.ready_to_collect[idx] = 1 
@@ -69,7 +67,6 @@ class OffspringsPool:
         block until self.size == size
         '''
         while self.size != size:
-            print(self.size)
             time.sleep(0.1)
         
         

@@ -81,7 +81,7 @@ model.fit(
     steps_per_gen= 2,
     nb_inds_each_task= [15] * 4+ [30],
     data_sample = 0.5,
-    nb_generations= 5,
+    nb_generations= 50,
      
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15],
