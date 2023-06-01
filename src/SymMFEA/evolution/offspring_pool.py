@@ -18,7 +18,7 @@ def run_bg(inqueue: Queue, handle:Callable):
             rs = inqueue.get_nowait()
             
         except Empty:
-            time.sleep(0.1)
+            time.sleep(0.001)
             
         else:
             handle(*rs)
@@ -28,33 +28,44 @@ class Worker:
     def __init__(self, inqueue:Queue, handle: Callable) -> None:
         self.thread = threading.Thread(target= run_bg, args = (inqueue, handle))
         self.thread.start()
-        
 
-class OffspringsPool:
-    def __init__(self):
-        self.pool= np.empty(POOL_SIZE, dtype = object)
-        self.ready_to_collect = create_shared_np(POOL_SIZE, val=0, dtype= ctypes.c_bool)
-        self.size = 0    
+class PseudoLock:
+    def __enter__(*args, **kwargs):
+        ...
     
+    def __exit__(*args, **kwargs):
+        ... 
+class OffspringsPool:
+    def __init__(self, race_safe= False):
+        self.pool= np.empty(POOL_SIZE, dtype = object)
+        self.ready_to_collect = create_shared_np(POOL_SIZE, val=0, dtype= ctypes.c_bool, race_safe= False)
+        self.size = 0    
+        self.race_safe = race_safe
+        if self.race_safe:
+            self.lock = threading.Lock()
+        else:
+            self.lock = PseudoLock()
             
     def collect(self):
-        idx = self.ready_to_collect
-        rs = self.pool[idx]
-        self.ready_to_collect[idx] = 0
-        # self.size -= len(rs)
-        return rs
+        with self.lock:
+            idx = self.ready_to_collect
+            rs = self.pool[idx]
+            self.ready_to_collect[idx] = 0
+            self.size -= len(rs)
+            return rs
     
     def append(self, ind):
-        if isinstance(ind, Iterable):
-            idx = [i.position % POOL_SIZE for i in ind]
-            self.size = self.size + len(idx)
-            
-        else:
-            idx = ind.position % POOL_SIZE 
-            self.size = self.size + 1
-            
-        self.pool[idx] = ind
-        self.ready_to_collect[idx] = 1 
+        with self.lock:
+            if isinstance(ind, Iterable):
+                idx = [i.position % POOL_SIZE for i in ind]
+                self.size = self.size + len(idx)
+                
+            else:
+                idx = ind.position % POOL_SIZE 
+                self.size = self.size + 1
+                
+            self.pool[idx] = ind
+            self.ready_to_collect[idx] = 1 
     
     def handle_input_source(self, *args):
         ...
@@ -79,7 +90,7 @@ class NewBorn(OffspringsPool):
     
 class Optimized(OffspringsPool):
     def __init__(self, compact= False):
-        super().__init__()
+        super().__init__(race_safe= True)
         self.compact= compact
         
     

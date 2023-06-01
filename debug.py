@@ -16,6 +16,8 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 import time 
 from src.SymMFEA.utils import stratify_train_test_split
+ 
+
 
 # np.seterr(all='raise')
 
@@ -43,10 +45,11 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [50]* 2 + [30] * 2 + [7] ,
-    'max_depth': [9] * 2 + [7] * 2 + [3],
-    'num_columns': [1] + [0.7] * 6 + [0.4],
+    'max_length': [50]* 2 + [30] * 2 + [7] * 5 ,
+    'max_depth': [6] * 2 + [5] * 2 + [3] * 5,
+    'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
+
 
 crossover = SubTreeCrossover()
 mutation = MutationList(
@@ -63,8 +66,6 @@ model = SMP(
     reproducer_config={
         'crossover': crossover,
         'mutation': mutation,
-        'crossover_size': 0.5,
-        'mutation_size': 1,
     },
     selector_config={
         # 'select_optimizing_inds': 0.5
@@ -73,28 +74,28 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
-    'num_sub_task': 5,
+    'num_sub_task': 9,
 }
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 2,
-    nb_inds_each_task= [15] * 4+ [30],
+    steps_per_gen= 20,
+    nb_inds_each_task= [15] * 4+ [30] * 5,
     data_sample = 0.5,
-    nb_generations= 50,
+    nb_generations= 200,
      
     test_size = 0.33,
-    nb_inds_min= [10] * 4 + [15],
+    nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
-    num_workers= 24,
+    num_workers= 32,
     offspring_size= 2,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
     trainer_config= {
-        'early_stopping': 3
+        'early_stopping': 5
     },
     **SMP_configs,
 )
