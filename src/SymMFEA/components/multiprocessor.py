@@ -2,10 +2,14 @@ import multiprocessing as mp
 from typing import List, Tuple, Callable
 from ..evolution.task import SubTask
 from ..utils.timer import timed
+from ..utils import create_shared_np
 from termcolor import colored
 import traceback
 import time 
 from queue import Full, Empty
+from ctypes import c_float
+import numpy as np
+from table_logger import TableLogger
 
 def execute_one_job(task, ind):    
     s = time.time()
@@ -21,14 +25,17 @@ def custom_error_callback(error):
 
         
 class Worker:
-    def __init__(self, inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid: int, metrics: dict):
+    def __init__(self, inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid: int, metrics: dict, logger: np.ndarray):
         
-        self.process = mp.Process(target= run_bg, args=(inqueue, outqueue, pid, metrics))
+        self.process = mp.Process(target= run_bg, args=(inqueue, outqueue, pid, metrics, logger))
         
         self.process.start()
         
+        
     def kill(self):
         self.process.kill()
+        
+
             
 
 class Multiprocessor:
@@ -42,6 +49,9 @@ class Multiprocessor:
         
         self.inqueue = mp.JoinableQueue()
         self.outqueue = mp.Queue()
+        self.num_workers = num_workers
+        
+        self.worker_logger = create_shared_np((num_workers, 4), val = 0, dtype= c_float)
         self.create_pool(num_workers= num_workers)
         
     def create_pool(self, num_workers):
@@ -50,7 +60,21 @@ class Multiprocessor:
             'nb_inqueue': self.nb_inqueue,
             'times': self.times,
             'processed': self.processed,
-            }) for i in range(num_workers)]
+            }, self.worker_logger) for i in range(num_workers)]
+        
+    @timed
+    def log(self):
+        with open('logs', 'wb') as f:
+            table = TableLogger(file = f, columns = ['worker_id', 'train_steps', 'speed (epochs / s)', 'efficient time', 'Performance (%)'])
+            for i in range(self.num_workers):
+                table(i, f'{int(self.worker_logger[i][0]):,}', #num epochs
+                      f'{self.worker_logger[i][1]:.2f}', #speed
+                      f'{self.worker_logger[i][2]:.2f}', #efficient time
+                      f'{(self.worker_logger[i][2] / self.worker_logger[i][3] * 100):.2f}', #performance
+                )
+                
+    
+                
     
     @property
     def terminated(self):
@@ -84,7 +108,8 @@ class Multiprocessor:
         
         
 #Create processes running in background waiting for jobs
-def run_bg(inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid:int, metrics: dict):
+def run_bg(inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid:int, metrics: dict, logger: np.ndarray):
+    s = time.time()
     while True:
         try:
             job = inqueue.get_nowait()
@@ -105,10 +130,19 @@ def run_bg(inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid:int, metrics: dict
                 job
             ])
             
+            
+            
             #update state to display
             with metrics['nb_inqueue'].get_lock(), metrics['processed'].get_lock(), metrics['train_steps'].get_lock(), metrics['times'].get_lock():
                 metrics['train_steps'].value += result['train_steps']
                 metrics['nb_inqueue'].value -= 1
                 metrics['processed'].value += 1
                 metrics['times'].value += result['time']
+            
+            logger[pid][0] += result['train_steps']
+            t = time.time()
+            logger[pid][1] = logger[pid][0] / (t - s)
+            logger[pid][2] += result['time']
+            logger[pid][3] = t - s 
+            
             

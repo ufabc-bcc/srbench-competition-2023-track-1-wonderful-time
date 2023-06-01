@@ -99,8 +99,6 @@ class SMP(GA):
             #update info to display
             population.collect_best_info()
             
-            # #prevent evolve to fast without optimization
-            self.wait()
             
             #update process bar
             self.update_process_bar(population, 
@@ -110,6 +108,13 @@ class SMP(GA):
                                     processed= self.multiprocessor.processed.value,
                                     multiprocessor_time= self.multiprocessor.times.value,
                                     )
+            
+            self.multiprocessor.log()
+            
+            #prevent evolve to fast without optimization
+            self.wait()
+            
+            
             
         
         if generation != -1 :    
