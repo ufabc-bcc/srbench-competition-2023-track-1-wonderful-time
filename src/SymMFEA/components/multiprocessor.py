@@ -104,8 +104,8 @@ class Multiprocessor:
                 
     @timed
     def __exit__(self, *args, **kwargs):
-        # self.inqueue.close()
-        # self.outqueue.close()
+        del self.inqueue
+        del self.outqueue
         
         for worker in self.pool:
             worker.kill()
