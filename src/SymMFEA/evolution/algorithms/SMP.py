@@ -18,7 +18,7 @@ class SMP(GA):
     '''
     pass_down_params: attribute to pass down to reproducer
     '''
-    pass_down_params: list = ['nb_terminals', "smp", 'p_choose_father']
+    pass_down_params: list = ['nb_terminals', "smp", 'p_choose_father', 'num_sub_tasks']
     
     @timed
     def wait(self):

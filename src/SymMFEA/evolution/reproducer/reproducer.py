@@ -129,7 +129,7 @@ class SMP_Reproducer(Reproducer):
         else:
             self.p_choose_father = softmax(self.p_choose_father * 1.5)
             
-        self.history_p_choose_father.append(self.p_choose_father)
+        self.history_p_choose_father.append(np.copy(self.p_choose_father))
     
     
     def select_crossover_parent(self, population: Population):
@@ -156,6 +156,7 @@ class SMP_Reproducer(Reproducer):
         super().update_population_info(**kwargs)
         self.smp = kwargs['smp']
         self.p_choose_father = kwargs['p_choose_father']
+        self.num_sub_tasks: int = kwargs['num_sub_tasks']
         self.history_p_choose_father: List[np.ndarray] = [self.p_choose_father]
         
     @timed
@@ -230,7 +231,7 @@ class SMP_Reproducer(Reproducer):
             smp.update_smp(Delta_task= Delta[i], count_Delta_tasks= count_Delta[i])
             
     
-    def render_smp(self, shape = None, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_shape= None, label_loc= None):
+    def render_p_choose_father(self, title = None, figsize = None, dpi = 100, step = 1, re_fig = False, label_loc= None):
         
         if title is None:
             title = self.__class__.__name__
@@ -249,13 +250,12 @@ class SMP_Reproducer(Reproducer):
 
         y_lim = (-0.1, 1.1)
 
-        
+        p_choose_father_all = np.array(self.history_p_choose_father).T
+                
         fig.axes[0].stackplot(
-            np.append(np.arange(0, len(self.p_choose_father), step), np.array([len(self.p_choose_father) - 1])),
-            [self.p_choose_father[
-                np.append(np.arange(0, len(self.p_choose_father), step), np.array([len(self.p_choose_father) - 1])), 
-                0, t] for t in range(self.num_sub_tasks + 1)],
-            labels = ['Task' + str(i + 1) for i in range(self.num_sub_tasks)] + ["mutation"]
+            np.arange(0, p_choose_father_all.shape[1], step),
+            p_choose_father_all,
+            labels = ['Task' + str(i + 1) for i in range(self.num_sub_tasks)]
         )
         # plt.legend()
         fig.axes[0].set_title('P choose father')
