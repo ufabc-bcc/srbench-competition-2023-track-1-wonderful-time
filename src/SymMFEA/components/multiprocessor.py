@@ -10,6 +10,7 @@ from queue import Full, Empty
 from ctypes import c_float
 import numpy as np
 from table_logger import TableLogger
+SLEEP_TIME = 0.01
 
 def execute_one_job(task, ind):    
     s = time.time()
@@ -51,7 +52,7 @@ class Multiprocessor:
         self.outqueue = mp.Queue()
         self.num_workers = num_workers
         
-        self.worker_logger = create_shared_np((num_workers, 4), val = 0, dtype= c_float)
+        self.worker_logger = create_shared_np((num_workers, 5), val = 0, dtype= c_float)
         self.create_pool(num_workers= num_workers)
         
     def create_pool(self, num_workers):
@@ -65,12 +66,15 @@ class Multiprocessor:
     @timed
     def log(self):
         with open('logs', 'wb') as f:
-            table = TableLogger(file = f, columns = ['worker_id', 'total epochs', 'speed (epochs / s)', 'efficient time', 'Performance (%)'])
+            table = TableLogger(file = f, columns = ['worker_id', 'total epochs', 'speed (epochs / s)', 'efficient time (s)', 'efficient time (%)', 'sleep time (s)', 'sleep time (%)', 'other time (%)'])
             for i in range(self.num_workers):
                 table(i, f'{int(self.worker_logger[i][0]):,}', #num epochs
                       f'{self.worker_logger[i][1]:.2f}', #speed
                       f'{self.worker_logger[i][2]:.2f}', #efficient time
                       f'{(self.worker_logger[i][2] / self.worker_logger[i][3] * 100):.2f}', #performance
+                      f'{(self.worker_logger[i][4]):.2f}', #sleep time
+                      f'{(self.worker_logger[i][4] / self.worker_logger[i][3] * 100):.2f}', #sleep time
+                      f'{(100 - (self.worker_logger[i][4] + self.worker_logger[i][2]) / self.worker_logger[i][3] * 100):.2f}', #sleep time
                 )
                 
     
@@ -114,7 +118,8 @@ def run_bg(inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid:int, metrics: dict
         try:
             job = inqueue.get_nowait()
         except Empty:
-            time.sleep(0.001)
+            logger[pid][4] += SLEEP_TIME
+            time.sleep(SLEEP_TIME)
             
         except Exception as e:
             traceback.print_exc()
