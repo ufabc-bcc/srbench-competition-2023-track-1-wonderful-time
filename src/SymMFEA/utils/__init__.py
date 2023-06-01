@@ -8,7 +8,8 @@ from sympy import Expr
 from k_means_constrained import KMeansConstrained
 from sklearn.model_selection import train_test_split
 
-def create_shared_np(shape: Iterable[int], val: Union[float, np.array]= 0.0, dtype= None):
+
+def create_shared_np(shape: Iterable[int], val: Union[float, np.array]= 0.0, dtype= None, race_safe= False):
     if isinstance(shape, int):
         shape = (shape, )
         
@@ -19,14 +20,18 @@ def create_shared_np(shape: Iterable[int], val: Union[float, np.array]= 0.0, dty
     for s in shape:
         num_blocks *= s
         
+    if race_safe:
+        shared_arr = mp.Array(dtype, num_blocks)
         
-    shared_arr = mp.Array(dtype, num_blocks)
-    
-    array = np.frombuffer(shared_arr.get_obj(), dtype= np.dtype(dtype)).reshape(shape)
-    
+        array = np.frombuffer(shared_arr.get_obj(), dtype= np.dtype(dtype)).reshape(shape)
+    else:
+        shared_arr = mp.RawArray(dtype, num_blocks)
+        
+        array = np.frombuffer(shared_arr, dtype= np.dtype(dtype)).reshape(shape)
+        
     if val is not None:
         array[:] = val
-        
+
     
     return array
 
