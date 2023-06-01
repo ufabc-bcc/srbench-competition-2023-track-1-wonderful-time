@@ -26,7 +26,7 @@ def custom_error_callback(error):
 
         
 class Worker:
-    def __init__(self, inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid: int, metrics: dict, logger: np.ndarray):
+    def __init__(self, inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid: int, metrics: dict, logger: np.ndarray):
         
         self.process = mp.Process(target= run_bg, args=(inqueue, outqueue, pid, metrics, logger))
         
@@ -48,8 +48,8 @@ class Multiprocessor:
         self.times = mp.Value('d', 0)
         self.processed = mp.Value('L', 0)
         
-        self.inqueue = mp.JoinableQueue()
-        self.outqueue = mp.Queue()
+        self.inqueue = mp.SimpleQueue()
+        self.outqueue = mp.SimpleQueue()
         self.num_workers = num_workers
         
         self.worker_logger = create_shared_np((num_workers, 5), val = 0, dtype= c_float)
@@ -97,26 +97,26 @@ class Multiprocessor:
 
         for job in jobs:
             try:
-                self.inqueue.put_nowait(job)
+                self.inqueue.put(job)
             except Full:
                 pass
                 
                 
     @timed
     def __exit__(self, *args, **kwargs):
-        self.inqueue.close()
-        self.outqueue.close()
+        # self.inqueue.close()
+        # self.outqueue.close()
         
         for worker in self.pool:
             worker.kill()
         
         
 #Create processes running in background waiting for jobs
-def run_bg(inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid:int, metrics: dict, logger: np.ndarray):
+def run_bg(inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid:int, metrics: dict, logger: np.ndarray):
     s = time.time()
     while True:
         try:
-            job = inqueue.get_nowait()
+            job = inqueue.get()
         except Empty:
             logger[pid][4] += SLEEP_TIME
             time.sleep(SLEEP_TIME)
@@ -127,7 +127,6 @@ def run_bg(inqueue: mp.JoinableQueue, outqueue: mp.Queue, pid:int, metrics: dict
             
         else:
             result = execute_one_job(*job)
-            inqueue.task_done()
             outqueue.put([
                 result['best_metric'],
                 result['loss'],
