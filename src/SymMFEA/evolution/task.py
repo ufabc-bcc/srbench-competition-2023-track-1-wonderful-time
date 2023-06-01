@@ -39,7 +39,7 @@ class SubTask:
     def eval(self, ind):
         return ind(self.data.y_val)
     
-    def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100):
+    def finetune(self, ind, finetune_steps: int = 5000, decay_lr: float = 100, compact: bool = True):
         '''
         unlock_view: use all data
         '''
@@ -61,8 +61,7 @@ class SubTask:
         ) as (progress, pbar):
         
             result = self.task.trainer.fit(ind, data = self.data, finetuner= (progress, pbar))
-            
-                
-                        
         
-        return result
+        #set objective
+        ind.set_objective(result['best_metric'], compact = compact)
+        ind.is_optimized = True

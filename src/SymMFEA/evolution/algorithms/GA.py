@@ -208,13 +208,11 @@ class GA:
         
         with CandidateFinetuneProgressBar(num_iters=len(candidates), metric= metric) as (progress, pbar):
             for i in pbar:
-                finetune_result = candidates[i].finetune(
-                    finetune_steps= finetune_steps, decay_lr= finetune_decay_lr
+                candidates[i].finetune(
+                    finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, compact= compact
                 )
-                #NOTE: not so pretty code
-                offspring_pool.optimized.handle_result([finetune_result], optimize_jobs= [(candidates[i].task, candidates[i])], multiprocessor= self.multiprocessor)
-
-                candidates[i].run_check(metric= metric)
+                
+                  
                 progress.update(candidates[i].main_objective, idx= i, reverse= reverse)
                 
                 if i == len(candidates) - 1:

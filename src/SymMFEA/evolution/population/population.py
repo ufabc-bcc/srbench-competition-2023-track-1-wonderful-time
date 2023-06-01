@@ -165,7 +165,8 @@ class Population:
         if self.moo:
             trees = self.all()
             
-            fronts, _, _, _ = fast_non_dominated_sorting([-np.array(tree.objective) for tree in trees])
+            
+            fronts, _, _, _ = fast_non_dominated_sorting(-np.array([tree.objective for tree in trees]))
             
             
             min_candidates = max(min_candidates, len(fronts[0]))
