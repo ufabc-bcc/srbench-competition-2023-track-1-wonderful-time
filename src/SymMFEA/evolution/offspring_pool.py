@@ -1,10 +1,9 @@
 
-from ..utils.timer import timed
 from ..utils import create_shared_np
 import ctypes
 import numpy as np
 import threading
-from multiprocessing import Queue
+from faster_fifo import Queue
 import time
 from typing import Callable
 from queue import Empty
@@ -15,7 +14,7 @@ POOL_SIZE = 50000
 def run_bg(inqueue: Queue, handle:Callable):
     while True:
         try:
-            rs = inqueue.get_nowait()
+            rs = inqueue.get()
             
         except Empty:
             time.sleep(0.001)
