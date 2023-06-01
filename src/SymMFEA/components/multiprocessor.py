@@ -65,7 +65,7 @@ class Multiprocessor:
     @timed
     def log(self):
         with open('logs', 'wb') as f:
-            table = TableLogger(file = f, columns = ['worker_id', 'train_steps', 'speed (epochs / s)', 'efficient time', 'Performance (%)'])
+            table = TableLogger(file = f, columns = ['worker_id', 'total epochs', 'speed (epochs / s)', 'efficient time', 'Performance (%)'])
             for i in range(self.num_workers):
                 table(i, f'{int(self.worker_logger[i][0]):,}', #num epochs
                       f'{self.worker_logger[i][1]:.2f}', #speed
