@@ -15,6 +15,10 @@ nodes = [
     Operand(0), Operand(1), Operand(2), Sum(arity= 3), Tanh(), Operand(0), Prod(), Log(), Operand(0), AQ(), Operand(1), Valve()
 ]
 
+#make tree longer
+nodes = nodes * 3
+nodes.append(Sum(arity=3))
+
 print(f'Tree Length: {len(nodes)}')
 initWM((1000, len(nodes)))
 tree = Tree(nodes=nodes, compile = True)
