@@ -106,7 +106,7 @@ class SMP(GA):
                                     multiprocessor_time= self.multiprocessor.times.value,
                                     )
             
-            self.multiprocessor.log()
+            # self.multiprocessor.log()
             
             # #prevent evolve to fast without optimization
             self.wait()
