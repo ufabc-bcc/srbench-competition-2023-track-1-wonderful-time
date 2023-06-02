@@ -10,6 +10,8 @@ from queue import Full, Empty
 from ctypes import c_float
 import numpy as np
 from table_logger import TableLogger
+import threading
+
 SLEEP_TIME = 0.01
 
 def execute_one_job(task, ind):    
@@ -22,8 +24,12 @@ def custom_error_callback(error):
     print(''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)))
     raise ValueError(f'Got an error from Multiprocessor: {error}')
 
-
-
+def _put(jobs, inqueue):
+    for job in jobs:
+        try:
+            inqueue.put(job)
+        except Full:
+            pass
         
 class Worker:
     def __init__(self, inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid: int, metrics: dict, logger: np.ndarray):
@@ -89,19 +95,26 @@ class Multiprocessor:
         self.create_pool(num_workers= self.num_workers)
         return self
     
+    
+    
     @timed
-    def submit_jobs(self, jobs: List[Tuple[SubTask, List]]):
+    def submit_jobs(self, jobs: List[Tuple[SubTask, List]], async_submit: bool):
         with self.nb_inqueue.get_lock():
             self.nb_inqueue.value += len(jobs) 
         
+        if async_submit:
+            self.async_put(jobs)
+        else:
+            
+            _put(jobs, inqueue= self.inqueue)
+        
 
-        for job in jobs:
-            try:
-                self.inqueue.put(job)
-            except Full:
-                pass
-                
-                
+            
+    def async_put(self, jobs):
+        
+        thread = threading.Thread(target= _put, args = (jobs, self.inqueue))
+        thread.start()
+            
     @timed
     def __exit__(self, *args, **kwargs):
         del self.inqueue

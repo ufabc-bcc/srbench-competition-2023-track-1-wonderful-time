@@ -55,7 +55,7 @@ class SMP(GA):
             #submit optimization jobs to multiprocessor
             #optimized inds will be append to optimized pool
             optimize_jobs = offspring_pool.new_born.collect_optimize_jobs()
-            self.multiprocessor.submit_jobs(optimize_jobs)
+            self.multiprocessor.submit_jobs(optimize_jobs, async_submit= generation != 0)
         
         
         #first generation need to wait for result
@@ -74,15 +74,11 @@ class SMP(GA):
                 #update smp
                 self.reproducer.update_smp(population, offsprings)
                 #add offsprings to population
-                
                 population.extend(offsprings= offsprings)
                 
-                for subpop, offspring in zip(population, offsprings):
-                    subpop.ls_inds.extend(offspring)
-            
             
             else:
-                #assign optimized individual to population for first generation
+                #assign optimized individual to population for the first generation
                 for subpop, offspring in zip(population, offsprings):
                     subpop.ls_inds = offspring
                     
@@ -111,8 +107,8 @@ class SMP(GA):
             
             self.multiprocessor.log()
             
-            #prevent evolve to fast without optimization
-            self.wait()
+            # #prevent evolve to fast without optimization
+            # self.wait()
             
             
             
