@@ -24,18 +24,23 @@ def custom_error_callback(error):
     print(''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)))
     raise ValueError(f'Got an error from Multiprocessor: {error}')
 
-def _put(jobs, inqueue):
-    for job in jobs:
+def _put(jobs, pool):
+    for i in range(len(jobs)):
+        job = jobs[i]
+        worker = pool[i % len(pool)]
+
         try:
-            inqueue.put(job)
+            worker.inqueue.put(job)
         except Full:
             pass
         
 class Worker:
-    def __init__(self, inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid: int, metrics: dict, logger: np.ndarray):
+    def __init__(self, pid: int, metrics: dict, logger: np.ndarray):
         
-        self.process = mp.Process(target= run_bg, args=(inqueue, outqueue, pid, metrics, logger))
-        
+        self.inqueue = mp.SimpleQueue()
+        self.outqueue = mp.SimpleQueue()
+        self.process = mp.Process(target= run_bg, args=(self.inqueue, self.outqueue, pid, metrics, logger))
+        self.pid = pid
         self.process.start()
         
         
@@ -54,15 +59,13 @@ class Multiprocessor:
         self.times = mp.Value('d', 0)
         self.processed = mp.Value('L', 0)
         
-        self.inqueue = mp.SimpleQueue()
-        self.outqueue = mp.SimpleQueue()
         self.num_workers = num_workers
         
         self.worker_logger = create_shared_np((num_workers, 5), val = 0, dtype= c_float)
         self.create_pool(num_workers= num_workers)
         
     def create_pool(self, num_workers):
-        self.pool: List[Worker] = [Worker(self.inqueue, self.outqueue, i, {
+        self.pool: List[Worker] = [Worker(i, {
             'train_steps': self.train_steps,
             'nb_inqueue': self.nb_inqueue,
             'times': self.times,
@@ -106,19 +109,17 @@ class Multiprocessor:
             self.async_put(jobs)
         else:
             
-            _put(jobs, inqueue= self.inqueue)
+            _put(jobs, self.pool)
         
 
             
     def async_put(self, jobs):
         
-        thread = threading.Thread(target= _put, args = (jobs, self.inqueue))
+        thread = threading.Thread(target= _put, args = (jobs, self.pool))
         thread.start()
             
     @timed
     def __exit__(self, *args, **kwargs):
-        del self.inqueue
-        del self.outqueue
         
         for worker in self.pool:
             worker.kill()

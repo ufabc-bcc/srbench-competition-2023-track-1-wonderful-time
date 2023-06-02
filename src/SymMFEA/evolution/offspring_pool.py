@@ -23,10 +23,9 @@ def run_bg(inqueue: SimpleQueue, handle:Callable):
             handle(*rs)
     
 
-class Worker:
-    def __init__(self, inqueue:SimpleQueue, handle: Callable) -> None:
-        self.thread = threading.Thread(target= run_bg, args = (inqueue, handle))
-        self.thread.start()
+def Worker(inqueue:SimpleQueue, handle: Callable):
+    thread = threading.Thread(target= run_bg, args = (inqueue, handle))
+    thread.start()
 
 class PseudoLock:
     def __enter__(*args, **kwargs):
@@ -69,8 +68,9 @@ class OffspringsPool:
     def handle_input_source(self, *args):
         ...
     
-    def connect_input_source(self, source: SimpleQueue):
-        self.worker = Worker(source, handle = self.handle_input_source)
+    def connect_input_source(self, pool):
+        for worker in pool:
+            Worker(worker.outqueue, handle = self.handle_input_source)
         
     def block_until_size_eq(self, size):
         '''

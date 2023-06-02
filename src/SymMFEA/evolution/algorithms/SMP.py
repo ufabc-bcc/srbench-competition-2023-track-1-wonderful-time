@@ -70,9 +70,10 @@ class SMP(GA):
         #if there are optimized offsprings
         if num_offsprings:
             
-            if generation > 0:
-                #update smp
-                self.reproducer.update_smp(population, offsprings)
+            if generation != 0:
+                if generation > 0:
+                    #update smp
+                    self.reproducer.update_smp(population, offsprings)
                 #add offsprings to population
                 population.extend(offsprings= offsprings)
                 
@@ -108,7 +109,7 @@ class SMP(GA):
             self.multiprocessor.log()
             
             # #prevent evolve to fast without optimization
-            # self.wait()
+            self.wait()
             
             
             
