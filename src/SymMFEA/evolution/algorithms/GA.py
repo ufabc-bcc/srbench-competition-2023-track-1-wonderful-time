@@ -132,10 +132,7 @@ class GA:
         steps_per_gen: backprop step per generation
         '''
         print('Hello World')
-<<<<<<< HEAD
         
-=======
->>>>>>> dev3
         assert X.shape[0] == y.shape[0]
         self.offspring_size= offspring_size
         self.expected_generations_inqueue= expected_generations_inqueue
