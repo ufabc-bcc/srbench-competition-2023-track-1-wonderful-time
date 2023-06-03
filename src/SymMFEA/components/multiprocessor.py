@@ -44,8 +44,8 @@ class Worker:
         self.process.start()
         
         
-    def kill(self):
-        self.process.kill()
+    def terminate(self):
+        self.process.terminate()
         
 
             
@@ -122,7 +122,7 @@ class Multiprocessor:
     def __exit__(self, *args, **kwargs):
         
         for worker in self.pool:
-            worker.kill()
+            worker.terminate()
         
         
 #Create processes running in background waiting for jobs
