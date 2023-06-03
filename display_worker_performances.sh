@@ -1,1 +1,1 @@
-watch -n 0.1 cat logs
+watch -n 1 cat logs
