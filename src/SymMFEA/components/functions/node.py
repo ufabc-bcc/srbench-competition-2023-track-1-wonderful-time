@@ -57,13 +57,10 @@ class Node:
     def deepcopy(node, new_class = None):
         
         new_node = node.__class__(arity= node.arity, index= node.index) if new_class is None else new_class(arity= node.arity, index= node.index)
-        # new_node.attrs = node.attrs
         
-
         if node.tree is not None:
             new_node.value = node.tree.W[node.id]
-            
-            
+                
         return new_node
     
     def __str__(self) -> str:

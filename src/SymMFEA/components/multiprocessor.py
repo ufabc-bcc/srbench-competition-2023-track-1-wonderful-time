@@ -61,7 +61,7 @@ class Multiprocessor:
         
         self.num_workers = num_workers
         
-        self.worker_logger = create_shared_np((num_workers, 5), val = 0, dtype= c_float)
+        self.worker_logger = create_shared_np((num_workers, 9), val = 0, dtype= c_float)
         self.create_pool(num_workers= num_workers)
         
     def create_pool(self, num_workers):
@@ -75,7 +75,8 @@ class Multiprocessor:
     @timed
     def log(self):
         with open('logs', 'wb') as f:
-            table = TableLogger(file = f, columns = ['worker_id', 'total epochs', 'speed (epochs / s)', 'efficient time (s)', 'efficient time (%)', 'sleep time (s)', 'sleep time (%)', 'other time (%)'])
+            table = TableLogger(file = f, columns = ['worker_id', 'total epochs', 'speed (epochs / s)', 'efficient time (s)', 'efficient time (%)', 'sleep time (s)',
+                                                     'sleep time (%)', 'other time (%)', 'get (s)', 'backprop (s)', 'logging (s)', 'backprop speed (epoch / s)'])
             for i in range(self.num_workers):
                 table(i, f'{int(self.worker_logger[i][0]):,}', #num epochs
                       f'{self.worker_logger[i][1]:.2f}', #speed
@@ -84,6 +85,10 @@ class Multiprocessor:
                       f'{(self.worker_logger[i][4]):.2f}', #sleep time
                       f'{(self.worker_logger[i][4] / self.worker_logger[i][3] * 100):.2f}', #sleep time
                       f'{(100 - (self.worker_logger[i][4] + self.worker_logger[i][2]) / self.worker_logger[i][3] * 100):.2f}', #sleep time
+                      f'{self.worker_logger[i][5]:.2f}', #get from queue
+                      f'{self.worker_logger[i][6]:.2f}', #do one job
+                      f'{self.worker_logger[i][7]:.2f}',  #log 
+                      f'{self.worker_logger[i][8]:.2f}', #real back prop speed
                 )
                 
     
@@ -130,10 +135,13 @@ def run_bg(inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid:int, metrics: 
     s = time.time()
     while True:
         try:
+            start = time.time()
             job = inqueue.get()
+            get = time.time()
         except Empty:
             logger[pid][4] += SLEEP_TIME
             time.sleep(SLEEP_TIME)
+            print('bed time')
             
         except Exception as e:
             traceback.print_exc()
@@ -147,6 +155,7 @@ def run_bg(inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid:int, metrics: 
                 result['profile'],
                 job
             ])
+            finish = time.time()
             
             
             
@@ -157,10 +166,16 @@ def run_bg(inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid:int, metrics: 
                 metrics['processed'].value += 1
                 metrics['times'].value += result['time']
             
+            log = time.time()
+            
             logger[pid][0] += result['train_steps']
             t = time.time()
             logger[pid][1] = logger[pid][0] / (t - s)
             logger[pid][2] += result['time']
             logger[pid][3] = t - s 
             
-            
+            logger[pid][5] = get - start
+            logger[pid][6] = finish - get
+            logger[pid][7] = log - finish
+            logger[pid][8] = result['train_steps'] / logger[pid][6]
+             

@@ -84,7 +84,7 @@ class SMPManager:
         self.lr = lr
 
     def get_smp(self) -> np.ndarray:
-        return np.copy(self.SMP_include_host)
+        return self.SMP_include_host
     
     def update_smp(self, Delta_task, count_Delta_tasks):
         '''
