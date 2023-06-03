@@ -3,7 +3,7 @@ from ..population import Individual
 from typing import List
 import numpy as np
 import random
-from ...utils.functional import numba_randomchoice_w_prob, softmax
+from ...utils.functional import numba_randomchoice_w_prob, softmax, normalize_norm1
 
 class Crossover:
     def __init__(self, *args, **kwargs):
@@ -69,7 +69,7 @@ class SubTreeCrossover(Crossover):
         
         src_point = candidates[
             numba_randomchoice_w_prob(
-                candidates_weight / np.sum(candidates_weight)
+                normalize_norm1(candidates_weight)
             )
         ]
         
