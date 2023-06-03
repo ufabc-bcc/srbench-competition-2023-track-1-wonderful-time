@@ -3,7 +3,7 @@ from ..utils import create_shared_np
 import ctypes
 import numpy as np
 import threading
-from multiprocessing import SimpleQueue
+from faster_fifo import Queue
 import time
 from typing import Callable
 from queue import Empty
@@ -11,20 +11,21 @@ from collections.abc import Iterable
 
 POOL_SIZE = 50000
 
-def run_bg(inqueue: SimpleQueue, handle:Callable):
+def run_bg(inqueue: Queue, handle:Callable):
     while True:
         try:
-            rs = inqueue.get()
+            results = inqueue.get_many()
             
         except Empty:
             time.sleep(0.001)
             
         else:
-            handle(*rs)
+            for rs in results:
+                handle(*rs)
     
 
 class Worker:
-    def __init__(self, inqueue:SimpleQueue, handle: Callable) -> None:
+    def __init__(self, inqueue:Queue, handle: Callable) -> None:
         self.thread = threading.Thread(target= run_bg, args = (inqueue, handle))
         self.thread.start()
 
@@ -69,7 +70,7 @@ class OffspringsPool:
     def handle_input_source(self, *args):
         ...
     
-    def connect_input_source(self, source: SimpleQueue):
+    def connect_input_source(self, source: Queue):
         self.worker = Worker(source, handle = self.handle_input_source)
         
     def block_until_size_eq(self, size):

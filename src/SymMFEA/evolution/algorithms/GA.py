@@ -119,7 +119,6 @@ class GA:
             max_tree:int= 50000,
             tree_merger: bool = True,
             min_candidates: int = None,
-            trainer_config:dict= {},
             save_path: str= None,
             **params,
             ):
@@ -132,7 +131,8 @@ class GA:
         }
         steps_per_gen: backprop step per generation
         '''
-
+        print('Hello World')
+        
         assert X.shape[0] == y.shape[0]
         self.offspring_size= offspring_size
         self.expected_generations_inqueue= expected_generations_inqueue

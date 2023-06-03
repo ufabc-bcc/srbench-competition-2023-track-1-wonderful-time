@@ -1,5 +1,5 @@
 import multiprocessing as mp
-from typing import List, Tuple, Callable
+from typing import List, Tuple
 from ..evolution.task import SubTask
 from ..utils.timer import timed
 from ..utils import create_shared_np
@@ -11,6 +11,8 @@ from ctypes import c_float
 import numpy as np
 from table_logger import TableLogger
 import threading
+from faster_fifo import Queue
+
 
 SLEEP_TIME = 0.01
 
@@ -54,8 +56,8 @@ class Multiprocessor:
         self.times = mp.Value('d', 0)
         self.processed = mp.Value('L', 0)
         
-        self.inqueue = mp.SimpleQueue()
-        self.outqueue = mp.SimpleQueue()
+        self.inqueue = Queue()
+        self.outqueue = Queue()
         self.num_workers = num_workers
         
         self.worker_logger = create_shared_np((num_workers, 5), val = 0, dtype= c_float)
@@ -140,12 +142,20 @@ def run_bg(inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid:int, metrics: 
             
         else:
             result = execute_one_job(*job)
-            outqueue.put([
-                result['best_metric'],
-                result['loss'],
-                result['profile'],
-                job
-            ])
+            
+            is_put = False
+            while not is_put:
+                try:
+                    outqueue.put([
+                        result['best_metric'],
+                        result['loss'],
+                        result['profile'],
+                        job
+                    ])
+                except Full:
+                    ...
+                else:
+                    is_put = True
             
             
             
