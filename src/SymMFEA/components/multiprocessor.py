@@ -26,22 +26,17 @@ def custom_error_callback(error):
     print(''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)))
     raise ValueError(f'Got an error from Multiprocessor: {error}')
 
-def _put(jobs, pool):
-    for i in range(len(jobs)):
-        job = jobs[i]
-        worker = pool[i % len(pool)]
-
-        try:
-            worker.inqueue.put(job)
-        except Full:
-            pass
+def _put(jobs, inqueue):
+    
+    try:
+        inqueue.put_many(jobs)
+    except Full:
+        pass
         
 class Worker:
-    def __init__(self, pid: int, metrics: dict, logger: np.ndarray):
+    def __init__(self, pid: int, metrics: dict, logger: np.ndarray, inqueue: Queue, outqueue: Queue):
         
-        self.inqueue = mp.SimpleQueue()
-        self.outqueue = mp.SimpleQueue()
-        self.process = mp.Process(target= run_bg, args=(self.inqueue, self.outqueue, pid, metrics, logger))
+        self.process = mp.Process(target= run_bg, args=(inqueue, outqueue, pid, metrics, logger))
         self.pid = pid
         self.process.start()
         
@@ -74,7 +69,7 @@ class Multiprocessor:
             'nb_inqueue': self.nb_inqueue,
             'times': self.times,
             'processed': self.processed,
-            }, self.worker_logger) for i in range(num_workers)]
+            }, self.worker_logger, self.inqueue, self.outqueue) for i in range(num_workers)]
         
     @timed
     def log(self):
@@ -118,13 +113,13 @@ class Multiprocessor:
             self.async_put(jobs)
         else:
             
-            _put(jobs, self.pool)
+            _put(jobs, self.inqueue)
         
 
             
     def async_put(self, jobs):
         
-        thread = threading.Thread(target= _put, args = (jobs, self.pool))
+        thread = threading.Thread(target= _put, args = (jobs, self.inqueue))
         thread.start()
             
     @timed
@@ -135,7 +130,7 @@ class Multiprocessor:
         
         
 #Create processes running in background waiting for jobs
-def run_bg(inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid:int, metrics: dict, logger: np.ndarray):
+def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.ndarray):
     s = time.time()
     while True:
         try:
