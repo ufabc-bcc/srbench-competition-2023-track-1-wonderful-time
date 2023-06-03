@@ -17,7 +17,7 @@ def run_bg(inqueue: Queue, handle:Callable):
             results = inqueue.get_many()
             
         except Empty:
-            time.sleep(0.001)
+            time.sleep(0.1)
             
         else:
             for rs in results:
