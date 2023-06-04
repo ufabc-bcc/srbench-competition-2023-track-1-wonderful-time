@@ -89,7 +89,7 @@ model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 20,
     nb_inds_each_task= [15] * 4+ [30] * 5,
-    data_sample = 0.5,
+    data_sample = 1,
     nb_generations= 200,
      
     test_size = 0.33,
