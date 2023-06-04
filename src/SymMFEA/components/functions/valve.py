@@ -24,6 +24,7 @@ def valve(operands):
 
 
 class Valve(Node):
+    __slots__ = []
     def __init__(self, **kwargs):
         super().__init__(arity = 2)
     

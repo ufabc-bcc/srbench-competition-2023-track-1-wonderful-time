@@ -12,6 +12,7 @@ def nb_greater(x):
 
 class Greater(Node):
     is_nonlinear = True
+    __slots__ = []
     def __init__(self, **kwargs):
         super().__init__(arity = 2)
         

@@ -3,6 +3,7 @@ from .node import Node
 from typing import List
 
 class Operand(Node):
+    __slots__ = []
     def __init__(self, index: int = 0, value:float = 1, **kwargs):      
         super().__init__(arity = 0, value = value)
         assert index >= 0

@@ -18,6 +18,7 @@ def nblog(x):
 
 class Log(Node):
     is_nonlinear = True
+    __slots__ = []
     def __init__(self, **kwargs):
         super().__init__(arity = 1)
     

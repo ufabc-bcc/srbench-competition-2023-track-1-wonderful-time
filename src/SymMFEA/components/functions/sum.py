@@ -10,6 +10,7 @@ def nbsum(operands):
 
 
 class Sum(Node):
+    __slots__ = []
     def __init__(self, arity: int, **kwargs):
         assert arity > 1
         super().__init__(arity = arity)

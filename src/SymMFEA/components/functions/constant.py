@@ -5,6 +5,7 @@ from typing import List
 from ...utils.functional import ONE
 
 class Constant(Node):
+    __slots__ = ['null']
     def __init__(self, null = False,**kwargs):
         super().__init__(arity = 0)
         self.dW = ONE 
