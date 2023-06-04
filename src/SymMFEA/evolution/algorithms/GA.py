@@ -101,6 +101,8 @@ class GA:
             loss: Loss,
             optimzier: GradOpimizer,
             metric: Metric,
+            X_val: np.ndarray = None,
+            y_val: np.ndarray = None,
             steps_per_gen: int = 10,
             nb_generations: int = 100,
             nb_inds_each_task: int = 100,
@@ -116,7 +118,7 @@ class GA:
             expected_generations_inqueue: int = 5000,
             compact:bool = False,
             moo:bool = False,
-            max_tree:int= 50000,
+            max_tree:int= 15000,
             tree_merger: bool = True,
             min_candidates: int = None,
             save_path: str= None,
@@ -145,6 +147,9 @@ class GA:
         self.moo = moo or compact
         self.worker_log = worker_log
         self.terminated: bool = False
+        self.X_val = X_val
+        self.y_val = y_val
+        self.metric = metric
         
 
         #init multiprocessor
@@ -236,9 +241,13 @@ class GA:
         
         if visualize:
             self.display_final_result(population)
-
             
-            
+    def examine(self, sol):
+        if self.X_val is not None and self.y_val is not None:
+            y_hat = sol(self.X_val)
+            return self.metric(self.y_val, y_hat)
+        
+    
     def predict(self, X: np.ndarray):
         return self.final_solution(X)
     

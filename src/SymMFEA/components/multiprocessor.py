@@ -33,8 +33,7 @@ def _put(jobs, inqueue):
         try:
             inqueue.put_many(jobs)
         except Full:
-            print('really bruh??')
-            raise Full
+            ...
         else:
             is_put = True
     
