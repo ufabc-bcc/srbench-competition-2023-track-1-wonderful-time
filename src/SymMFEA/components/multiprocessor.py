@@ -9,10 +9,11 @@ import time
 from queue import Full, Empty
 from ctypes import c_float, c_bool
 import numpy as np
-from table_logger import TableLogger
+from prettytable import PrettyTable
 import threading
 from faster_fifo import Queue
-
+import aiofiles
+import asyncio
 
 SLEEP_TIME = 0.01
 
@@ -69,7 +70,7 @@ class Multiprocessor:
         
         
         
-        self.worker_logger = create_shared_np((num_workers, 5), val = 0, dtype= c_float)
+        self.worker_logger = create_shared_np((num_workers, 9), val = 0, dtype= c_float)
         self.create_pool(num_workers= num_workers)
         
     def create_pool(self, num_workers):
@@ -80,19 +81,27 @@ class Multiprocessor:
             'processed': self.processed,
             }, self.worker_logger, self.stop) for i in range(num_workers)]
         
-    @timed
+
+    @timed        
     def log(self):
-        with open('logs', 'wb') as f:
-            table = TableLogger(file = f, columns = ['worker_id', 'total epochs', 'speed (epochs / s)', 'efficient time (s)', 'efficient time (%)', 'sleep time (s)', 'sleep time (%)', 'other time (%)'])
-            for i in range(self.num_workers):
-                table(i, f'{int(self.worker_logger[i][0]):,}', #num epochs
+        table = PrettyTable(['worker_id', 'total epochs', 'speed (epochs / s)', 'efficient time (s)', 'efficient time (%)', 'sleep time (s)',
+                                                     'sleep time (%)', 'other time (%)', 'get (s)', 'backprop (s)', 'logging (s)', 'backprop speed (epoch / s)'])
+        for i in range(self.num_workers):
+            table.add_row([i, f'{int(self.worker_logger[i][0]):,}', #num epochs
                       f'{self.worker_logger[i][1]:.2f}', #speed
                       f'{self.worker_logger[i][2]:.2f}', #efficient time
                       f'{(self.worker_logger[i][2] / self.worker_logger[i][3] * 100):.2f}', #performance
                       f'{(self.worker_logger[i][4]):.2f}', #sleep time
                       f'{(self.worker_logger[i][4] / self.worker_logger[i][3] * 100):.2f}', #sleep time
                       f'{(100 - (self.worker_logger[i][4] + self.worker_logger[i][2]) / self.worker_logger[i][3] * 100):.2f}', #sleep time
-                )
+                      f'{self.worker_logger[i][5]:.2f}', #get from queue
+                      f'{self.worker_logger[i][6]:.2f}', #do one job
+                      f'{self.worker_logger[i][7]:.2f}',  #log 
+                      f'{self.worker_logger[i][8]:.2f}', #real back prop speed
+            ])
+        with open('logs', 'w') as f:
+            f.write(str(table))
+            
                 
     
                 
@@ -147,7 +156,9 @@ def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.n
     s = time.time()
     while not stop_signal.value:
         try:
+            start = time.time()
             job = inqueue.get()
+            get = time.time()
         except Empty:
             logger[pid][4] += SLEEP_TIME
             time.sleep(SLEEP_TIME)
@@ -168,6 +179,7 @@ def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.n
                         result['profile'],
                         job
                     ])
+                    finish = time.time()
                 except Full:
                     ...
                 else:
@@ -182,10 +194,17 @@ def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.n
                 metrics['processed'].value += 1
                 metrics['times'].value += result['time']
             
+            log = time.time()
+                        
             logger[pid][0] += result['train_steps']
             t = time.time()
             logger[pid][1] = logger[pid][0] / (t - s)
             logger[pid][2] += result['time']
             logger[pid][3] = t - s 
+            
+            logger[pid][5] = get - start
+            logger[pid][6] = finish - get
+            logger[pid][7] = log - finish
+            logger[pid][8] = result['train_steps'] / logger[pid][6]
             
     
