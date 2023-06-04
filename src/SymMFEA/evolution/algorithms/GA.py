@@ -120,6 +120,7 @@ class GA:
             tree_merger: bool = True,
             min_candidates: int = None,
             save_path: str= None,
+            worker_log: bool= False,
             **params,
             ):
         '''
@@ -142,6 +143,7 @@ class GA:
         self.data_sample = data_sample
         self.nb_terminals = X.shape[1]
         self.moo = moo or compact
+        self.worker_log = worker_log
         self.terminated: bool = False
         
 
