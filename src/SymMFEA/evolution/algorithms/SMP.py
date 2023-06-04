@@ -84,6 +84,7 @@ class SMP(GA):
                     subpop.ls_inds = offspring
                     
             
+            #collect fitness info for selection
             population.collect_fitness_info()
             
         
@@ -94,7 +95,8 @@ class SMP(GA):
                 self.selector(population)
             
             #update info to display
-            population.collect_best_info()
+            best_sol = population.collect_best_info
+            cur_met = self.examine(best_sol)
             
             
             #update process bar
@@ -104,6 +106,7 @@ class SMP(GA):
                                     nb_inqueue= self.multiprocessor.nb_inqueue.value,
                                     processed= self.multiprocessor.processed.value,
                                     multiprocessor_time= self.multiprocessor.times.value,
+                                    cur_met = cur_met,
                                     )
             if self.worker_log:
                 self.multiprocessor.log()

@@ -4,7 +4,7 @@ import numpy as np
 from ...components.multiprocessor import Multiprocessor
 from pygmo import fast_non_dominated_sorting
 from typing import List
-from ...utils.functional import numba_randomchoice
+from ...utils.functional import numba_randomchoice, nb_argmax, EPS
 from ...utils.timer import *
 from ..task import Task, SubTask
 from ...components.column_sampler import ColumnSampler
@@ -46,24 +46,6 @@ class SubPopulation:
 
     def extend(self, new_inds: List[Individual]):
         self.ls_inds.extend(new_inds)
-
-    def __add__(self, other):
-        assert self.task == other.task, 'Cannot add 2 sub-population do not have the same task'
-        UnionSubPop = SubPopulation(
-            IndClass= self.IndClass,
-            skill_factor = self.skill_factor,
-            dim= self.dim,
-            num_inds= 0,
-            task= self.task
-        )
-        UnionSubPop.ls_inds = self.ls_inds + other.ls_inds
-        UnionSubPop.update_rank()
-        return UnionSubPop
-
-    @property 
-    def __getBestIndividual__(self):
-        return self.ls_inds[int(np.argmin(self.factorial_rank))]   
-
         
     def append(self, offsprings: List[Individual]):
         self.ls_inds.extend(offsprings)
@@ -77,13 +59,20 @@ class SubPopulation:
             
             
     def collect_fitness_info(self):
-        self.objective = np.array([ind.objective for ind in self.ls_inds])
-        self.main_objective = np.array([ind.main_objective for ind in self.ls_inds])
-        self.scalar_fitness = np.mean(self.objective, axis = 1) + 1e-12 
+        self.objective = np.array([ind.objective for ind in self.ls_inds], dtype = np.float32)
+        self.main_objective = np.array([ind.main_objective for ind in self.ls_inds], dtype = np.float32)
+        self.scalar_fitness = np.mean(self.objective, axis = 1) + EPS
     
+    @property
     def collect_best_info(self):
-        self.best_idx = np.argmax(self.main_objective)
+        self.collect_fitness_info()
+        self.best_idx = nb_argmax(self.main_objective)
         self.max_main_objective = self.main_objective[self.best_idx]
+        return self.max_main_objective
+    
+    @property
+    def best_sol(self):
+        return self.ls_inds[self.best_idx]
 
 
 # ==================================================================================
@@ -153,10 +142,15 @@ class Population:
         for subpop in self.ls_subPop:
             subpop.update_age()
             
-    @timed     
+    
+    @property     
     def collect_best_info(self):
-        for subpop in self.ls_subPop:
-            subpop.collect_best_info()
+        
+        best = np.array([subpop.collect_best_info for subpop in self], dtype = np.float32)    
+        best_idx =  nb_argmax(best)
+        return self[best_idx].best_sol
+        
+        
     
     def get_final_candidates(self, min_candidates: int):
         '''

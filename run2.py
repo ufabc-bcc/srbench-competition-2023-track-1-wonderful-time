@@ -91,7 +91,8 @@ model.fit(
     nb_inds_each_task= [15] * 4+ [30] * 5,
     data_sample = 0.5,
     nb_generations= 200,
-     
+    X_val = X_val,
+    y_val = y_val,
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,

@@ -27,9 +27,12 @@ nb.njit(nb.float32[:](nb.float32[:], nb.float32), cache= os.environ.get('DISABLE
 def multiply(vec, val):
     return vec * val
 
-@numba_v2v_float_wrapper
-def foo(x):
-    return x * np.sum(x)
+
+@nb.njit(nb.int64(nb.float32[:]))
+def nb_argmax(x):
+    return np.argmax(x)
+
+
 
 @numba_v2v_wrapper
 def normalize_norm1(x):
