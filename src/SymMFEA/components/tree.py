@@ -26,6 +26,11 @@ class Tree:
         # ('expand', lambda tree: []),
         # ('collect', lambda tree: [{'syms': tree.ls_terminals}]),
     ]
+    __slots__ = [
+        'nodes', '_W', '_mean', '_var', '_bias',
+        'position', 'cached_expression', 'cached_callable_expression',
+        'n_samples', 'compiled'
+    ]
     def __init__(self, nodes: List[Node], deepcopy = False, init_weight: bool = False, compile:bool = True):
         '''
         compile: copy weight from nodes to weight_manager
