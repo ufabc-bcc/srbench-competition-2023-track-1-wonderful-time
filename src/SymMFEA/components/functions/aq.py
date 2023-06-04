@@ -22,6 +22,7 @@ def calculate_dx(operands, value):
 
 
 class AQ(Node):
+    __slots__ = []
     def __init__(self,**kwargs):
         super().__init__(arity = 2)
     

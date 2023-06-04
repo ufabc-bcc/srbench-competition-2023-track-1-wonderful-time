@@ -19,6 +19,10 @@ def calculate_dW(dW, dY):
     
 class Node:
     is_nonlinear = False
+    __slots__ = ['index', 'id', 
+                 'depth', 'length', 'parent',
+                 'arity', 'value', 'dW', 'dX',
+                 'tree', 'compiled']
     def __init__(self, 
                  arity: int = 1,   
                  index: int = -1,              
@@ -38,7 +42,6 @@ class Node:
         
         self.tree = None
         self.compiled: bool = False
-        # self.attrs: dict = dict()
         
     
     def __call__(self, X, training:bool= False):
