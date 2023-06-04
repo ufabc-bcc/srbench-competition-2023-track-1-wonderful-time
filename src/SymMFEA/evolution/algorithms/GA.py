@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from ...utils.timer import *
 from ...components.weight_manager import initWM
 from ...components.multiprocessor import Multiprocessor
-from ..offspring_pool import initOffspringsPool
+from ..offspring_pool import initOffspringsPool, terminateOffspringsPool
 from .. import offspring_pool
 from ...components.tree_merger import TreeMerger
 class GA:
@@ -225,6 +225,8 @@ class GA:
             self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric) 
         
         self.final_solution.run_check_expression(data = self.main_task.data)
+        
+        terminateOffspringsPool()
         
         Timer.display()
         

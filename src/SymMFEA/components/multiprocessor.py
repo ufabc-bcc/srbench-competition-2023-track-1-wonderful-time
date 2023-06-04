@@ -7,7 +7,7 @@ from termcolor import colored
 import traceback
 import time 
 from queue import Full, Empty
-from ctypes import c_float
+from ctypes import c_float, c_bool
 import numpy as np
 from table_logger import TableLogger
 import threading
@@ -38,15 +38,16 @@ def _put(jobs, inqueue):
             is_put = True
     
 class Worker:
-    def __init__(self, inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid: int, metrics: dict, logger: np.ndarray):
+    def __init__(self, *args, **kwargs):
         
-        self.process = mp.Process(target= run_bg, args=(inqueue, outqueue, pid, metrics, logger))
+        self.process = mp.Process(target= run_bg, args=args, kwargs= kwargs)
         
         self.process.start()
         
         
     def kill(self):
-        self.process.kill()
+        self.process.join()
+        self.process.terminate()
         
 
             
@@ -59,10 +60,14 @@ class Multiprocessor:
         self.nb_inqueue= mp.Value('L', 0)
         self.times = mp.Value('d', 0)
         self.processed = mp.Value('L', 0)
+        self.stop = mp.RawValue(c_bool, False)
+        
         
         self.inqueue = Queue(1000000000)
         self.outqueue = Queue(1000000000)
         self.num_workers = num_workers
+        
+        
         
         self.worker_logger = create_shared_np((num_workers, 5), val = 0, dtype= c_float)
         self.create_pool(num_workers= num_workers)
@@ -73,7 +78,7 @@ class Multiprocessor:
             'nb_inqueue': self.nb_inqueue,
             'times': self.times,
             'processed': self.processed,
-            }, self.worker_logger) for i in range(num_workers)]
+            }, self.worker_logger, self.stop) for i in range(num_workers)]
         
     @timed
     def log(self):
@@ -123,17 +128,24 @@ class Multiprocessor:
             
     @timed
     def __exit__(self, *args, **kwargs):
+        
+        self.stop.value = True
+        
+        print("Multiprocessor's stopping...")
+            
         del self.inqueue
         del self.outqueue
         
         for worker in self.pool:
             worker.kill()
+            
+        print("Multiprocessor's stopped...")
         
         
 #Create processes running in background waiting for jobs
-def run_bg(inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid:int, metrics: dict, logger: np.ndarray):
+def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.ndarray, stop_signal: mp.RawValue):
     s = time.time()
-    while True:
+    while not stop_signal.value:
         try:
             job = inqueue.get()
         except Empty:
@@ -176,4 +188,4 @@ def run_bg(inqueue: mp.SimpleQueue, outqueue: mp.SimpleQueue, pid:int, metrics: 
             logger[pid][2] += result['time']
             logger[pid][3] = t - s 
             
-            
+    

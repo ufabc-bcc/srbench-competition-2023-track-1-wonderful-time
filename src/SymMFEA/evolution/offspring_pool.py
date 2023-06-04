@@ -11,8 +11,8 @@ from collections.abc import Iterable
 
 POOL_SIZE = 50000
 
-def run_bg(inqueue: Queue, handle:Callable):
-    while True:
+def run_bg(inqueue: Queue, handle:Callable, stop_signal: threading.Event):
+    while not stop_signal.is_set():
         try:
             results = inqueue.get_many()
             
@@ -26,9 +26,15 @@ def run_bg(inqueue: Queue, handle:Callable):
 
 class Worker:
     def __init__(self, inqueue:Queue, handle: Callable) -> None:
-        self.thread = threading.Thread(target= run_bg, args = (inqueue, handle))
+        self.stop = threading.Event()
+        self.thread = threading.Thread(target= run_bg, args = (inqueue, handle, self.stop))
         self.thread.start()
-
+        
+        
+    def kill(self):
+        self.stop.set()
+        self.thread.join()
+        
 class PseudoLock:
     def __enter__(*args, **kwargs):
         ...
@@ -41,6 +47,7 @@ class OffspringsPool:
         self.ready_to_collect = create_shared_np(POOL_SIZE, val=0, dtype= ctypes.c_bool, race_safe= False)
         self.size = 0    
         self.race_safe = race_safe
+        
         if self.race_safe:
             self.lock = threading.Lock()
         else:
@@ -72,6 +79,10 @@ class OffspringsPool:
     
     def connect_input_source(self, source: Queue):
         self.worker = Worker(source, handle = self.handle_input_source)
+        
+    def kill(self):
+        if hasattr(self, 'worker'):
+            self.worker.kill()
         
     def block_until_size_eq(self, size):
         '''
@@ -125,3 +136,8 @@ def initOffspringsPool(compact= False):
     global new_born, optimized
     new_born = NewBorn()
     optimized = Optimized(compact= compact)
+    
+def terminateOffspringsPool():
+    global new_born, optimized
+    new_born.kill()
+    optimized.kill()
