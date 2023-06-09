@@ -4,6 +4,7 @@ from typing import List
 from ..task import SubTask
 from ...components.metrics import Metric
 import os
+MIN_AGE = 5
 class Individual:
     '''
     a Individual include:\n
@@ -88,8 +89,17 @@ class Individual:
         if compact:
             self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3), -self.genes.num_nonlinear])
         
-        # if age:
-        #     self.objective.append(-self.age)
+        if age:
+            self.set_age_objectie()
+            
+        
+    def set_age_objectie(self): 
+        if self.age == 0:
+            self.objective.append(MIN_AGE)
+        else:
+            age = min(MIN_AGE, self.age)
+            self.objective[-1] = age
+        
             
     @property
     def better_than_parent(self) -> bool:
