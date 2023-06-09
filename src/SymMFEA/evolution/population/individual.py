@@ -88,8 +88,8 @@ class Individual:
         if compact:
             self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3), -self.genes.num_nonlinear])
         
-        if age:
-            self.objective.append(-self.age)
+        # if age:
+        #     self.objective.append(-self.age)
             
     @property
     def better_than_parent(self) -> bool:
