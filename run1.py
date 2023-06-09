@@ -7,7 +7,7 @@ from src.SymMFEA.evolution.algorithms import GA, SMP
 from src.SymMFEA.evolution.reproducer.mutation import *
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.components.trainer.loss import MSE
-from src.SymMFEA.components.metrics import R2
+from src.SymMFEA.components.metrics import R2, MSE as MSE_met
 from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer, ADAM
 from sklearn.datasets import load_diabetes
 from sklearn.metrics import r2_score
@@ -29,37 +29,7 @@ X = X.astype(np.float32)
 
 y = y.astype(np.float32) 
 
-print(X.shape)
 X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
-
-
-
-
-
-
-
-
-
-
-#================ Other models ==================
-xgb = XGB(objective="reg:squarederror")
-gbr = GBR()
-lnr = LNR()
-s = time.time()
-xgb.fit(X_train, y_train)
-xgb_time = time.time() - s
-gbr.fit(X_train, y_train)
-gbr_time = time.time() - xgb_time - s
-lnr.fit(X_train, y_train)
-lnr_time = time.time() - gbr_time - xgb_time - s
-
-
-X_fake = np.random.uniform(low= np.min(X_train, axis= 0), high= np.max(X_train, axis = 0), size= (10000, X_train.shape[1]))
-y_fake = xgb.predict(X_fake)
-
-X_train = np.concatenate((X_train, X_fake), axis = 0) 
-y_train = np.concatenate((y_train, y_fake), axis = 0) 
-
 
 
 
@@ -68,7 +38,7 @@ y_train = np.concatenate((y_train, y_fake), axis = 0)
 tree_config = {
     'max_length': [50]* 2 + [30] * 2 + [7] * 5,
     'max_depth': [6] * 2 + [4] * 2 + [3] * 5,
-    'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
+    'num_columns': 1,
 }
 
 crossover = SubTreeCrossover()
@@ -100,6 +70,9 @@ SMP_configs = {
     'num_sub_task': 9,
 }
 #===================================== Fit ==========================
+
+print(X_train.shape)
+
 model.fit(
     X = X_train, y= y_train, loss = loss,
     X_val = X_val,
@@ -115,15 +88,30 @@ model.fit(
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 40,
-    offspring_size= 2,
+    offspring_size= 5,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
+    max_tree = 50000,
     trainer_config= {
         'early_stopping': 5
     },
     **SMP_configs,
 )
+
+#================ Other models ==================
+xgb = XGB(objective="reg:squarederror")
+gbr = GBR()
+lnr = LNR()
+s = time.time()
+xgb.fit(X_train, y_train)
+xgb_time = time.time() - s
+gbr.fit(X_train, y_train)
+gbr_time = time.time() - xgb_time - s
+lnr.fit(X_train, y_train)
+lnr_time = time.time() - gbr_time - xgb_time - s
+
+
 
 
 #===================================== Predict and display result ===========================

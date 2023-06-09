@@ -38,17 +38,7 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
 
 
-#================ Other models ==================
-xgb = XGB(objective="reg:squarederror")
-gbr = GBR()
-lnr = LNR()
-s = time.time()
-xgb.fit(X_train, y_train)
-xgb_time = time.time() - s
-gbr.fit(X_train, y_train)
-gbr_time = time.time() - xgb_time - s
-lnr.fit(X_train, y_train)
-lnr_time = time.time() - gbr_time - xgb_time - s
+
 
 
 #========================= Prepare config==================
@@ -107,6 +97,18 @@ model.fit(
     },
     **SMP_configs,
 )
+
+#================ Other models ==================
+xgb = XGB(objective="reg:squarederror")
+gbr = GBR()
+lnr = LNR()
+s = time.time()
+xgb.fit(X_train, y_train)
+xgb_time = time.time() - s
+gbr.fit(X_train, y_train)
+gbr_time = time.time() - xgb_time - s
+lnr.fit(X_train, y_train)
+lnr_time = time.time() - gbr_time - xgb_time - s
 
 
 #===================================== Predict and display result ===========================

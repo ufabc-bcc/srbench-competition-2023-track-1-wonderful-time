@@ -156,7 +156,7 @@ def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.n
     while not stop_signal.value:
         try:
             start = time.time()
-            job = inqueue.get()
+            jobs = inqueue.get_many(max_messages_to_get = 10)
             get = time.time()
         except Empty:
             logger[pid][4] += SLEEP_TIME
@@ -167,43 +167,43 @@ def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.n
             print(colored(f'[Worker {pid}]: Error: {e}', 'red'))
             
         else:
-            result = execute_one_job(*job)
+            results = []
+            for job in jobs:
+                result = execute_one_job(*job)
+                finish = time.time() 
+                results.append([
+                            result['best_metric'],
+                            result['loss'],
+                            result['profile'],
+                            job
+                        ])
+                                
+                #update state to display
+                with metrics['nb_inqueue'].get_lock(), metrics['processed'].get_lock(), metrics['train_steps'].get_lock(), metrics['times'].get_lock():
+                    metrics['train_steps'].value += result['train_steps']
+                    metrics['nb_inqueue'].value -= 1
+                    metrics['processed'].value += 1
+                    metrics['times'].value += result['time']
+                
+                log = time.time()
+                            
+                logger[pid][0] += result['train_steps']
+                t = time.time()
+                logger[pid][1] = logger[pid][0] / (t - s)
+                logger[pid][2] += result['time']
+                logger[pid][3] = t - s 
+                
+                logger[pid][5] = get - start
+                logger[pid][6] = finish - get
+                logger[pid][7] = log - finish
+                logger[pid][8] = result['train_steps'] / logger[pid][6]
             
             is_put = False
             while not is_put:
                 try:
-                    outqueue.put([
-                        result['best_metric'],
-                        result['loss'],
-                        result['profile'],
-                        job
-                    ])
-                    finish = time.time()
+                    outqueue.put_many(results)
+                    
                 except Full:
                     ...
                 else:
                     is_put = True
-            
-            
-            
-            #update state to display
-            with metrics['nb_inqueue'].get_lock(), metrics['processed'].get_lock(), metrics['train_steps'].get_lock(), metrics['times'].get_lock():
-                metrics['train_steps'].value += result['train_steps']
-                metrics['nb_inqueue'].value -= 1
-                metrics['processed'].value += 1
-                metrics['times'].value += result['time']
-            
-            log = time.time()
-                        
-            logger[pid][0] += result['train_steps']
-            t = time.time()
-            logger[pid][1] = logger[pid][0] / (t - s)
-            logger[pid][2] += result['time']
-            logger[pid][3] = t - s 
-            
-            logger[pid][5] = get - start
-            logger[pid][6] = finish - get
-            logger[pid][7] = log - finish
-            logger[pid][8] = result['train_steps'] / logger[pid][6]
-            
-    
