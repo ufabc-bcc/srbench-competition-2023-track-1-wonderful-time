@@ -373,7 +373,7 @@ class TreeFactory:
                 d = depth + 1
                 for _ in range(node.arity):
                     cur_a_max = min(a_max, self.max_length - num_open_nodes - i - 1) if d < (self.max_depth - 1) else 0
-                    cur_a_min = min(1, cur_a_max)
+                    cur_a_min = min(1 if num_open_nodes < 1 else 0, cur_a_max)
                     child_node = pset.sample_node(cur_a_min, cur_a_max, get_nonlinear= not node.is_nonlinear)
                     ls_nodes.append([child_node, d, None])
                     num_open_nodes += child_node.arity

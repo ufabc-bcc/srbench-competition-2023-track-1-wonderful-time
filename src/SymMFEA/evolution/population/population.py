@@ -56,7 +56,7 @@ class SubPopulation:
     def update_age(self):
         for ind in self.ls_inds:
             ind.age += 1
-            
+            ind.set_age_objectie()
             
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds], dtype = np.float32)
