@@ -120,7 +120,7 @@ class ReproducerManager:
     def __enter__(self):
         self.reproducer.create_pool(5)
     
-    
+    @timed
     def __exit__(self, *args, **kwargs):
         
         self.reproducer.stop.value = True
@@ -174,6 +174,8 @@ class SMP_Reproducer(Reproducer):
     def select_mutation_parent(self, population: Population, skf: int):
         return population.ls_subPop[skf].__getRandomItems__(1, False)
     
+    
+    @timed
     def select_parent(self, population: Population, size: int) -> List[List[Individual]]:
         
         parent_couples = []
@@ -207,6 +209,7 @@ class SMP_Reproducer(Reproducer):
         self.num_sub_tasks: int = kwargs['num_sub_tasks']
         self.history_p_choose_father: List[np.ndarray] = [self.p_choose_father]
         
+        
     @timed
     def __call__(self, population: Population):              
         num_offsprings = 0
@@ -230,13 +233,14 @@ class SMP_Reproducer(Reproducer):
                 
             else:
                 new_offsprings.extend(o)
-                print(self.num_jobs.value, total_num_offsprings, len(parent_couples), self.outqueue.empty())
+                
         
         self.num_jobs.value = 0
         
+        
         for o in new_offsprings:    
             #append offsprings    
-            offsprings[o.skill_factor].extend(new_offsprings)
+            offsprings[o.skill_factor].append(o)
             
         
         for subpop, off in zip(population, offsprings):
