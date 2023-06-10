@@ -5,6 +5,12 @@ from ..population import Population
 from ...utils.functional import normalize_norm1
 from ...utils.timer import *
 import matplotlib.pyplot as plt
+from faster_fifo import Queue
+from queue import Empty, Full
+import multiprocessing as mp
+from ...utils import _put, Worker, QUEUE_SIZE
+import traceback
+from ctypes import c_bool, c_int
 
 #NOTE: this reproducer call is outdated
 class Reproducer:
@@ -106,15 +112,48 @@ class SMPManager:
             smp_return += self.lower_p
             self.SMP_include_host = smp_return
             
+            
+class ReproducerManager:
+    def __init__(self, reproducer: Reproducer):
+        self.reproducer = reproducer
+        
+    def __enter__(self):
+        self.reproducer.create_pool(5)
+    
+    
+    def __exit__(self, *args, **kwargs):
+        
+        self.reproducer.stop.value = True
+        
+        print("Reproducer's stopping...")
+            
+        del self.reproducer.job_queue
+        del self.reproducer.outqueue
+        
+        for worker in self.reproducer.pool:
+            worker.kill()
+            
+        print("Reproducer's stopped...")
+            
 
 class SMP_Reproducer(Reproducer):
     def __init__(self, crossover: Crossover, mutation: Mutation, **params):
         super().__init__(crossover, mutation, **params)
         self.smp: SMPManager
+        self.job_queue = Queue(QUEUE_SIZE)
+        self.num_jobs = mp.Value(c_int, 0)
+        self.outqueue = Queue(QUEUE_SIZE)
+        self.stop = mp.RawValue(c_bool, False)
         
     
-    def select_mutation_parent(self, population: Population, skf: int):
-        return population.ls_subPop[skf].__getRandomItems__(2, False)
+    def create_pool(self, num_workers = 5):
+        self.pool: List[Worker] = [Worker(func=run_bg,
+                                          reproducer = self, 
+                                          inqueue = self.job_queue,
+                                          outqueue = self.outqueue,
+                                          pid = i,
+                                          num_jobs = self.num_jobs,
+                                          stop_signal = self.stop) for i in range(num_workers)]
     
     def update_choose_father(self, Delta_choose_father):
         '''
@@ -132,25 +171,34 @@ class SMP_Reproducer(Reproducer):
         self.history_p_choose_father.append(np.copy(self.p_choose_father))
     
     
-    def select_crossover_parent(self, population: Population):
-        #choose the first parent subpop
-        skf_pa = numba_randomchoice_w_prob(self.p_choose_father)
-        smp = self.smp[skf_pa].get_smp()
-        #choose the second parent subpop
-        skf_pb = numba_randomchoice_w_prob(smp)
-        
-        if skf_pb < population.num_sub_tasks:
-            if skf_pa == skf_pb:
-                pa, pb = population[skf_pa].__getRandomItems__(size= 2, replace=False)
-            else:
-                pa = population[skf_pa].__getRandomItems__()
-                pb = population[skf_pb].__getRandomItems__()
-                
-            return [pa, pb]
-        
-        else: return skf_pa
-        
+    def select_mutation_parent(self, population: Population, skf: int):
+        return population.ls_subPop[skf].__getRandomItems__(1, False)
     
+    def select_parent(self, population: Population, size: int) -> List[List[Individual]]:
+        
+        parent_couples = []
+        
+        for _ in range(size):
+        
+            #choose the first parent subpop
+            skf_pa = numba_randomchoice_w_prob(self.p_choose_father)
+            smp = self.smp[skf_pa].get_smp()
+            #choose the second parent subpop
+            skf_pb = numba_randomchoice_w_prob(smp)
+            
+            if skf_pb < population.num_sub_tasks:
+                if skf_pa == skf_pb:
+                    pa, pb = population[skf_pa].__getRandomItems__(size= 2, replace=False)
+                else:
+                    pa = population[skf_pa].__getRandomItems__()
+                    pb = population[skf_pb].__getRandomItems__()
+                    
+                parent_couples.append([(pa, pb), 'crossover'])
+            
+            else: 
+                parent_couples.append([self.select_mutation_parent(population= population, skf= skf_pa), 'mutation'])
+        
+        return parent_couples
     
     def update_population_info(self, **kwargs):
         super().update_population_info(**kwargs)
@@ -164,26 +212,32 @@ class SMP_Reproducer(Reproducer):
         num_offsprings = 0
         total_num_offsprings = sum(population.nb_inds_tasks) * population.offspring_size
         offsprings = [[] for _ in range(population.num_sub_tasks)]
-        while num_offsprings  < total_num_offsprings:
-            
-            
-            parents = self.select_crossover_parent(population= population)
-            
-            #if crossover
-            if type(parents) == list:
-                new_offsprings= self.crossover(*parents)
-                  
-            #else mutation
-            else:
-                parents = self.select_mutation_parent(population= population, skf= parents)
-                new_offsprings = []
-                for p in parents:
-                    new_offsprings.extend(self.mutation(p))
-            
-            num_offsprings+= len(new_offsprings)   
         
+        
+        parent_couples = self.select_parent(population= population, size = total_num_offsprings)
+        
+        _put(parent_couples, self.job_queue)
+        
+        
+        new_offsprings = []
+        
+        while self.num_jobs.value < total_num_offsprings:
+            try:
+                o = self.outqueue.get_many()
+
+            except Empty:
+                time.sleep(0.1)
+                
+            else:
+                new_offsprings.extend(o)
+                print(self.num_jobs.value, total_num_offsprings, len(parent_couples), self.outqueue.empty())
+        
+        self.num_jobs.value = 0
+        
+        for o in new_offsprings:    
             #append offsprings    
-            offsprings[parents[0].skill_factor].extend(new_offsprings)
+            offsprings[o.skill_factor].extend(new_offsprings)
+            
         
         for subpop, off in zip(population, offsprings):
             #remove unknown operands
@@ -196,6 +250,7 @@ class SMP_Reproducer(Reproducer):
             all_offsprings.extend(o)
             
         return all_offsprings
+    
     
     @timed    
     def update_smp(self, population: Population, offsprings: List[Individual]):
@@ -271,3 +326,42 @@ class SMP_Reproducer(Reproducer):
         plt.savefig('P_choose_father.png')
         if re_fig:
             return fig
+        
+        
+#Create processes running in background waiting for jobs
+def run_bg(reproducer: Reproducer, inqueue: Queue ,outqueue: Queue, pid:int, stop_signal: mp.RawValue, num_jobs: mp.Value):
+    while not stop_signal.value:
+        
+        try:
+            jobs = inqueue.get_many(max_messages_to_get = 10)
+            
+        except Empty:
+            ...
+            
+        except Exception as e:
+            traceback.print_exc()
+            print(colored(f'[Worker {pid}]: Error: {e}', 'red'))
+        
+        else:
+        
+            new_offsprings = []
+            
+            for parents, reproduce_type in jobs:
+                new_offsprings.extend(getattr(reproducer, reproduce_type)(*parents))
+        
+            is_put = False    
+            
+            while not is_put:
+                try:
+                    outqueue.put_many(new_offsprings)
+                    
+                except Full:
+                    print('FULL ' * 20)
+                    time.sleep(0.01)
+                    
+                    
+                else:
+                    is_put = True
+                    with num_jobs.get_lock():
+                        num_jobs.value += len(jobs)
+         

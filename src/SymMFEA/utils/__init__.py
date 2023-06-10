@@ -7,7 +7,8 @@ from typing import Iterable, Union
 from sympy import Expr
 from k_means_constrained import KMeansConstrained
 from sklearn.model_selection import train_test_split
-
+from queue import Full
+QUEUE_SIZE = 1000000000
 
 def create_shared_np(shape: Iterable[int], val: Union[float, np.array]= 0.0, dtype= None, race_safe= False):
     if isinstance(shape, int):
@@ -69,3 +70,26 @@ def stratify_train_test_split(X:np.ndarray, y: np.ndarray, test_size: float, ret
         return train_test_split(np.arange(y.shape[0]), y, test_size=test_size, stratify= discrete_y)[1]
     else:
         return train_test_split(X, y, test_size=test_size, stratify= discrete_y)
+    
+#put to queue
+def _put(jobs, inqueue):
+    is_put = False
+    while not is_put:
+        try:
+            inqueue.put_many(jobs)
+        except Full:
+            ...
+        else:
+            is_put = True
+            
+class Worker:
+    def __init__(self, func, *args, **kwargs):
+        
+        self.process = mp.Process(target= func, args=args, kwargs= kwargs)
+        
+        self.process.start()
+        
+        
+    def kill(self):
+        self.process.join()
+        self.process.terminate()

@@ -23,7 +23,6 @@ class Individual:
         self.optimizer_profile: dict= dict()
         self.is_optimized = False
         self.age: int = 0
-        # self.train_metric: float = None
     
     def flush(self):
         self.is_optimized = False
@@ -32,13 +31,7 @@ class Individual:
         self.objective = None
         self.n_samples = 0 
         self.genes.flush()
-        
-    # def setattrs(self, attrs: List[dict]):
-    #     self.genes.setattrs(attrs)
-    
-    # @property
-    # def attrs(self):
-    #     return self.genes.attrs
+     
     
     @property
     def terminal_set(self):
@@ -90,14 +83,14 @@ class Individual:
             self.objective.extend([-max(self.genes.length, 10), -max(self.genes.depth, 3), -self.genes.num_nonlinear])
         
         if age:
-            self.set_age_objectie()
+            self.set_age_objectie(append = True)
             
         
-    def set_age_objectie(self): 
-        if self.age == 0:
-            self.objective.append(MIN_AGE)
+    def set_age_objectie(self, append = False): 
+        age = min(MIN_AGE, self.age)
+        if append:
+            self.objective.append(age)
         else:
-            age = min(MIN_AGE, self.age)
             self.objective[-1] = age
         
             
