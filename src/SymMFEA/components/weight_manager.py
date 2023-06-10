@@ -4,6 +4,7 @@ from ..utils.timer import timed
 import numba as nb 
 import ctypes
 import os
+from multiprocessing import Lock
 @nb.njit(nb.int64(nb.boolean[:], nb.int64), cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
 def find_first(vec, start):
   for i in nb.prange(start, len(vec)):
@@ -31,15 +32,17 @@ class WeightManager:
         self.momentum = create_shared_np(shape, val=0)
         self.velocity = create_shared_np(shape, val=0)
         self.start = 0
+        self.next_lock = Lock()
     
     @timed
     def __next__(self):
-        idx = find_first(self.allocated, self.start)
-        self.start = idx + 1
-        if idx == -1:
-            raise ValueError("Out of space in weight manager")
-        self.allocated[idx] = 1
-        return idx
+        with self.next_lock:
+          idx = find_first(self.allocated, self.start)
+          self.start = idx + 1
+          if idx == -1:
+              raise ValueError("Out of space in weight manager")
+          self.allocated[idx] = 1
+          return idx
     
     @timed
     def free_space(self, idx: int):

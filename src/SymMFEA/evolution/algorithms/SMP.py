@@ -28,6 +28,7 @@ class SMP(GA):
         
     def generation_step(self, population: Population, generation: int):
         
+        
         if generation > 0:
             #update nb_inds_tasks 
             self.update_nb_inds_tasks(population= population, generation= generation)

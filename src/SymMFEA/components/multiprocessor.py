@@ -2,7 +2,7 @@ import multiprocessing as mp
 from typing import List, Tuple
 from ..evolution.task import SubTask
 from ..utils.timer import timed
-from ..utils import create_shared_np
+from ..utils import create_shared_np, _put, Worker, QUEUE_SIZE
 from termcolor import colored
 import traceback
 import time 
@@ -12,8 +12,7 @@ import numpy as np
 from prettytable import PrettyTable
 import threading
 from faster_fifo import Queue
-import aiofiles
-import asyncio
+
 
 SLEEP_TIME = 0.01
 
@@ -27,30 +26,7 @@ def custom_error_callback(error):
     print(''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)))
     raise ValueError(f'Got an error from Multiprocessor: {error}')
 
-def _put(jobs, inqueue):
-    is_put = False
-    while not is_put:
-        try:
-            inqueue.put_many(jobs)
-        except Full:
-            ...
-        else:
-            is_put = True
-    
-class Worker:
-    def __init__(self, *args, **kwargs):
-        
-        self.process = mp.Process(target= run_bg, args=args, kwargs= kwargs)
-        
-        self.process.start()
-        
-        
-    def kill(self):
-        self.process.join()
-        self.process.terminate()
-        
 
-            
 
 class Multiprocessor:
     def __init__(self, num_workers:int = 1, chunksize: int = 10):
@@ -63,8 +39,8 @@ class Multiprocessor:
         self.stop = mp.RawValue(c_bool, False)
         
         
-        self.inqueue = Queue(1000000000)
-        self.outqueue = Queue(1000000000)
+        self.inqueue = Queue(QUEUE_SIZE)
+        self.outqueue = Queue(QUEUE_SIZE)
         self.num_workers = num_workers
         
         
@@ -73,7 +49,7 @@ class Multiprocessor:
         self.create_pool(num_workers= num_workers)
         
     def create_pool(self, num_workers):
-        self.pool: List[Worker] = [Worker(self.inqueue, self.outqueue, i, {
+        self.pool: List[Worker] = [Worker(run_bg, self.inqueue, self.outqueue, i, {
             'train_steps': self.train_steps,
             'nb_inqueue': self.nb_inqueue,
             'times': self.times,

@@ -1,7 +1,7 @@
 import numpy as np
 from ..ranker import SingleObjectiveRanker, Ranker
 from ..population import Population, Individual
-from ..reproducer import Reproducer
+from ..reproducer import Reproducer, ReproducerManager
 from ..task import Task
 from ..selector import Selector, Selector
 from ...components.trainer import Loss, GradOpimizer
@@ -184,7 +184,7 @@ class GA:
             )
 
 
-            with GAProgressBar(num_iters=nb_generations, metric_name=str(metric)) as (self.progress, pbar):
+            with GAProgressBar(num_iters=nb_generations, metric_name=str(metric)) as (self.progress, pbar), ReproducerManager(reproducer= self.reproducer):
                 #connect multiprocessor with offspring pool
                 offspring_pool.optimized.connect_input_source(self.multiprocessor.outqueue)
                 
