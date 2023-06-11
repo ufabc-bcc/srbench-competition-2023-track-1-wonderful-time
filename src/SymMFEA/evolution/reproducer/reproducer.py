@@ -12,6 +12,8 @@ from ...utils import _put, Worker, QUEUE_SIZE
 import traceback
 from ctypes import c_bool, c_int
 
+NUM_WORKERS = 10
+
 #NOTE: this reproducer call is outdated
 class Reproducer:
     '''
@@ -118,7 +120,7 @@ class ReproducerManager:
         self.reproducer = reproducer
         
     def __enter__(self):
-        self.reproducer.create_pool(5)
+        self.reproducer.create_pool(NUM_WORKERS)
     
     @timed
     def __exit__(self, *args, **kwargs):
@@ -146,7 +148,7 @@ class SMP_Reproducer(Reproducer):
         self.stop = mp.RawValue(c_bool, False)
         
     
-    def create_pool(self, num_workers = 5):
+    def create_pool(self, num_workers):
         self.pool: List[Worker] = [Worker(func=run_bg,
                                           reproducer = self, 
                                           inqueue = self.job_queue,
@@ -208,20 +210,10 @@ class SMP_Reproducer(Reproducer):
         self.p_choose_father = kwargs['p_choose_father']
         self.num_sub_tasks: int = kwargs['num_sub_tasks']
         self.history_p_choose_father: List[np.ndarray] = [self.p_choose_father]
-        
-        
+    
     @timed
-    def __call__(self, population: Population):              
-        num_offsprings = 0
-        total_num_offsprings = sum(population.nb_inds_tasks) * population.offspring_size
+    def reproduce(self, total_num_offsprings, population):
         offsprings = [[] for _ in range(population.num_sub_tasks)]
-        
-        
-        parent_couples = self.select_parent(population= population, size = total_num_offsprings)
-        
-        _put(parent_couples, self.job_queue)
-        
-        
         new_offsprings = []
         
         while self.num_jobs.value < total_num_offsprings:
@@ -237,9 +229,9 @@ class SMP_Reproducer(Reproducer):
         
         self.num_jobs.value = 0
         
-        
+        #move offsprings to corrsponding subpopulation
         for o in new_offsprings:    
-            #append offsprings    
+            
             offsprings[o.skill_factor].append(o)
             
         
@@ -254,6 +246,21 @@ class SMP_Reproducer(Reproducer):
             all_offsprings.extend(o)
             
         return all_offsprings
+    
+    @timed
+    def put(self, parent_couples):
+        _put(parent_couples, self.job_queue)
+    
+    def __call__(self, population: Population):              
+        num_offsprings = 0
+        total_num_offsprings = sum(population.nb_inds_tasks) * population.offspring_size
+        
+        parent_couples = self.select_parent(population= population, size = total_num_offsprings)
+        
+        self.put(parent_couples= parent_couples)
+        
+        return self.reproduce(total_num_offsprings= total_num_offsprings, population= population)
+        
     
     
     @timed    
