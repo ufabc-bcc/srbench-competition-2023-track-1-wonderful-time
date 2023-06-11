@@ -1,6 +1,6 @@
 import multiprocessing as mp
 from typing import List, Tuple
-from ..evolution.task import SubTask
+from ..evolution.task import SubTask, Task
 from ..utils.timer import timed
 from ..utils import create_shared_np, _put, Worker, QUEUE_SIZE
 from termcolor import colored
@@ -12,14 +12,20 @@ import numpy as np
 from prettytable import PrettyTable
 import threading
 from faster_fifo import Queue
+from ..components.trainer import Trainer, Loss, GradOpimizer
+from ..components.metrics import Metric
+from typing import Dict
 
 
 SLEEP_TIME = 0.01
 
-def execute_one_job(task, ind):    
+def execute_one_job(ind, trainer, task: Task, steps_per_gen: int):    
+        
     s = time.time()
-    result = task.task.trainer.fit(ind, steps= task.task.steps_per_gen, data = task.data)
+    result = trainer.fit(ind, steps= steps_per_gen, data = task.task_table[ind.skill_factor].data)
     result['time'] = time.time() - s
+    if not task.is_larger_better:
+        result['best_metric'] = - result['best_metric']
     return result
     
 def custom_error_callback(error):
@@ -29,32 +35,35 @@ def custom_error_callback(error):
 
 
 class Multiprocessor:
-    def __init__(self, num_workers:int = 1, chunksize: int = 10):
+    def __init__(self, loss: Loss, metric: Metric, task: Task,
+                 optimizer: GradOpimizer, steps_per_gen: int, num_workers:int = 1, trainer_config:dict = {}):
         self.num_workers= num_workers
-        self.chunksize= chunksize
         self.train_steps = mp.Value('L', 0)
         self.nb_inqueue= mp.Value('L', 0)
         self.times = mp.Value('d', 0)
         self.processed = mp.Value('L', 0)
         self.stop = mp.RawValue(c_bool, False)
-        
-        
+        self.manager = mp.Manager()
+            
+        self.task = task
+        self.steps_per_gen:int = steps_per_gen
+        self.trainer = Trainer(loss= loss, optimizer=optimizer, metric= metric, **trainer_config)
         self.inqueue = Queue(QUEUE_SIZE)
         self.outqueue = Queue(QUEUE_SIZE)
         self.num_workers = num_workers
         
-        
-        
         self.worker_logger = create_shared_np((num_workers, 9), val = 0, dtype= c_float)
-        self.create_pool(num_workers= num_workers)
-        
-    def create_pool(self, num_workers):
+    
+                     
+    def create_pool(self):
         self.pool: List[Worker] = [Worker(run_bg, self.inqueue, self.outqueue, i, {
             'train_steps': self.train_steps,
             'nb_inqueue': self.nb_inqueue,
             'times': self.times,
             'processed': self.processed,
-            }, self.worker_logger, self.stop) for i in range(num_workers)]
+            }, self.worker_logger, self.stop,
+            steps_per_gen = self.steps_per_gen,                                          
+            trainer= self.trainer, task = self.task) for i in range(self.num_workers)]
         
 
     @timed        
@@ -87,7 +96,7 @@ class Multiprocessor:
     
     @timed
     def __enter__(self):
-        self.create_pool(num_workers= self.num_workers)
+        self.create_pool()
         return self
     
     
@@ -116,7 +125,6 @@ class Multiprocessor:
         self.stop.value = True
         
         print("Multiprocessor's stopping...")
-            
         del self.inqueue
         del self.outqueue
         
@@ -127,7 +135,7 @@ class Multiprocessor:
         
         
 #Create processes running in background waiting for jobs
-def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.ndarray, stop_signal: mp.RawValue):
+def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.ndarray, stop_signal: mp.RawValue, trainer: Trainer, task: Task, steps_per_gen: int):
     s = time.time()
     while not stop_signal.value:
         try:
@@ -145,7 +153,7 @@ def run_bg(inqueue: Queue, outqueue: Queue, pid:int, metrics: dict, logger: np.n
         else:
             results = []
             for job in jobs:
-                result = execute_one_job(*job)
+                result = execute_one_job(job, trainer, task, steps_per_gen)
                 finish = time.time() 
                 results.append([
                             result['best_metric'],

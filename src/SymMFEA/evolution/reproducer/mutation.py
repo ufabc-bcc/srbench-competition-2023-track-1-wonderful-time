@@ -44,18 +44,19 @@ class VariableMutation(Mutation):
             
             for i, node in enumerate(parent.genes.nodes):
                 if i in mutate_idx:
-                    child_nodes.append(Operand(index = random.choice(parent.terminal_set)))
+                    child_nodes.append(Operand(index = random.choice(self.terminal_table[parent.skill_factor])))
                 
                 else:
                     child_nodes.append(Node.deepcopy(node))
                     
-            child = Individual(Tree(child_nodes), task= parent.task, skill_factor= parent.skill_factor)
+            child = Individual(Tree(child_nodes), skill_factor= parent.skill_factor)
             self.update_parent_profile(child, parent)
             children.append(child)
         return children
     
     def update_population_info(self, **kwargs):
         self.num_total_terminals = kwargs['nb_terminals']
+        self.terminal_table = kwargs['terminal_table']
 
 
 class GrowTreeMutation(Mutation):
@@ -94,7 +95,7 @@ class GrowTreeMutation(Mutation):
                                                 max_length= self.max_length[parent.skill_factor])
             
             self.tree_creator.update_config(
-                max_depth= max_depth, max_length= max_length, terminal_set= parent.terminal_set   
+                max_depth= max_depth, max_length= max_length, terminal_set= self.terminal_table[parent.skill_factor]
             )
             
             #can not create nonlinear branch from a parent nonlinear node
@@ -103,7 +104,7 @@ class GrowTreeMutation(Mutation):
 
             
             
-            child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True), task= parent.task, skill_factor= parent.skill_factor)
+            child = Individual(Tree(parent.genes.nodes[:grow_point] + branch + parent.genes.nodes[grow_point + 1 : ], deepcopy= True), skill_factor= parent.skill_factor)
             
             assert child.genes.length <= self.max_length[parent.skill_factor], (child.genes.length, self.max_length[parent.skill_factor])
             assert child.genes.depth <= self.max_depth[parent.skill_factor], (child.genes.depth, self.max_depth[parent.skill_factor])
@@ -116,6 +117,8 @@ class GrowTreeMutation(Mutation):
     
     def update_population_info(self, **kwargs):
         self.num_total_terminals = kwargs['nb_terminals']
+        self.terminal_table = kwargs['terminal_table']
+        
         self.tree_creator = FlexTreeFactory(
             num_total_terminals= self.num_total_terminals,
         )
@@ -180,7 +183,7 @@ class PruneMutation(Mutation):
             child_nodes= root[0] + [new_node] + root[1]
             
             assert len(child_nodes) <= parent.genes.length
-            child = Individual(Tree(child_nodes, deepcopy= True), task= parent.task, skill_factor= parent.skill_factor)
+            child = Individual(Tree(child_nodes, deepcopy= True), skill_factor= parent.skill_factor)
             self.update_parent_profile(child, parent)
             children.append(child)
         return children

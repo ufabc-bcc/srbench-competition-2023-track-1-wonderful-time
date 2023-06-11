@@ -24,9 +24,9 @@ class SubPopulation:
         
         self.tree_factory = TreeFactory(task_idx = skill_factor, num_total_terminals= len(task.terminal_set), tree_config= tree_config, column_sampler= column_sampler)
         
-        self.task = SubTask(task, data_sample= data_samples, terminal_set= self.tree_factory.terminal_set)
+        self.task = SubTask(task, data_sample= data_samples, terminal_set= self.tree_factory.terminal_set, skill_factor= skill_factor)
         
-        self.ls_inds = [Individual(self.tree_factory.create_tree(), task = self.task, skill_factor = skill_factor) for _ in range(num_inds)]
+        self.ls_inds = [Individual(self.tree_factory.create_tree(), skill_factor = skill_factor) for _ in range(num_inds)]
         
         self.scalar_fitness: np.ndarray = None
         self.objective: np.ndarray = None
@@ -93,7 +93,7 @@ class Population:
         
         
         self.column_sampler = ColumnSampler()
-        self.column_sampler.fit(task.data.X_train)
+        self.column_sampler.fit(task.data_pool.X_train)
         
         self.ls_subPop: List[SubPopulation] = [
             SubPopulation(self.nb_inds_tasks[skf], self.data_sample[skf], skill_factor = skf,  task= task, tree_config = tree_config, column_sampler= self.column_sampler) for skf in range(self.num_sub_tasks)
@@ -102,7 +102,7 @@ class Population:
         
         self.train_steps:int = 0
         self.multiprocessor = multiprocessor
-        
+                    
     def update_nb_inds_tasks(self, nb_inds_tasks):
         self.nb_inds_tasks = nb_inds_tasks
 

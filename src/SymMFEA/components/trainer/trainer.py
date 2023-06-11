@@ -48,12 +48,22 @@ class Trainer:
                 break
         
         ind.rollback_best()
-        ind.update_stats()        
+        
+        #update stats
+        ind(data.X_train, update_stats = True)        
+        
+        
         #check if rollback successfully
         
-        
-        ind.run_check(self.metric)
-        ind.run_check_stats()
+        if os.environ.get('DEBUG'):
+            met = self.metric(data.y_val, ind(data.X_val))
+            
+            rs = abs((met - ind.best_metric) / (ind.best_metric + 1e-20)) < 1e-4
+            
+            
+            assert rs, (met, ind.best_metric) 
+            
+            ind(data.X_train, check_stats= True)
         
 
         return {
