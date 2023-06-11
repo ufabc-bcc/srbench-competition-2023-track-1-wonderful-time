@@ -16,7 +16,7 @@ class Trainer:
 
     def fit(self, ind, data: DataView, steps: int = 10, finetuner: Tuple[FinetuneProgressBar, tqdm_asyncio]= None):
         if steps == 0:
-            return 0
+            return {}
         
         assert not ind.is_optimized
         

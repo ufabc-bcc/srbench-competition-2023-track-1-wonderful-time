@@ -10,8 +10,19 @@ class Individual:
     a Individual include:\n
     + `genes`: Tree\n
     + `skill_factor`: skill factor of the individual\n
-    + `fcost`: factorial cost of the individual for skill_factor
     '''
+    __slots__ = [
+        'skill_factor',
+        'objective',
+        'genes',
+        'best_metric',
+        'nb_consecutive_not_improve',
+        'task',
+        'parent_profile',
+        'is_optimized',
+        'age',
+        'optimizer_profile',
+    ]
     def __init__(self, genes, task:SubTask, skill_factor: int, *args, **kwargs): 
         self.skill_factor: int = skill_factor
         self.objective: List[float] = None
