@@ -27,9 +27,6 @@ class Crossover:
 
 class SubTreeCrossover(Crossover):
     def __init__(self, *args, **kwargs):
-        '''
-        finetune step (only new insert branch)
-        '''
         super().__init__(*args, **kwargs)
         
     def __call__(self, pa: Individual, pb: Individual, *args, **kwargs) -> List[Individual]:
@@ -81,7 +78,7 @@ class SubTreeCrossover(Crossover):
         
         
         child_a = Individual(Tree(tar_root[0] + src_branch + tar_root[1]
-                                  , deepcopy= True), task = pa.task, skill_factor= pa.skill_factor)
+                                  , deepcopy= True), skill_factor= pa.skill_factor)
         
         
         assert child_a.genes.length <= self.max_length[pa.skill_factor], (child_a.genes.length, self.max_length[pa.skill_factor])

@@ -95,7 +95,7 @@ class OffspringsPool:
 class NewBorn(OffspringsPool):
     def collect_optimize_jobs(self):
         inds = self.collect()
-        return [(ind.task, ind) for ind in inds]
+        return inds.tolist()
     
        
     
@@ -105,10 +105,7 @@ class Optimized(OffspringsPool):
         self.compact= compact
         
     
-    def handle_input_source(self, metric, loss, profile, job):
-        task, ind = job
-        if not task.is_larger_better:
-            metric = -metric
+    def handle_input_source(self, metric, loss, profile, ind):
         ind.set_objective(metric, compact = self.compact)
         ind.is_optimized = True
         ind.optimizer_profile = profile

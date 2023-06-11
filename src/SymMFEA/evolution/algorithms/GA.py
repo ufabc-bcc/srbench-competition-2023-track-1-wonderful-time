@@ -93,9 +93,6 @@ class GA:
             f.write(str(self.final_solution.expression))
 
 
-    def finetune(self, ind: Individual):
-        ind.finetune()
-
     def fit(self, X: np.ndarray,
             y: np.ndarray,
             loss: Loss,
@@ -123,6 +120,7 @@ class GA:
             min_candidates: int = None,
             save_path: str= None,
             worker_log: bool= False,
+            trainer_config: dict = {},
             **params,
             ):
         '''
@@ -162,10 +160,12 @@ class GA:
 
         self.init_params(**params, is_larger_better= metric.is_larger_better)
         tree_config = self.handle_params(tree_config= tree_config)
+        self.main_task = Task(X, y, metric, test_size= test_size)
 
-        with Multiprocessor(num_workers= num_workers) as multiprocessor:
+
+        with Multiprocessor(num_workers= num_workers, loss= loss, metric= metric, optimizer = optimzier, steps_per_gen=steps_per_gen, trainer_config= trainer_config, task = self.main_task) as multiprocessor:
             self.multiprocessor = multiprocessor
-            self.main_task = Task(X, y, loss, optimzier, metric, steps_per_gen=steps_per_gen, test_size= test_size)
+            
             
             # initialize population
             population = Population(
@@ -181,6 +181,7 @@ class GA:
             self.reproducer.update_population_info(
                 **tree_config,
                 **{attr: getattr(self, attr) for attr in self.pass_down_params},
+                terminal_table = self.main_task.terminal_table
             )
 
 
@@ -214,8 +215,9 @@ class GA:
         reverse = not metric.is_larger_better
         
         with CandidateFinetuneProgressBar(num_iters=len(candidates), metric= metric) as (progress, pbar):
-            for i in pbar:
-                candidates[i].finetune(
+            for i in pbar:                
+                self.main_task[candidates[i].skill_factor].finetune(
+                    ind = candidates[i], trainer = self.multiprocessor.trainer,
                     finetune_steps= finetune_steps, decay_lr= finetune_decay_lr, compact= compact
                 )
                 

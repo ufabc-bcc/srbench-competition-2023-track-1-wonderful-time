@@ -35,9 +35,7 @@ class SMP(GA):
             
             #create new individuals
             offsprings = self.reproducer(population)
-        
-        
-            #so far new_born is not necessary because reproducer is not concurrent
+                
             #append to new_born pool
             offspring_pool.new_born.append(offsprings)
             

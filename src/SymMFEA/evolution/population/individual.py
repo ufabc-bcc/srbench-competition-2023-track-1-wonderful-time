@@ -2,8 +2,10 @@ import numpy as np
 from ...components.tree import Tree
 from typing import List
 from ..task import SubTask
+from .. import task
 from ...components.metrics import Metric
 import os
+
 MIN_AGE = 5
 class Individual:
     '''
@@ -17,19 +19,17 @@ class Individual:
         'genes',
         'best_metric',
         'nb_consecutive_not_improve',
-        'task',
         'parent_profile',
         'is_optimized',
         'age',
         'optimizer_profile',
     ]
-    def __init__(self, genes, task:SubTask, skill_factor: int, *args, **kwargs): 
+    def __init__(self, genes, skill_factor: int, *args, **kwargs): 
         self.skill_factor: int = skill_factor
         self.objective: List[float] = None
         self.genes: Tree = genes
         self.best_metric: float = None
         self.nb_consecutive_not_improve: int = 0
-        self.task = task
         self.parent_profile: dict= dict()
         self.optimizer_profile: dict= dict()
         self.is_optimized = False
@@ -40,13 +40,7 @@ class Individual:
         self.best_metric = None
         self.nb_consecutive_not_improve = 0
         self.objective = None
-        self.n_samples = 0 
         self.genes.flush()
-     
-    
-    @property
-    def terminal_set(self):
-        return self.task.terminal_set
     
     @property
     def position(self):
@@ -69,22 +63,19 @@ class Individual:
     def __call__(self, X: np.ndarray, update_stats= False, training= False, check_stats= False):
         return self.genes(X, update_stats= update_stats, training= training, check_stats = check_stats)
     
-    def update_stats(self):
-        self(self.task.data.X_train, update_stats= True)
+    # def update_stats(self):
+    #     self(self.task.data.X_train, update_stats= True)
         
     def free_space(self):
         self.genes.free_space()
         
-    def run_check_stats(self):
-        if os.environ.get('DEBUG'):
-            self(self.task.data.X_train, check_stats= True)
+    # def run_check_stats(self):
+    #     if os.environ.get('DEBUG'):
+    #         self(self.task.data.X_train, check_stats= True)
     
     def update_parent_profile(self, **profile):
         for k, v in profile.items():
             self.parent_profile[k] = v
-    
-    def finetune(self, finetune_steps: int, decay_lr: float, compact: bool):
-        return self.task.finetune(self, finetune_steps= finetune_steps, decay_lr = decay_lr, compact = compact)
         
     def set_objective(self, *objective: np.ndarray, compact:bool = False, age: bool = True):
         
@@ -120,14 +111,14 @@ class Individual:
         
         return True
         
-    def run_check(self, metric: Metric):
-        if os.environ.get('DEBUG'):
-            met = metric(self.task.data.y_val, self(self.task.data.X_val))
+    # def run_check(self, metric: Metric):
+    #     if os.environ.get('DEBUG'):
+    #         met = metric(self.task.data.y_val, self(self.task.data.X_val))
             
-            rs = abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-4
+    #         rs = abs((met - self.best_metric) / (self.best_metric + 1e-20)) < 1e-4
             
             
-            assert rs, (met, self.best_metric) 
+    #         assert rs, (met, self.best_metric) 
     
 
              
