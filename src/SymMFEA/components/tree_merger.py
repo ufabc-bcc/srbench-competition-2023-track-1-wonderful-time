@@ -2,7 +2,7 @@ from .tree import Tree
 from ..evolution.population import Individual
 from sklearn.linear_model import Lasso
 from typing import List, Iterable
-from .data_pool import DataView
+from .data_pool import DataPool
 from termcolor import colored
 from .functions import Sum
 import numpy as np
@@ -17,7 +17,7 @@ class TreeMerger:
         ...
         
     @timed
-    def __call__(self, inds: List[Individual], val_data: DataView, metric: Metric):
+    def __call__(self, inds: List[Individual], val_data: DataPool, metric: Metric):
         warnings.filterwarnings("ignore")
 
         y_trains = np.stack([ind(val_data.X_train) for ind in inds]).T
