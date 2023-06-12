@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 from faster_fifo import Queue
 from queue import Empty, Full
 import multiprocessing as mp
-from ...utils import _put, Worker, QUEUE_SIZE
+from ...utils import _put, Worker, QUEUE_SIZE, _put_one
 import traceback
 from ctypes import c_bool, c_int
+import threading
 
 NUM_WORKERS = 10
 
@@ -146,6 +147,7 @@ class SMP_Reproducer(Reproducer):
         self.num_jobs = mp.Value(c_int, 0)
         self.outqueue = Queue(QUEUE_SIZE)
         self.stop = mp.RawValue(c_bool, False)
+        self.get_job_signal = mp.RawValue(c_bool, False)
         
     
     def create_pool(self, num_workers):
@@ -155,7 +157,8 @@ class SMP_Reproducer(Reproducer):
                                           outqueue = self.outqueue,
                                           pid = i,
                                           num_jobs = self.num_jobs,
-                                          stop_signal = self.stop) for i in range(num_workers)]
+                                          stop_signal = self.stop,
+                                          get_job_signal = self.get_job_signal) for i in range(num_workers)]
     
     def update_choose_father(self, Delta_choose_father):
         '''
@@ -226,6 +229,8 @@ class SMP_Reproducer(Reproducer):
             else:
                 new_offsprings.extend(o)
                 
+        # self.get_job_signal.value = False
+                
         
         self.num_jobs.value = 0
         
@@ -247,17 +252,22 @@ class SMP_Reproducer(Reproducer):
             
         return all_offsprings
     
+    # @timed
+    # def put(self, parent_couples):
+    #     _put(parent_couples, self.job_queue)
+    #     # self.get_job_signal.value = True
     @timed
-    def put(self, parent_couples):
-        _put(parent_couples, self.job_queue)
-    
+    def async_put(self, parent_couples):
+        
+        thread = threading.Thread(target= _put, args = (parent_couples, self.job_queue))
+        thread.start()    
+         
     def __call__(self, population: Population):              
-        num_offsprings = 0
         total_num_offsprings = sum(population.nb_inds_tasks) * population.offspring_size
         
         parent_couples = self.select_parent(population= population, size = total_num_offsprings)
         
-        self.put(parent_couples= parent_couples)
+        self.async_put(parent_couples= parent_couples)
         
         return self.reproduce(total_num_offsprings= total_num_offsprings, population= population)
         
@@ -340,39 +350,38 @@ class SMP_Reproducer(Reproducer):
         
         
 #Create processes running in background waiting for jobs
-def run_bg(reproducer: Reproducer, inqueue: Queue ,outqueue: Queue, pid:int, stop_signal: mp.RawValue, num_jobs: mp.Value):
+def run_bg(reproducer: Reproducer, inqueue: Queue ,outqueue: Queue, pid:int, stop_signal: mp.RawValue, num_jobs: mp.Value, get_job_signal: mp.RawValue):
     while not stop_signal.value:
-        
-        try:
-            jobs = inqueue.get_many(max_messages_to_get = 10)
+        # if get_job_signal.value:
+            try:
+                jobs = inqueue.get_many(max_messages_to_get = 10)
+                
+            except Empty:
+                time.sleep(0.01)
+                
+            except Exception as e:
+                traceback.print_exc()
+                print(colored(f'[Worker {pid}]: Error: {e}', 'red'))
             
-        except Empty:
-            ...
+            else:
             
-        except Exception as e:
-            traceback.print_exc()
-            print(colored(f'[Worker {pid}]: Error: {e}', 'red'))
-        
-        else:
-        
-            new_offsprings = []
+                new_offsprings = []
+                
+                for parents, reproduce_type in jobs:
+                    new_offsprings.extend(getattr(reproducer, reproduce_type)(*parents))
             
-            for parents, reproduce_type in jobs:
-                new_offsprings.extend(getattr(reproducer, reproduce_type)(*parents))
-        
-            is_put = False    
+                is_put = False    
+                
+                while not is_put:
+                    try:
+                        outqueue.put_many(new_offsprings)
+                        
+                    except Full:
+                        time.sleep(0.01)
+                        
+                        
+                    else:
+                        is_put = True
+                        with num_jobs.get_lock():
+                            num_jobs.value += len(jobs)
             
-            while not is_put:
-                try:
-                    outqueue.put_many(new_offsprings)
-                    
-                except Full:
-                    print('FULL ' * 20)
-                    time.sleep(0.01)
-                    
-                    
-                else:
-                    is_put = True
-                    with num_jobs.get_lock():
-                        num_jobs.value += len(jobs)
-         

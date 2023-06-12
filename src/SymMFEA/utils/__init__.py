@@ -82,6 +82,16 @@ def _put(jobs, inqueue):
         else:
             is_put = True
             
+def _put_one(jobs, inqueue):
+    is_put = False
+    while not is_put:
+        try:
+            inqueue.put(jobs)
+        except Full:
+            ...
+        else:
+            is_put = True
+            
 class Worker:
     def __init__(self, func, *args, **kwargs):
         

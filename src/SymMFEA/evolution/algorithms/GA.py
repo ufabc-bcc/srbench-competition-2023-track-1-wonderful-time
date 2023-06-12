@@ -231,9 +231,9 @@ class GA:
         if len(candidates) == 1 or (not tree_merger):
             self.final_solution = best_tree
         else:
-            self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data, metric= metric) 
+            self.final_solution = self.tree_merger(candidates, val_data= self.main_task.data_pool, metric= metric) 
         
-        self.final_solution.run_check_expression(data = self.main_task.data)
+        self.final_solution.run_check_expression(data = self.main_task.data_pool)
         
         terminateOffspringsPool()
         
