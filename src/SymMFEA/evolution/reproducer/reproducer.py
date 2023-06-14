@@ -215,11 +215,10 @@ class SMP_Reproducer(Reproducer):
         self.history_p_choose_father: List[np.ndarray] = [self.p_choose_father]
     
     @timed
-    def collect(self, total_num_offsprings, population):
+    def collect(self,  population):
         offsprings = [[] for _ in range(population.num_sub_tasks)]
         new_offsprings = []
         
-        # while self.num_jobs.value < total_num_offsprings:
         try:
             o = self.outqueue.get_many()
 
@@ -228,12 +227,8 @@ class SMP_Reproducer(Reproducer):
             
         else:
             new_offsprings.extend(o)
+                        
                 
-        # self.get_job_signal.value = False
-                
-        
-        self.num_jobs.value = 0
-        
         #move offsprings to corrsponding subpopulation
         for o in new_offsprings:    
             
@@ -267,20 +262,19 @@ class SMP_Reproducer(Reproducer):
             
     
     def __call__(self, population: Population):        
-        return self.collect(*self.reproduce(population))
+        self.put(population)
+        return self.collect(population)
         
     @timed     
-    def reproduce(self, population):
-        return asyncio.run(self._reproduce(population))
-    
-    async def _reproduce(self, population: Population):      
+    def put(self, population):     
         total_num_offsprings = sum(population.nb_inds_tasks) * population.offspring_size
         
         parent_couples = self.select_parent(population= population, size = total_num_offsprings)
-                
-        await asyncio.gather(*[self.async_put(pc) for pc in parent_couples])
+                    
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.gather(*[self.async_put(pc) for pc in parent_couples]))
         
-        return total_num_offsprings, population
+    
         
     @timed    
     def update_smp(self, population: Population, offsprings: List[Individual]):
