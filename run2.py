@@ -75,7 +75,7 @@ SMP_configs = {
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 20,
-    nb_inds_each_task= [30] * 4+ [60] * 5,
+    nb_inds_each_task= [100] * 9,
     data_sample = 0.5,
     nb_generations= 200,
     X_val = X_val,
@@ -86,10 +86,11 @@ model.fit(
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 32,
-    offspring_size= 2,
+    offspring_size= 1,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
+    max_tree= 100000,
     trainer_config= {
         'early_stopping': 5
     },
