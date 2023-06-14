@@ -8,8 +8,9 @@ class ColumnSampler:
     
     @timed
     def fit(self, X: np.ndarray):
-        self.corrcoef = np.corrcoef(X.T)
-        self.dim = X.shape[1]
+        _X = np.copy(X)
+        self.corrcoef = np.corrcoef(_X.T)
+        self.dim = _X.shape[1]
         
         self.coposs = np.empty_like(self.corrcoef)
         for i in range(self.coposs.shape[0]):
