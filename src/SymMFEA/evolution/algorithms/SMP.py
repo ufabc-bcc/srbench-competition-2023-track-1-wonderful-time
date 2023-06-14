@@ -24,7 +24,7 @@ class SMP(GA):
     def wait(self):
         expected_inqueue = self.expected_generations_inqueue * self.offspring_size * sum(self.nb_inds_each_task)
         with self.multiprocessor.nb_inqueue.get_lock():
-            time.sleep(max((self.multiprocessor.nb_inqueue.value - expected_inqueue) / 5000, 0.1))
+            time.sleep(max((self.multiprocessor.nb_inqueue.value - expected_inqueue) / 50000, 0))
         
     def generation_step(self, population: Population, generation: int):
         

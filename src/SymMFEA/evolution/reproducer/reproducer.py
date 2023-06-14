@@ -12,7 +12,7 @@ from ...utils import _put, Worker, QUEUE_SIZE, _put_one
 import traceback
 from ctypes import c_bool, c_int
 import threading
-
+import asyncio
 NUM_WORKERS = 10
 
 #NOTE: this reproducer call is outdated
@@ -215,19 +215,19 @@ class SMP_Reproducer(Reproducer):
         self.history_p_choose_father: List[np.ndarray] = [self.p_choose_father]
     
     @timed
-    def reproduce(self, total_num_offsprings, population):
+    def collect(self, total_num_offsprings, population):
         offsprings = [[] for _ in range(population.num_sub_tasks)]
         new_offsprings = []
         
-        while self.num_jobs.value < total_num_offsprings:
-            try:
-                o = self.outqueue.get_many()
+        # while self.num_jobs.value < total_num_offsprings:
+        try:
+            o = self.outqueue.get_many()
 
-            except Empty:
-                time.sleep(0.1)
-                
-            else:
-                new_offsprings.extend(o)
+        except Empty:
+            time.sleep(0.1)
+            
+        else:
+            new_offsprings.extend(o)
                 
         # self.get_job_signal.value = False
                 
@@ -251,25 +251,37 @@ class SMP_Reproducer(Reproducer):
             all_offsprings.extend(o)
             
         return all_offsprings
-    
-    # @timed
-    # def put(self, parent_couples):
-    #     _put(parent_couples, self.job_queue)
-    #     # self.get_job_signal.value = True
-    @timed
-    def async_put(self, parent_couples):
+  
+    async def async_put(self, pc):
         
-        thread = threading.Thread(target= _put, args = (parent_couples, self.job_queue))
-        thread.start()    
-         
-    def __call__(self, population: Population):              
+ 
+        is_put = False
+        
+        while not is_put:
+            try:
+                self.job_queue.put(pc)
+            except Full:
+                await asyncio.sleep(0.01)
+            else:
+                is_put = True
+            
+    
+    def __call__(self, population: Population):        
+        return self.collect(*self.reproduce(population))
+        
+    @timed     
+    def reproduce(self, population):
+        return asyncio.run(self._reproduce(population))
+    
+    async def _reproduce(self, population: Population):      
         total_num_offsprings = sum(population.nb_inds_tasks) * population.offspring_size
         
         parent_couples = self.select_parent(population= population, size = total_num_offsprings)
+                
+        await asyncio.gather(*[self.async_put(pc) for pc in parent_couples])
         
-        self.async_put(parent_couples= parent_couples)
-        
-        return self.reproduce(total_num_offsprings= total_num_offsprings, population= population)
+        return total_num_offsprings, population
+        # return self.collect(total_num_offsprings= total_num_offsprings, population= population)
         
     
     
