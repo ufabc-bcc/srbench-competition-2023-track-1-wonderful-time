@@ -281,10 +281,7 @@ class SMP_Reproducer(Reproducer):
         await asyncio.gather(*[self.async_put(pc) for pc in parent_couples])
         
         return total_num_offsprings, population
-        # return self.collect(total_num_offsprings= total_num_offsprings, population= population)
         
-    
-    
     @timed    
     def update_smp(self, population: Population, offsprings: List[Individual]):
         Delta:List[List[float]] = np.zeros((population.num_sub_tasks, population.num_sub_tasks + 1)).tolist()
