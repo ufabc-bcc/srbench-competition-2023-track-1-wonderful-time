@@ -37,7 +37,7 @@ def create_shared_np(shape: Iterable[int], val: Union[float, np.array]= 0.0, dty
     return array
 
 
-def handle_number_of_list(param: Union[int, float, list], size: int) -> list:
+def handle_number_or_list(param: Union[int, float, list], size: int) -> list:
     return param if isinstance(param, list) else [param] * size
 
 
