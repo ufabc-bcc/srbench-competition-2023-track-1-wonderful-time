@@ -8,7 +8,7 @@ from ..selector import Selector
 import matplotlib.pyplot as plt
 from .. import offspring_pool
 from ...utils.timer import timed
-from ...utils import handle_number_of_list
+from ...utils import handle_number_or_list
 import time
 class SMP(GA):
     
@@ -129,9 +129,9 @@ class SMP(GA):
         self.delta_lr: int = kwargs.get('delta_lr', 0.1)
         self.num_sub_tasks: int = kwargs['num_sub_task']
         
-        self.nb_inds_each_task = np.array(handle_number_of_list(self.nb_inds_each_task, self.num_sub_tasks))
-        self.data_sample = handle_number_of_list(self.data_sample, self.num_sub_tasks)
-        self.nb_inds_min = np.array(handle_number_of_list(self.nb_inds_min, self.num_sub_tasks))
+        self.nb_inds_each_task = np.array(handle_number_or_list(self.nb_inds_each_task, self.num_sub_tasks))
+        self.data_sample = handle_number_or_list(self.data_sample, self.num_sub_tasks)
+        self.nb_inds_min = np.array(handle_number_or_list(self.nb_inds_min, self.num_sub_tasks))
         
         self.is_larger_better = kwargs['is_larger_better']
         

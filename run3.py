@@ -35,16 +35,15 @@ print(X.shape)
 train_size = int(0.8 * X.shape[0])
 X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
-
-
-
-
-
+# X_train = X [:1600]
+# X_val = X[1600:]
+# y_train = y[:1600]
+# y_val = y[1600:]
 
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [50]* 2 + [30] * 2 + [7] * 5 ,
+    'max_length': [100]* 2 + [50] * 2 + [20] * 5 ,
     'max_depth': [6] * 2 + [5] * 2 + [3] * 5,
     'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
@@ -59,7 +58,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = ADAM(1e-2, weight_decay= 1e-5)
+optimizer = ADAM(1e-3, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -78,25 +77,29 @@ SMP_configs = {
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 20,
-    nb_inds_each_task= [15] * 4+ [30] * 5,
-    data_sample = 1,
-    nb_generations= 200,
-     
+    nb_inds_each_task= [100] * 9,
+    data_sample = 0.5,
+    nb_generations= 500,
+    X_val = X_val,
+    y_val = y_val,
     test_size = 0.33,
     nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 32,
-    offspring_size= 3,
+    offspring_size= 1,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
+    max_tree= 100000,
     trainer_config= {
         'early_stopping': 5
     },
     **SMP_configs,
 )
+
+
 
 #================ Other models ==================
 xgb = XGB(objective="reg:squarederror")
