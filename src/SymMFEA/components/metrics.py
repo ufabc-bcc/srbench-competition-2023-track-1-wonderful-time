@@ -4,8 +4,18 @@ import numba as nb
 from sklearn.metrics import r2_score
 from ..utils.functional import sigmoid, EPS
 import os
+from scipy.stats import pearsonr
+
 metric_jit = nb.njit([nb.float32(nb.float32[:], nb.float32[:]),
                       ], cache= os.environ.get('DISABLE_NUMBA_CACHE') is None)
+
+def pearson(y: np.ndarray, y_hat:np.ndarray):
+    
+    rs = pearsonr(y, y_hat)[0]
+    if np.isnan(rs):
+        return -1 
+    else:
+        return rs
 
 def mse(y: np.ndarray, y_hat: np.ndarray):
     diff =  y - y_hat
@@ -84,6 +94,17 @@ class R2(Metric):
     
     def __init__(self):
         super().__init__(r2_score, use_numba= False)
+        
+class Pearson(Metric):
+    is_larger_better = True
+    
+    def __str__(self):
+        return 'Pearson'
+    
+    def __init__(self):
+        super().__init__(pearson, use_numba= False)
+        import warnings
+        warnings.filterwarnings('ignore', module = 'scipy')
         
 class LogLoss(Metric):
     is_larger_better = False
