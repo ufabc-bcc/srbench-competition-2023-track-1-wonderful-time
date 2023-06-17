@@ -6,8 +6,8 @@ from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.evolution.algorithms import GA, SMP
 from src.SymMFEA.evolution.reproducer.mutation import *
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
-from src.SymMFEA.components.trainer.loss import MSE
-from src.SymMFEA.components.metrics import R2, Pearson
+from src.SymMFEA.components.trainer.loss import LogLossWithSigmoid
+from src.SymMFEA.components.metrics import R2, LogLoss
 from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer, ADAM
 from sklearn.datasets import load_diabetes
 from sklearn.metrics import r2_score
@@ -22,7 +22,10 @@ from src.SymMFEA.utils import stratify_train_test_split
 #============= Load Data ======================
 ix = 3
 Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
-
+import pandas as pd 
+Z = pd.read_csv(f"/home/anhdt-minhnh/srbench-competition-2023-track-1-wonderful-time/icr-identify-age-related-conditions/train.csv")
+Z = Z.fillna(0)
+Z = Z.drop(['Id', 'EJ'], axis = 1).values
 X, y = Z[:, :-1], Z[:, -1]
 # X, y = load_diabetes(return_X_y= True)
 
@@ -45,7 +48,7 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
 tree_config = {
     'max_length': [100]* 2 + [50] * 2 + [20] * 5 ,
-    'max_depth': 20,
+    'max_depth': [6] * 2 + [5] * 2 + [3] * 5,
     'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
 
@@ -54,11 +57,11 @@ mutation = MutationList(
     [
     VariableMutation(),
      GrowTreeMutation(),
-    #  PruneMutation()
+     PruneMutation()
      ]
 )
 
-loss = MSE()
+loss = LogLossWithSigmoid()
 optimizer = ADAM(1e-3, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
@@ -86,7 +89,7 @@ model.fit(
     test_size = 0.5,
     nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,
-    optimzier=optimizer, metric =  Pearson(), tree_config= tree_config,
+    optimzier=optimizer, metric =  LogLoss(), tree_config= tree_config,
     visualize= True,
     num_workers= 32,
     offspring_size= 1,
