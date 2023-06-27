@@ -26,7 +26,7 @@ def mae(y: np.ndarray, y_hat: np.ndarray):
     return np.mean(diff)
 
 def mape(y: np.ndarray, y_hat: np.ndarray):    
-    diff =  np.abs(y - y_hat / (y + 1e-12)) 
+    diff =  np.abs((y - y_hat) / (y + 1e-12)) 
     return np.mean(diff)
 
 def logloss(y: np.ndarray, y_hat: np.ndarray):

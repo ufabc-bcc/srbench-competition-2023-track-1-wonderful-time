@@ -26,13 +26,6 @@ class TestExpression():
     ]
     tree_tanh = Tree(nodes=nodes_tanh, compile = False)
     
-    #BN(x0)    
-    # nodes_bn = [
-    #     Operand(0), BatchNorm()
-    # ]
-    # nodes_bn[-1].bias = -0.5 / np.sqrt(2)
-    # nodes_bn[1].value = 1 / np.sqrt(2)
-    # tree_bn = Tree(nodes=nodes_bn, compile = False)
     
     #log(x0)    
     nodes_log = [
@@ -40,18 +33,18 @@ class TestExpression():
     ]
     tree_log = Tree(nodes=nodes_log, compile = False)
     
+    #sin(x0)    
+    nodes_sin = [
+        Operand(0), Sin()
+    ]
+    tree_sin = Tree(nodes=nodes_sin, compile = False)
+    
     #relu(x0)    
     nodes_relu = [
         Operand(0), Relu()
     ]
     tree_relu = Tree(nodes=nodes_relu, compile = False)
     
-    #75-percent(x0)
-    # nodes_percent = [
-    #     Percentile(0)
-    # ]
-    # nodes_percent[-1].attrs['threshold'] = 0.8
-    # tree_percent = Tree(nodes=nodes_percent, compile = False)
     
     #x0 * x1    
     nodes_prod = [
@@ -154,6 +147,24 @@ class TestExpression():
         _log = np.log(margin + 1)
         sign = np.sign(x)
         y = _log * sign
+        
+        assert is_closed(y_expr, y), (y_expr, y)
+        assert is_closed(y_expr, y_normal), (y_expr, y_normal)
+        
+    @pytest.mark.parametrize("X, tree", zip_inputs(
+    generate_input_list((10, 1), size= 10), 'tree_sin'
+    ))
+    def test_expression_sin(self, X: np.ndarray, tree: Tree):
+        tree = getattr(self, tree)
+        
+        print(tree.expression)
+        
+        y_expr = tree.callable_expression()(X)
+        y_normal = tree(X)
+        
+        x = X[:, 0]
+        
+        y = np.sin(x)
         
         assert is_closed(y_expr, y), (y_expr, y)
         assert is_closed(y_expr, y_normal), (y_expr, y_normal)
