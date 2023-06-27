@@ -86,7 +86,7 @@ model.fit(
     test_size = 0.1,
     nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,
-    optimzier=optimizer, metric =  MAPE(), tree_config= tree_config,
+    optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 50,
     offspring_size= 1,
