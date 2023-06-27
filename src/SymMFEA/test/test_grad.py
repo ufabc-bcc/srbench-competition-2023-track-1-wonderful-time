@@ -20,7 +20,7 @@ initWM((100, 10))
 
 #x0 + x1 + x2    
 nodes = [
-    Operand(0), Operand(1), Operand(2), Sum(arity= 3)
+    Operand(0), Operand(1), Operand(2), Sum(arity= 3), Sin()
 ]
 tree = Tree(nodes=nodes, compile = True)
 tree1 = Tree(nodes=tree.nodes, deepcopy= True, compile= True)

@@ -9,6 +9,7 @@ from .constant import Constant
 from .log import Log
 from .valve import Valve
 from .greater import Greater
+from .sin import Sin
 
 FUNCTION_SET = {
     0 : [
@@ -20,6 +21,7 @@ FUNCTION_SET = {
         Tanh,
         Log,
         Relu,
+        Sin,
         # BatchNorm,
     ],
     2: [

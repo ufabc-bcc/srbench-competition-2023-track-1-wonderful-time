@@ -7,7 +7,7 @@ from src.SymMFEA.evolution.algorithms import GA, SMP
 from src.SymMFEA.evolution.reproducer.mutation import *
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.components.trainer.loss import MSE
-from src.SymMFEA.components.metrics import R2, Pearson
+from src.SymMFEA.components.metrics import R2, MAPE
 from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer, ADAM
 from sklearn.datasets import load_diabetes
 from sklearn.metrics import r2_score
@@ -59,7 +59,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = ADAM(1e-3, weight_decay= 1e-5)
+optimizer = ADAM(1e-2, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -77,18 +77,18 @@ SMP_configs = {
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 20,
+    steps_per_gen= 30,
     nb_inds_each_task= [100] * 9,
-    data_sample = 1,
+    data_sample = 0.8,
     nb_generations= 500,
     X_val = X_val,
     y_val = y_val,
-    test_size = 0.5,
+    test_size = 0.1,
     nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,
-    optimzier=optimizer, metric =  Pearson(), tree_config= tree_config,
+    optimzier=optimizer, metric =  MAPE(), tree_config= tree_config,
     visualize= True,
-    num_workers= 32,
+    num_workers= 50,
     offspring_size= 1,
     expected_generations_inqueue= 5,
     compact= True,
