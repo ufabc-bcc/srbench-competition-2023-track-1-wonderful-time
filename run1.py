@@ -82,7 +82,7 @@ model.fit(
     nb_generations= 500,
     X_val = X_val,
     y_val = y_val,
-    test_size = 0.1,
+    test_size = 0.2,
     nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,

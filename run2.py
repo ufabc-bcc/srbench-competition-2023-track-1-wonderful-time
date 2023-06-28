@@ -74,10 +74,10 @@ SMP_configs = {
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 20,
+    steps_per_gen= 30,
     nb_inds_each_task= [100] * 9,
-    data_sample = 0.5,
-    nb_generations= 500,
+    data_sample = 1,
+    nb_generations= 2000,
     X_val = X_val,
     y_val = y_val,
     test_size = 0.33,
