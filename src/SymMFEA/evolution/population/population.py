@@ -26,7 +26,7 @@ class SubPopulation:
         
         self.task = SubTask(task, data_sample= data_samples, terminal_set= self.tree_factory.terminal_set, skill_factor= skill_factor)
         
-        self.ls_inds = [Individual(self.tree_factory.create_tree(), skill_factor = skill_factor) for _ in range(num_inds * 100)]
+        self.ls_inds = [Individual(self.tree_factory.create_tree(), skill_factor = skill_factor) for _ in range(num_inds * 20)]
         
         self.scalar_fitness: np.ndarray = None
         self.objective: np.ndarray = None
@@ -61,7 +61,7 @@ class SubPopulation:
     def collect_fitness_info(self):
         self.objective = np.array([ind.objective for ind in self.ls_inds], dtype = np.float32)
         self.main_objective = np.array([ind.main_objective for ind in self.ls_inds], dtype = np.float32)
-        self.scalar_fitness = np.mean(self.objective, axis = 1) + EPS
+        # self.scalar_fitness = np.mean(self.objective, axis = 1) + EPS
     
     @property
     def collect_best_info(self):
