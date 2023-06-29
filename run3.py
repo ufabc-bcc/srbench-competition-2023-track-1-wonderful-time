@@ -44,9 +44,9 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.1)
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [100]* 5 + [50] * 2 + [20] * 5 ,
+    'max_length': [100]* 2 + [50] * 2 + [20] * 5 ,
     'max_depth': 10,
-    'num_columns': [1] * 3  + [0.7] * 4 + [0.4] * 5,
+    'num_columns': 1,
 }
 
 crossover = SubTreeCrossover()
@@ -59,7 +59,7 @@ mutation = MutationList(
 )
 
 loss = MSE()
-optimizer = ADAM(5e-3, weight_decay= 1e-5)
+optimizer = ADAM(1e-2, weight_decay= 1e-5)
 model = SMP(
     reproducer_config={
         'crossover': crossover,
@@ -72,19 +72,19 @@ model = SMP(
 SMP_configs = {
     'p_const_intra': 0,
     'delta_lr': 0.1,
-    'num_sub_task': 12,
+    'num_sub_task': 9,
 }
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 50,
-    nb_inds_each_task= [100] * 12,
+    nb_inds_each_task= 100,
     data_sample = 1,
     nb_generations= 1000,
     X_val = X_val,
     y_val = y_val,
-    test_size = 0.1,
-    nb_inds_min= 15,
+    test_size = 0.15,
+    nb_inds_min= 10,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
@@ -95,7 +95,7 @@ model.fit(
     moo= True, 
     max_tree= 100000,
     trainer_config= {
-        'early_stopping': 5
+        'early_stopping': 10
     },
     **SMP_configs,
 )
