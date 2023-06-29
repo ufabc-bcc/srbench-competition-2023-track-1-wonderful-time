@@ -71,16 +71,16 @@ model = SMP(
 )
 SMP_configs = {
     'p_const_intra': 0,
-    'delta_lr': 0.1,
+    'delta_lr': 0.5,
     'num_sub_task': 9,
 }
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 50,
-    nb_inds_each_task= 100,
+    nb_inds_each_task= 50,
     data_sample = 1,
-    nb_generations= 1000,
+    nb_generations= 2000,
     X_val = X_val,
     y_val = y_val,
     test_size = 0.15,
