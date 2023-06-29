@@ -45,7 +45,7 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.1)
 
 tree_config = {
     'max_length': [100]* 2 + [50] * 2 + [20] * 5 ,
-    'max_depth': 10,
+    'max_depth': [10] * 4 + [5] * 5,
     'num_columns': 1,
 }
 
