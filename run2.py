@@ -74,13 +74,13 @@ SMP_configs = {
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
-    steps_per_gen= 30,
+    steps_per_gen= 50,
     nb_inds_each_task= [100] * 9,
     data_sample = 1,
     nb_generations= 2000,
     X_val = X_val,
     y_val = y_val,
-    test_size = 0.33,
+    test_size = 0.2,
     nb_inds_min= [10] * 4 + [15] * 5,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
@@ -92,7 +92,7 @@ model.fit(
     moo= True, 
     max_tree= 100000,
     trainer_config= {
-        'early_stopping': 5
+        'early_stopping': 10
     },
     **SMP_configs,
 )
