@@ -39,8 +39,8 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [100]* 2 + [50] * 2 + [15] * 5 ,
-    'max_depth': 8,
+    'max_length': [50]* 2 + [30] * 2 + [15] * 5 ,
+    'max_depth': 6,
     'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
 
@@ -75,7 +75,7 @@ model.fit(
     steps_per_gen= 50,
     nb_inds_each_task= [100] * 9,
     data_sample = 1,
-    nb_generations= 1000,
+    nb_generations= 500,
     X_val = X_val,
     y_val = y_val,
     test_size = 0.2,
