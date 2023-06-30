@@ -45,3 +45,6 @@ python run2.py
 python run3.py
 ```
 
+## Contact
+For further information, feel free to contact me via email: haiminhnguyen2001@gmail.com.
+
