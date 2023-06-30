@@ -17,6 +17,7 @@ docker build -t symmfea .
 **NOTE:** The docker only serves as an environment. To run the script, you need to exec inside the container.
 
 ```
+#$project is the root dir of the git project, which contains run1.py, run2.py, run3.py and the datasets
 docker run -it -v $project:/workspace symmfea /bin/bash
 #Now we are inside the container
 source /tmp/symmfea/bin/activate
@@ -37,6 +38,7 @@ tar -xzf /tmp/symmfea.tar.gz -C /tmp/symmfea
 source /tmp/symmfea/bin/activate
 conda-unpack
 
+cd $project
 #reproduce model for dataset1
 python run1.py
 #reproduce model for dataset2
