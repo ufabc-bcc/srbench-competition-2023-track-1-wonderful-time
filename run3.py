@@ -34,7 +34,7 @@ y = y.astype(np.float32)
 
 print(X.shape)
 train_size = int(0.8 * X.shape[0])
-X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.1)
+X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
 # X_train = X [:1600]
 # X_val = X[1600:]
@@ -71,16 +71,16 @@ model = SMP(
 )
 SMP_configs = {
     'p_const_intra': 0,
-    'delta_lr': 0.5,
+    'delta_lr': 0.05,
     'num_sub_task': 9,
 }
 #===================================== Fit ==========================
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 50,
-    nb_inds_each_task= 50,
+    nb_inds_each_task= 100,
     data_sample = 1,
-    nb_generations= 2000,
+    nb_generations= 5000,
     X_val = X_val,
     y_val = y_val,
     test_size = 0.15,
