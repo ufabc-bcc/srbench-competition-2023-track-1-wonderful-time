@@ -3,7 +3,7 @@
 I packed my packages using conda-pack in a linux system. I do not have a Window system to test on. So it is ideal to reproduce these steps in a linux machine or use the docker.
 
 # Requirements
-You need to install the compressed [conda environment file](https://drive.google.com/file/d/1l-yAM95Arzm5dgzUxpm6n_xyGbDW9ibT/view?usp=sharing) and put in the "src" folder
+You need to install the compressed [conda environment file](https://drive.google.com/file/d/1l-yAM95Arzm5dgzUxpm6n_xyGbDW9ibT/view?usp=sharing) and put in the "src" folder. Because the environment file is quite large (about 800 MB), I put it in my Google Drive. If you encounter any difficulty because of it, feel free to contact me.
 
 ## Docker
 
