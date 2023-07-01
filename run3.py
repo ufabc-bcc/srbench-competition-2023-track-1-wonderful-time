@@ -39,9 +39,9 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [50]* 2 + [30] * 2 + [10] * 5 ,
+    'max_length': [80]* 2 + [30] * 2 + [10] * 5 ,
     'max_depth': 7,
-    'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
+    'num_columns': [1] + [0.7] * 3 + [0.4] * 5,
 }
 
 crossover = SubTreeCrossover()
