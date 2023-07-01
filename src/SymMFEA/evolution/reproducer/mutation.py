@@ -2,7 +2,7 @@ import numpy as np
 from ..population import Individual
 from ...components.tree import Tree, FlexTreeFactory, get_possible_range
 from ...components.functions import Operand, Node, FUNCTION_SET, LINEAR_FUNCTION_SET, Constant
-from ...utils.functional import numba_randomchoice_w_prob, normalize_norm1, numba_randomchoice
+from ...utils.functional import numba_randomchoice_w_prob, normalize_norm1, numba_randomchoice, softmax
 import random
 from typing import List
 
@@ -26,6 +26,16 @@ class Mutation:
             parent_skf = [parent.skill_factor]
         )
 
+def count(arr):
+    unique, counts = np.unique(arr, return_counts=True)
+
+
+    # Use advanced indexing to assign the counts to the corresponding elements in the new array
+    count_arr = counts[np.searchsorted(unique, arr)]
+    return count_arr.astype(np.float32)
+
+
+
 class VariableMutation(Mutation):
     def __init__(self, *args, **kwargs):
         self.num_total_terminals: int 
@@ -40,7 +50,21 @@ class VariableMutation(Mutation):
             
             operand_idx = np.array([i for i in range(parent.genes.length) if isinstance(parent.genes.nodes[i], Operand)], dtype = np.int64)
             
-            mutate_idx = numba_randomchoice(operand_idx, size = int(self.mutate_variable_size * len(operand_idx)), replace= False)
+            operand_terminals = np.array([parent.genes.nodes[i].index for i in range(parent.genes.length) if isinstance(parent.genes.nodes[i], Operand)], dtype = np.int64)
+            
+            num_mutate = int(self.mutate_variable_size * len(operand_idx))
+                        
+            mutate_idx = []
+            for i in range(num_mutate):
+            
+                operand_counts = softmax(count(operand_terminals))
+                
+                idx = numba_randomchoice_w_prob(operand_counts)
+                
+                mutate_idx.append(operand_idx[idx])
+                
+                operand_terminals = np.delete(operand_terminals, idx)
+                operand_idx = np.delete(operand_idx, idx)
             
             for i, node in enumerate(parent.genes.nodes):
                 if i in mutate_idx:
