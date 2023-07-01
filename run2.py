@@ -39,7 +39,7 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [50]* 2 + [30] * 2 + [15] * 5 ,
+    'max_length': [30]* 2 + [20] * 2 + [10] * 5 ,
     'max_depth': 6,
     'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
@@ -73,7 +73,7 @@ SMP_configs = {
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 50,
-    nb_inds_each_task= [100] * 9,
+    nb_inds_each_task= [80] * 9,
     data_sample = 1,
     nb_generations= 500,
     X_val = X_val,
@@ -84,7 +84,7 @@ model.fit(
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 40,
-    offspring_size= 1,
+    offspring_size= 2,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 

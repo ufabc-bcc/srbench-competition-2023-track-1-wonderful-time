@@ -33,7 +33,6 @@ X = X.astype(np.float32)
 y = y.astype(np.float32) 
 
 print(X.shape)
-train_size = int(0.8 * X.shape[0])
 X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
 # X_train = X [:1600]
@@ -44,8 +43,8 @@ X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [100]* 2 + [50] * 2 + [20] * 5 ,
-    'max_depth': [10] * 4 + [5] * 5,
+    'max_length': [50]* 2 + [30] * 2 + [10] * 5 ,
+    'max_depth': [8] * 4 + [5] * 5,
     'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
 
@@ -83,19 +82,19 @@ model.fit(
     nb_generations= 1000,
     X_val = X_val,
     y_val = y_val,
-    test_size = 0.15,
+    test_size = 0.2,
     nb_inds_min= 10,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
     num_workers= 50,
-    offspring_size= 1,
+    offspring_size= 2,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
     max_tree= 100000,
     trainer_config= {
-        'early_stopping': 10
+        'early_stopping': 5
     },
     **SMP_configs,
 )
