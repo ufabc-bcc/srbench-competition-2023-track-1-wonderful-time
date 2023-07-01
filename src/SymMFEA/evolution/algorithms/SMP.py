@@ -125,7 +125,7 @@ class SMP(GA):
     def init_params(self, **kwargs):
         self.history_smp: list = []
         self.p_const_intra: float = kwargs.get('p_const_intra', 0)
-        self.min_mutation_rate: float = kwargs.get('min_mutation_rate', 0.1)
+        self.min_mutation_rate: float = kwargs.get('min_mutation_rate', 0.03)
         self.delta_lr: int = kwargs.get('delta_lr', 0.1)
         self.num_sub_tasks: int = kwargs['num_sub_task']
         
