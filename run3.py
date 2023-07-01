@@ -7,7 +7,7 @@ from src.SymMFEA.evolution.algorithms import GA, SMP
 from src.SymMFEA.evolution.reproducer.mutation import *
 from src.SymMFEA.evolution.reproducer.crossover import SubTreeCrossover
 from src.SymMFEA.components.trainer.loss import MSE
-from src.SymMFEA.components.metrics import R2, MAPE
+from src.SymMFEA.components.metrics import R2
 from src.SymMFEA.components.trainer.grad_optimizer import GradOpimizer, ADAM
 from sklearn.datasets import load_diabetes
 from sklearn.metrics import r2_score
@@ -22,7 +22,6 @@ from src.SymMFEA.utils import stratify_train_test_split
 #============= Load Data ======================
 ix = 3
 Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
-
 X, y = Z[:, :-1], Z[:, -1]
 # X, y = load_diabetes(return_X_y= True)
 
@@ -32,19 +31,16 @@ X = X.astype(np.float32)
 
 y = y.astype(np.float32) 
 
-print(X.shape)
 X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
 
-# X_train = X [:1600]
-# X_val = X[1600:]
-# y_train = y[:1600]
-# y_val = y[1600:]
+
+
 
 #========================= Prepare config==================
 
 tree_config = {
     'max_length': [50]* 2 + [30] * 2 + [10] * 5 ,
-    'max_depth': [8] * 4 + [5] * 5,
+    'max_depth': 7,
     'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
 }
 
@@ -53,7 +49,7 @@ mutation = MutationList(
     [
     VariableMutation(),
      GrowTreeMutation(),
-    #  PruneMutation()
+     PruneMutation()
      ]
 )
 
@@ -77,24 +73,24 @@ SMP_configs = {
 model.fit(
     X = X_train, y= y_train, loss = loss,
     steps_per_gen= 50,
-    nb_inds_each_task= 100,
+    nb_inds_each_task= [80] * 9,
     data_sample = 1,
-    nb_generations= 1000,
+    nb_generations= 2000,
     X_val = X_val,
     y_val = y_val,
     test_size = 0.2,
-    nb_inds_min= 10,
+    nb_inds_min= 20,
     finetune_steps= 500,
     optimzier=optimizer, metric =  R2(), tree_config= tree_config,
     visualize= True,
-    num_workers= 50,
-    offspring_size= 2,
+    num_workers= 40,
+    offspring_size= 1,
     expected_generations_inqueue= 5,
     compact= True,
     moo= True, 
     max_tree= 100000,
     trainer_config= {
-        'early_stopping': 5
+        'early_stopping': 10
     },
     **SMP_configs,
 )

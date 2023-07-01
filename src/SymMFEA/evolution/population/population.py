@@ -26,7 +26,7 @@ class SubPopulation:
         
         self.task = SubTask(task, data_sample= data_samples, terminal_set= self.tree_factory.terminal_set, skill_factor= skill_factor)
         
-        self.ls_inds = [Individual(self.tree_factory.create_tree(), skill_factor = skill_factor) for _ in range(num_inds * 20)]
+        self.ls_inds = [Individual(self.tree_factory.create_tree(), skill_factor = skill_factor) for _ in range(num_inds * 10)]
         
         self.scalar_fitness: np.ndarray = None
         self.objective: np.ndarray = None
