@@ -47,6 +47,9 @@ python run2.py
 python run3.py
 ```
 
+## Script Explaination
+runX.py file contains the script which I used to find the model for the corresponding Xth dataset. After running the python script, the sympy expression will be placed in the solution file. The parameters are also included in the file and they are self-explained. 
+
 ## Contact
 For further information, feel free to contact me via email: haiminhnguyen2001@gmail.com.
 
