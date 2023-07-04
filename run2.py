@@ -16,14 +16,13 @@ from sklearn.ensemble import GradientBoostingRegressor as GBR
 from sklearn.linear_model import LinearRegression as LNR
 import time 
 from src.SymMFEA.utils import stratify_train_test_split
+from sklearn.datasets import load_diabetes
 
 # np.seterr(all='raise')
 
 #============= Load Data ======================
-ix = 2
-Z = np.loadtxt(f"datasets/dataset_{ix}.csv", delimiter=",", skiprows=1)
-X, y = Z[:, :-1], Z[:, -1]
-# X, y = load_diabetes(return_X_y= True)
+X, y = load_diabetes(return_X_y= True)
+
 
 
 X = X.astype(np.float32)
@@ -31,17 +30,19 @@ X = X.astype(np.float32)
 
 y = y.astype(np.float32) 
 
-X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
-
+# X_train, X_val, y_train, y_val = stratify_train_test_split(X, y, test_size= 0.2)
+X_train, y_train = X[:350], y[:350]
+X_val, y_val = X[350:], y[350:]
 
 
 
 #========================= Prepare config==================
 
 tree_config = {
-    'max_length': [30]* 2 + [20] * 2 + [10] * 5 ,
-    'max_depth': 6,
-    'num_columns': [1] + [0.7] * 6 + [0.4] * 5,
+    'max_length': [100]* 2 + [40] * 2 + [10] * 5 ,
+    'max_depth': 10,
+    'max_depth': 10,
+    'num_columns': 0.8,
 }
 
 crossover = SubTreeCrossover()
@@ -75,7 +76,7 @@ model.fit(
     steps_per_gen= 50,
     nb_inds_each_task= [80] * 9,
     data_sample = 1,
-    nb_generations= 1000,
+    nb_generations= 200,
     X_val = X_val,
     y_val = y_val,
     test_size = 0.2,

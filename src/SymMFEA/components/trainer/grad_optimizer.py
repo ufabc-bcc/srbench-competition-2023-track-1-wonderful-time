@@ -38,7 +38,7 @@ class GradOpimizer:
         return {}
     
     def compute_gradient(self, tree):
-        dW = log_normalize(tree.dW * (ONE + self.weight_decay))
+        dW = tree.dW * (ONE + self.weight_decay)
         return dW
     
 

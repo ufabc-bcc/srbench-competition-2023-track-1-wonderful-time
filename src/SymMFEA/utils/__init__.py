@@ -61,7 +61,9 @@ def kmean(y: np.ndarray, **kwargs):
     return model.fit_predict(y)
 
 def stratify_train_test_split(X:np.ndarray, y: np.ndarray, test_size: float, return_idx:bool= False, **kwargs):
-    discrete_y = kmean(np.copy(y).reshape(-1, 1), n_init= 1, n_clusters= 8, size_min = 10, random_state= 0)
+    n_clusters = min(y.shape[0], 8)
+    size_min = min(int(y.shape[0] / n_clusters), 10)
+    discrete_y = kmean(np.copy(y).reshape(-1, 1), n_init= 1, n_clusters= n_clusters, size_min = size_min, random_state= 0)
     
     test_size = float(test_size)
     if return_idx:

@@ -121,6 +121,7 @@ class GA:
             save_path: str= None,
             worker_log: bool= False,
             trainer_config: dict = {},
+            save: bool = False,
             **params,
             ):
         '''
@@ -132,7 +133,6 @@ class GA:
         }
         steps_per_gen: backprop step per generation
         '''
-        print('Hello World')
         
         assert X.shape[0] == y.shape[0]
         self.offspring_size= offspring_size
@@ -238,8 +238,8 @@ class GA:
         terminateOffspringsPool()
         
         Timer.display()
-        
-        self.save_solution(save_path= save_path)
+        if save:
+            self.save_solution(save_path= save_path)
         
         if visualize:
             self.display_final_result(population)
